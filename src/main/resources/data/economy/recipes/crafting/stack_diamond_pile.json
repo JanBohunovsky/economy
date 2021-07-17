@@ -1,0 +1,33 @@
+{
+    "type": "minecraft:crafting_shapeless",
+    "group": "diamond_coin_pile",
+    "ingredients": [
+        {
+            "item": "economy:diamond_coin"
+        },
+        {
+            "item": "economy:diamond_coin"
+        },
+        {
+            "item": "economy:diamond_coin"
+        },
+        {
+            "item": "economy:diamond_coin"
+        },
+        {
+            "item": "economy:diamond_coin"
+        },
+        {
+            "item": "economy:diamond_coin"
+        },
+        {
+            "item": "economy:diamond_coin"
+        },
+        {
+            "item": "economy:diamond_coin"
+        }
+    ],
+    "result": {
+        "item": "economy:diamond_coin_pile"
+    }
+}

@@ -1,0 +1,13 @@
+{
+    "type": "minecraft:crafting_shapeless",
+    "group": "diamond_coin",
+    "ingredients": [
+        {
+            "item": "economy:netherite_coin"
+        }
+    ],
+    "result": {
+        "item": "economy:diamond_coin",
+        "count": 64
+    }
+}

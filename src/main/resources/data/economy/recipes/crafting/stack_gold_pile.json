@@ -1,0 +1,33 @@
+{
+    "type": "minecraft:crafting_shapeless",
+    "group": "gold_coin_pile",
+    "ingredients": [
+        {
+            "item": "economy:gold_coin"
+        },
+        {
+            "item": "economy:gold_coin"
+        },
+        {
+            "item": "economy:gold_coin"
+        },
+        {
+            "item": "economy:gold_coin"
+        },
+        {
+            "item": "economy:gold_coin"
+        },
+        {
+            "item": "economy:gold_coin"
+        },
+        {
+            "item": "economy:gold_coin"
+        },
+        {
+            "item": "economy:gold_coin"
+        }
+    ],
+    "result": {
+        "item": "economy:gold_coin_pile"
+    }
+}

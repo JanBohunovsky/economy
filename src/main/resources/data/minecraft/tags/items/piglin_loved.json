@@ -1,0 +1,7 @@
+{
+    "replace": false,
+    "values": [
+        "economy:gold_coin",
+        "economy:gold_coin_pile"
+    ]
+}

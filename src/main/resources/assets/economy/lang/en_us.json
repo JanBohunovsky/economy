@@ -1,0 +1,17 @@
+{
+    "itemGroup.economy.all": "Economy",
+
+    "item.economy.copper_coin": "Copper Coin",
+    "item.economy.iron_coin": "Iron Coin",
+    "item.economy.gold_coin": "Gold Coin",
+    "item.economy.diamond_coin": "Diamond Coin",
+    "item.economy.netherite_coin": "Netherite Coin",
+    "item.economy.platinum_coin": "Platinum Coin",
+
+    "item.economy.copper_coin_pile": "Copper Coin Pile",
+    "item.economy.iron_coin_pile": "Iron Coin Pile",
+    "item.economy.gold_coin_pile": "Gold Coin Pile",
+    "item.economy.diamond_coin_pile": "Diamond Coin Pile",
+    "item.economy.netherite_coin_pile": "Netherite Coin Pile",
+    "item.economy.platinum_coin_pile": "Platinum Coin Pile"
+}

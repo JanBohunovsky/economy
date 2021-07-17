@@ -1,0 +1,9 @@
+{
+    "type": "minecraft:blasting",
+    "ingredient": {
+        "item": "economy:gold_coin_pile"
+    },
+    "result": "minecraft:gold_ingot",
+    "experience": 0.7,
+    "cookingtime": 100
+}

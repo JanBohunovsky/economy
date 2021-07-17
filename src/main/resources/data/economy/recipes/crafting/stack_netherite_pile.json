@@ -1,0 +1,33 @@
+{
+    "type": "minecraft:crafting_shapeless",
+    "group": "netherite_coin_pile",
+    "ingredients": [
+        {
+            "item": "economy:netherite_coin"
+        },
+        {
+            "item": "economy:netherite_coin"
+        },
+        {
+            "item": "economy:netherite_coin"
+        },
+        {
+            "item": "economy:netherite_coin"
+        },
+        {
+            "item": "economy:netherite_coin"
+        },
+        {
+            "item": "economy:netherite_coin"
+        },
+        {
+            "item": "economy:netherite_coin"
+        },
+        {
+            "item": "economy:netherite_coin"
+        }
+    ],
+    "result": {
+        "item": "economy:netherite_coin_pile"
+    }
+}

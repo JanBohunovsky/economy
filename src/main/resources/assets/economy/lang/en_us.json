@@ -13,5 +13,7 @@
     "item.economy.gold_coin_pile": "Gold Coin Pile",
     "item.economy.diamond_coin_pile": "Diamond Coin Pile",
     "item.economy.netherite_coin_pile": "Netherite Coin Pile",
-    "item.economy.platinum_coin_pile": "Platinum Coin Pile"
+    "item.economy.platinum_coin_pile": "Platinum Coin Pile",
+
+    "block.economy.trading_station": "Trading Station"
 }

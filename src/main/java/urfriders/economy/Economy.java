@@ -1,6 +1,7 @@
 package urfriders.economy;
 
 import net.fabricmc.api.ModInitializer;
+import urfriders.economy.blocks.ModBlocks;
 import urfriders.economy.items.ModItems;
 
 public class Economy implements ModInitializer {
@@ -9,5 +10,7 @@ public class Economy implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		ModItems.registerItems();
+        ModBlocks.registerBlocks();
+        ModBlocks.registerBlockItems();
 	}
 }

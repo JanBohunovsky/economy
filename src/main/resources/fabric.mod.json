@@ -1,34 +1,37 @@
 {
-  "schemaVersion": 1,
-  "id": "economy",
-  "version": "${version}",
+    "schemaVersion": 1,
+    "id": "economy",
+    "version": "${version}",
 
-  "name": "Economy",
-  "description": "Simple economy mod for UrfRiders server!",
-  "authors": [
-    "Bohush"
-  ],
+    "name": "Economy",
+    "description": "Simple economy mod for UrfRiders server!",
+    "authors": [
+        "Bohush"
+    ],
 
-  "license": "MIT",
-  "icon": "assets/economy/icon.png",
+    "license": "MIT",
+    "icon": "assets/economy/icon.png",
 
-  "environment": "*",
-  "entrypoints": {
-    "main": [
-      "urfriders.economy.Economy"
-    ]
-  },
-  "mixins": [
-    "economy.mixins.json"
-  ],
+    "environment": "*",
+    "entrypoints": {
+        "main": [
+            "urfriders.economy.Economy"
+        ],
+        "client": [
+            "urfriders.economy.client.EconomyClient"
+        ]
+    },
+    "mixins": [
+        "economy.mixins.json"
+    ],
 
-  "depends": {
-    "fabricloader": ">=0.11.3",
-    "fabric": "*",
-    "minecraft": "1.17.x",
-    "java": ">=16"
-  },
-  "suggests": {
-    "another-mod": "*"
-  }
+    "depends": {
+        "fabricloader": ">=0.11.3",
+        "fabric": "*",
+        "minecraft": "1.17.x",
+        "java": ">=16"
+    },
+    "suggests": {
+        "another-mod": "*"
+    }
 }

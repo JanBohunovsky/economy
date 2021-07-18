@@ -1,4 +1,4 @@
-package urfriders.economy.items;
+package urfriders.economy.item;
 
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.minecraft.item.Item;
@@ -7,19 +7,19 @@ import net.minecraft.util.registry.Registry;
 import urfriders.economy.Economy;
 
 public class ModItems {
-    public static final Item COPPER_COIN = new Item(new FabricItemSettings().group(ModItemGroups.ALL));
-    public static final Item COPPER_COIN_PILE = new Item(new FabricItemSettings().group(ModItemGroups.ALL));
-    public static final Item IRON_COIN = new Item(new FabricItemSettings().group(ModItemGroups.ALL));
-    public static final Item IRON_COIN_PILE = new Item(new FabricItemSettings().group(ModItemGroups.ALL));
-    public static final Item GOLD_COIN = new Item(new FabricItemSettings().group(ModItemGroups.ALL));
-    public static final Item GOLD_COIN_PILE = new Item(new FabricItemSettings().group(ModItemGroups.ALL));
-    public static final Item DIAMOND_COIN = new Item(new FabricItemSettings().group(ModItemGroups.ALL));
-    public static final Item DIAMOND_COIN_PILE = new Item(new FabricItemSettings().group(ModItemGroups.ALL));
-    public static final Item NETHERITE_COIN = new Item(new FabricItemSettings().group(ModItemGroups.ALL));
-    public static final Item NETHERITE_COIN_PILE = new Item(new FabricItemSettings().group(ModItemGroups.ALL));
+    public static final Item COPPER_COIN = new Item(new FabricItemSettings().group(ModItemGroup.ALL));
+    public static final Item COPPER_COIN_PILE = new Item(new FabricItemSettings().group(ModItemGroup.ALL));
+    public static final Item IRON_COIN = new Item(new FabricItemSettings().group(ModItemGroup.ALL));
+    public static final Item IRON_COIN_PILE = new Item(new FabricItemSettings().group(ModItemGroup.ALL));
+    public static final Item GOLD_COIN = new Item(new FabricItemSettings().group(ModItemGroup.ALL));
+    public static final Item GOLD_COIN_PILE = new Item(new FabricItemSettings().group(ModItemGroup.ALL));
+    public static final Item DIAMOND_COIN = new Item(new FabricItemSettings().group(ModItemGroup.ALL));
+    public static final Item DIAMOND_COIN_PILE = new Item(new FabricItemSettings().group(ModItemGroup.ALL));
+    public static final Item NETHERITE_COIN = new Item(new FabricItemSettings().group(ModItemGroup.ALL));
+    public static final Item NETHERITE_COIN_PILE = new Item(new FabricItemSettings().group(ModItemGroup.ALL));
 
-    public static final Item PLATINUM_COIN = new Item(new FabricItemSettings().group(ModItemGroups.ALL));
-    public static final Item PLATINUM_COIN_PILE = new Item(new FabricItemSettings().group(ModItemGroups.ALL));
+    public static final Item PLATINUM_COIN = new Item(new FabricItemSettings().group(ModItemGroup.ALL));
+    public static final Item PLATINUM_COIN_PILE = new Item(new FabricItemSettings().group(ModItemGroup.ALL));
 
     public static void registerItems() {
         Registry.register(Registry.ITEM, new Identifier(Economy.MOD_ID, "copper_coin"), COPPER_COIN);

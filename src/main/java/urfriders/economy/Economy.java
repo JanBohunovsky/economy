@@ -1,8 +1,8 @@
 package urfriders.economy;
 
 import net.fabricmc.api.ModInitializer;
-import urfriders.economy.blocks.ModBlocks;
-import urfriders.economy.items.ModItems;
+import urfriders.economy.block.ModBlocks;
+import urfriders.economy.item.ModItems;
 
 public class Economy implements ModInitializer {
 	public static final String MOD_ID = "economy";

@@ -1,0 +1,20 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "group": "economy:player_shop",
+    "pattern": [
+        "###",
+        "#$#",
+        "###"
+    ],
+    "key": {
+        "#": {
+            "tag": "minecraft:planks"
+        },
+        "$": {
+            "tag": "economy:coin_piles"
+        }
+    },
+    "result": {
+        "item": "economy:player_shop"
+    }
+}

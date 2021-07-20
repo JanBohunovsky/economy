@@ -14,15 +14,15 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import urfriders.economy.Economy;
-import urfriders.economy.network.ModNetworking;
-import urfriders.economy.screen.TradingStationScreenHandler;
+import urfriders.economy.network.ModPackets;
+import urfriders.economy.screen.PlayerShopScreenHandler;
 
-public class TradingStationScreen extends HandledScreen<TradingStationScreenHandler> {
-    private static final Identifier TEXTURE = new Identifier(Economy.MOD_ID, "textures/gui/trading_station.png");
+public class PlayerShopScreen extends HandledScreen<PlayerShopScreenHandler> {
+    private static final Identifier TEXTURE = new Identifier(Economy.MOD_ID, "textures/gui/player_shop.png");
 
     private CustomButton customButton;
 
-    public TradingStationScreen(TradingStationScreenHandler handler, PlayerInventory playerInventory, Text title) {
+    public PlayerShopScreen(PlayerShopScreenHandler handler, PlayerInventory playerInventory, Text title) {
         super(handler, playerInventory, title);
     }
 
@@ -50,9 +50,8 @@ public class TradingStationScreen extends HandledScreen<TradingStationScreenHand
         // Center the title
         titleX = (backgroundWidth - textRenderer.getWidth(title)) / 2;
 
-        customButton = addDrawableChild(new CustomButton(this.x + 61, this.y + 61, 54, 20, new LiteralText("Create"), (button) -> {
-            System.out.println("Custom button click");
-            ClientPlayNetworking.send(ModNetworking.SPAWN_VILLAGER, PacketByteBufs.empty());
+        customButton = addDrawableChild(new CustomButton(this.x + 61, this.y + 61, 54, 20, new LiteralText("Update"), (button) -> {
+            ClientPlayNetworking.send(ModPackets.UPDATE_SHOP_C2S, PacketByteBufs.empty());
         }));
     }
 

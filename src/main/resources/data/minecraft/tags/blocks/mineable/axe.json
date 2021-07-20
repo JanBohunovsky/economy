@@ -1,6 +1,6 @@
 {
     "replace": false,
     "values": [
-        "economy:trading_station"
+        "economy:player_shop"
     ]
 }

@@ -8,17 +8,17 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.server.world.ServerWorld;
-import urfriders.economy.block.entity.TradingStationBlockEntity;
+import urfriders.economy.block.entity.PlayerShopBlockEntity;
 
-public class TradingStationScreenHandler extends ScreenHandler {
+public class PlayerShopScreenHandler extends ScreenHandler {
     private final Inventory inventory;
 
-    public TradingStationScreenHandler(int syncId, PlayerInventory playerInventory) {
+    public PlayerShopScreenHandler(int syncId, PlayerInventory playerInventory) {
         this(syncId, playerInventory, new SimpleInventory(2));
     }
 
-    public TradingStationScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inventory) {
-        super(ModScreens.TRADING_STATION, syncId);
+    public PlayerShopScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inventory) {
+        super(ModScreens.PLAYER_SHOP, syncId);
         checkSize(inventory, 2);
         this.inventory = inventory;
 
@@ -41,10 +41,11 @@ public class TradingStationScreenHandler extends ScreenHandler {
         }
     }
 
-    public void spawnVillager(ServerWorld world) {
-        if (inventory instanceof TradingStationBlockEntity tradingStationBlockEntity) {
-            System.out.println("TradingStationScreenHandler: inventory is block entity");
-            tradingStationBlockEntity.spawnVillager(world);
+    public void updateShop(ServerWorld world, PlayerEntity player) {
+        if (inventory instanceof PlayerShopBlockEntity playerShopBlockEntity) {
+            playerShopBlockEntity.updateVillager(world, player);
+        } else {
+            System.out.println("PlayerShop Screen: inventory is not block entity");
         }
     }
 
@@ -58,7 +59,7 @@ public class TradingStationScreenHandler extends ScreenHandler {
         ItemStack newStack = ItemStack.EMPTY;
         Slot slot = this.slots.get(index);
 
-        if (slot != null && slot.hasStack()) {
+        if (slot.hasStack()) {
             ItemStack originalStack = slot.getStack();
             newStack = originalStack.copy();
 

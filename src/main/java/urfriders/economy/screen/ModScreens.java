@@ -2,12 +2,16 @@ package urfriders.economy.screen;
 
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
 import net.minecraft.screen.ScreenHandlerType;
-import urfriders.economy.block.TradingStationBlock;
+import net.minecraft.util.Identifier;
+import urfriders.economy.Economy;
+import urfriders.economy.block.PlayerShopBlock;
 
 public class ModScreens {
-    public static ScreenHandlerType<TradingStationScreenHandler> TRADING_STATION;
+    public static ScreenHandlerType<PlayerShopScreenHandler> PLAYER_SHOP;
+    public static ScreenHandlerType<ShopVillagerScreenHandler> SHOP_VILLAGER;
 
     public static void registerScreenHandlers() {
-        TRADING_STATION = ScreenHandlerRegistry.registerSimple(TradingStationBlock.ID, TradingStationScreenHandler::new);
+        PLAYER_SHOP = ScreenHandlerRegistry.registerSimple(PlayerShopBlock.ID, PlayerShopScreenHandler::new);
+        SHOP_VILLAGER = ScreenHandlerRegistry.registerExtended(new Identifier(Economy.MOD_ID, "shop_villager"), ShopVillagerScreenHandler::new);
     }
 }

@@ -1,18 +1,18 @@
 {
     "variants": {
         "facing=north": {
-            "model": "economy:block/trading_station"
+            "model": "economy:block/player_shop"
         },
         "facing=east": {
-            "model": "economy:block/trading_station",
+            "model": "economy:block/player_shop",
             "y": 90
         },
         "facing=south": {
-            "model": "economy:block/trading_station",
+            "model": "economy:block/player_shop",
             "y": 180
         },
         "facing=west": {
-            "model": "economy:block/trading_station",
+            "model": "economy:block/player_shop",
             "y": 270
         }
     }

@@ -6,7 +6,7 @@
             "entries": [
                 {
                     "type": "minecraft:item",
-                    "name": "economy:trading_station"
+                    "name": "economy:player_shop"
                 }
             ],
             "conditions": [

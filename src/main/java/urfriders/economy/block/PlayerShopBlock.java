@@ -3,10 +3,13 @@ package urfriders.economy.block;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.item.ItemStack;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandler;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.DirectionProperty;
@@ -15,21 +18,22 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 import urfriders.economy.Economy;
-import urfriders.economy.block.entity.TradingStationBlockEntity;
+import urfriders.economy.block.entity.PlayerShopBlockEntity;
 
-public class TradingStationBlock extends BlockWithEntity {
-    public static final Identifier ID = new Identifier(Economy.MOD_ID, "trading_station");
+public class PlayerShopBlock extends BlockWithEntity {
+    public static final Identifier ID = new Identifier(Economy.MOD_ID, "player_shop");
 
     public static final DirectionProperty FACING = HorizontalFacingBlock.FACING;
 
-    public TradingStationBlock() {
+    public PlayerShopBlock() {
         super(FabricBlockSettings.of(Material.WOOD).strength(2.5F).sounds(BlockSoundGroup.WOOD));
         setDefaultState(getStateManager().getDefaultState().with(FACING, Direction.NORTH));
     }
 
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
-        return new TradingStationBlockEntity(pos, state);
+        return new PlayerShopBlockEntity(pos, state);
     }
 
     @Override
@@ -52,11 +56,32 @@ public class TradingStationBlock extends BlockWithEntity {
     }
 
     @Override
+    public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
+        if (world.isClient) {
+            return;
+        }
+
+        if (!(placer instanceof PlayerEntity player)) {
+            return;
+        }
+
+        BlockEntity blockEntity = world.getBlockEntity(pos);
+        if (blockEntity instanceof PlayerShopBlockEntity playerShopBlockEntity) {
+            playerShopBlockEntity.setOwner(player);
+            playerShopBlockEntity.spawnVillager((ServerWorld) world);
+        }
+    }
+
+    @Override
     public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
         if (state.getBlock() != newState.getBlock()) {
             BlockEntity blockEntity = world.getBlockEntity(pos);
-            if (blockEntity instanceof TradingStationBlockEntity tradingStationBlockEntity) {
-                ItemScatterer.spawn(world, pos, tradingStationBlockEntity);
+            if (blockEntity instanceof PlayerShopBlockEntity playerShopBlockEntity) {
+                if (world instanceof ServerWorld serverWorld) {
+                    ItemScatterer.spawn(world, pos, playerShopBlockEntity);
+                    playerShopBlockEntity.removeVillager(serverWorld);
+                }
+
                 world.updateComparators(pos, this);
             }
 

@@ -7,13 +7,13 @@ import net.minecraft.util.registry.Registry;
 import urfriders.economy.item.ModItemGroup;
 
 public class ModBlocks {
-    public static final Block TRADING_STATION = new TradingStationBlock();
+    public static final Block PLAYER_SHOP = new PlayerShopBlock();
 
     public static void registerBlocks() {
-        Registry.register(Registry.BLOCK, TradingStationBlock.ID, TRADING_STATION);
+        Registry.register(Registry.BLOCK, PlayerShopBlock.ID, PLAYER_SHOP);
     }
 
     public static void registerBlockItems() {
-        Registry.register(Registry.ITEM, TradingStationBlock.ID, new BlockItem(TRADING_STATION, new FabricItemSettings().group(ModItemGroup.ALL)));
+        Registry.register(Registry.ITEM, PlayerShopBlock.ID, new BlockItem(PLAYER_SHOP, new FabricItemSettings().group(ModItemGroup.ALL)));
     }
 }

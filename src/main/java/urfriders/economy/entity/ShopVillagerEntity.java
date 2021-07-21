@@ -13,7 +13,7 @@ import net.minecraft.village.VillagerDataContainer;
 import net.minecraft.village.VillagerProfession;
 import net.minecraft.village.VillagerType;
 import net.minecraft.world.World;
-import urfriders.economy.block.entity.PlayerShopBlockEntity;
+import urfriders.economy.block.entity.ShopBlockEntity;
 
 public class ShopVillagerEntity extends MobEntity implements VillagerDataContainer {
 
@@ -46,8 +46,8 @@ public class ShopVillagerEntity extends MobEntity implements VillagerDataContain
         shopPos = pos;
     }
 
-    private PlayerShopBlockEntity getBlockEntity() {
-        return (PlayerShopBlockEntity)world.getBlockEntity(shopPos);
+    private ShopBlockEntity getBlockEntity() {
+        return (ShopBlockEntity)world.getBlockEntity(shopPos);
     }
 
     @Override
@@ -64,7 +64,7 @@ public class ShopVillagerEntity extends MobEntity implements VillagerDataContain
         if (nbt.contains("ShopPos", NbtElement.COMPOUND_TYPE)) {
             shopPos = NbtHelper.toBlockPos(nbt.getCompound("ShopPos"));
         } else {
-            throw new RuntimeException("ShopPos is missing. Please only summon this entity by using economy:player_shop block.");
+            throw new RuntimeException("ShopPos is missing. Please only summon this entity by using economy:shop block.");
         }
 
         this.setCanPickUpLoot(false);

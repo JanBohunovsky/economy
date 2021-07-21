@@ -1,6 +1,6 @@
 {
     "type": "minecraft:crafting_shaped",
-    "group": "economy:player_shop",
+    "group": "economy:shop",
     "pattern": [
         "###",
         "#$#",
@@ -15,6 +15,6 @@
         }
     },
     "result": {
-        "item": "economy:player_shop"
+        "item": "economy:shop"
     }
 }

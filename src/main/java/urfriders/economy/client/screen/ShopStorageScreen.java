@@ -7,12 +7,12 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import urfriders.economy.screen.PlayerShopScreenHandler;
+import urfriders.economy.screen.ShopStorageScreenHandler;
 
-public class PlayerShopScreen extends HandledScreen<PlayerShopScreenHandler> {
+public class ShopStorageScreen extends HandledScreen<ShopStorageScreenHandler> {
     private static final Identifier TEXTURE = new Identifier("textures/gui/container/generic_54.png");
 
-    public PlayerShopScreen(PlayerShopScreenHandler handler, PlayerInventory playerInventory, Text title) {
+    public ShopStorageScreen(ShopStorageScreenHandler handler, PlayerInventory playerInventory, Text title) {
         super(handler, playerInventory, title);
         this.backgroundHeight = 114 + 3 * 18;
         this.playerInventoryTitleY = this.backgroundHeight - 94;

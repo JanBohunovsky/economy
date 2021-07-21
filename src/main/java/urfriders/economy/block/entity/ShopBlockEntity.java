@@ -24,15 +24,15 @@ import net.minecraft.village.VillagerType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
-import urfriders.economy.block.PlayerShopBlock;
+import urfriders.economy.block.ShopBlock;
 import urfriders.economy.entity.ModEntities;
 import urfriders.economy.entity.ShopVillagerEntity;
 import urfriders.economy.inventory.ImplementedInventory;
-import urfriders.economy.screen.PlayerShopScreenHandler;
+import urfriders.economy.screen.ShopStorageScreenHandler;
 
 import java.util.UUID;
 
-public class PlayerShopBlockEntity extends BlockEntity implements NamedScreenHandlerFactory, ImplementedInventory {
+public class ShopBlockEntity extends BlockEntity implements NamedScreenHandlerFactory, ImplementedInventory {
     private static final Logger LOGGER = LogManager.getLogger();
 
     private final DefaultedList<ItemStack> items = DefaultedList.ofSize(27, ItemStack.EMPTY);
@@ -42,8 +42,8 @@ public class PlayerShopBlockEntity extends BlockEntity implements NamedScreenHan
     private UUID villagerUuid;
     private VillagerData villagerStyle;
 
-    public PlayerShopBlockEntity(BlockPos pos, BlockState state) {
-        super(ModBlockEntities.PLAYER_SHOP, pos, state);
+    public ShopBlockEntity(BlockPos pos, BlockState state) {
+        super(ModBlockEntities.SHOP, pos, state);
     }
 
     public void initialize(PlayerEntity player) {
@@ -64,12 +64,12 @@ public class PlayerShopBlockEntity extends BlockEntity implements NamedScreenHan
             return;
         }
 
-        villager.setCustomName(new TranslatableText("player_shop.name", ownerName));
+        villager.setCustomName(new TranslatableText("shop.name", ownerName));
         villager.setVillagerData(villagerStyle);
         villager.setShopPos(pos);
 
         // Position and rotation
-        float yaw = world.getBlockState(pos).get(PlayerShopBlock.FACING).asRotation();
+        float yaw = world.getBlockState(pos).get(ShopBlock.FACING).asRotation();
         villager.refreshPositionAndAngles(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5, yaw, 0);
 
         boolean success = world.spawnEntity(villager);
@@ -111,7 +111,7 @@ public class PlayerShopBlockEntity extends BlockEntity implements NamedScreenHan
 
     @Override
     public Text getDisplayName() {
-        return new TranslatableText("player_shop.container");
+        return new TranslatableText("shop.container");
     }
 
     @Nullable
@@ -119,13 +119,13 @@ public class PlayerShopBlockEntity extends BlockEntity implements NamedScreenHan
     public ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
         if (!player.getUuid().equals(ownerUuid) && !(player.isCreativeLevelTwoOp() || player.isSpectator())) {
             // TODO: Update ownerName
-            player.sendMessage(new TranslatableText("player_shop.differentOwner", ownerName), true);
+            player.sendMessage(new TranslatableText("shop.differentOwner", ownerName), true);
             return null;
         }
 
         // TODO: Disable the villager UI while the screen is open
         //       This is to prevent any potential duplication glitches.
-        return new PlayerShopScreenHandler(syncId, playerInventory, this);
+        return new ShopStorageScreenHandler(syncId, playerInventory, this);
     }
 
     @Override

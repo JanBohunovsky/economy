@@ -15,8 +15,8 @@
     "item.economy.netherite_coin_pile": "Netherite Coin Pile",
     "item.economy.platinum_coin_pile": "Platinum Coin Pile",
 
-    "block.economy.player_shop": "Shop",
-    "player_shop.container": "Shop storage",
-    "player_shop.name": "%s's Shop",
-    "player_shop.differentOwner": "This shop is owned by %s."
+    "block.economy.shop": "Shop",
+    "shop.container": "Shop storage",
+    "shop.name": "%s's Shop",
+    "shop.differentOwner": "This shop is owned by %s."
 }

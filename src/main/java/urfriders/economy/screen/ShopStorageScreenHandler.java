@@ -8,15 +8,15 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 
-public class PlayerShopScreenHandler extends ScreenHandler {
+public class ShopStorageScreenHandler extends ScreenHandler {
     private final Inventory inventory;
 
-    public PlayerShopScreenHandler(int syncId, PlayerInventory playerInventory) {
+    public ShopStorageScreenHandler(int syncId, PlayerInventory playerInventory) {
         this(syncId, playerInventory, new SimpleInventory(27));
     }
 
-    public PlayerShopScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inventory) {
-        super(ModScreens.PLAYER_SHOP, syncId);
+    public ShopStorageScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inventory) {
+        super(ModScreens.SHOP_STORAGE, syncId);
         checkSize(inventory, 2);
         this.inventory = inventory;
 

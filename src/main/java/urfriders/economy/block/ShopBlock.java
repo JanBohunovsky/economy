@@ -20,20 +20,20 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import urfriders.economy.Economy;
-import urfriders.economy.block.entity.PlayerShopBlockEntity;
+import urfriders.economy.block.entity.ShopBlockEntity;
 
-public class PlayerShopBlock extends BlockWithEntity {
-    public static final Identifier ID = new Identifier(Economy.MOD_ID, "player_shop");
+public class ShopBlock extends BlockWithEntity {
+    public static final Identifier ID = new Identifier(Economy.MOD_ID, "shop");
 
     public static final DirectionProperty FACING = HorizontalFacingBlock.FACING;
 
-    public PlayerShopBlock() {
+    public ShopBlock() {
         super(FabricBlockSettings.of(Material.WOOD).strength(2.5F).sounds(BlockSoundGroup.WOOD));
         setDefaultState(getStateManager().getDefaultState().with(FACING, Direction.NORTH));
     }
 
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
-        return new PlayerShopBlockEntity(pos, state);
+        return new ShopBlockEntity(pos, state);
     }
 
     @Override
@@ -66,9 +66,9 @@ public class PlayerShopBlock extends BlockWithEntity {
         }
 
         BlockEntity blockEntity = world.getBlockEntity(pos);
-        if (blockEntity instanceof PlayerShopBlockEntity playerShopBlockEntity) {
-            playerShopBlockEntity.initialize(player);
-            playerShopBlockEntity.spawnVillager((ServerWorld) world);
+        if (blockEntity instanceof ShopBlockEntity shopBlockEntity) {
+            shopBlockEntity.initialize(player);
+            shopBlockEntity.spawnVillager((ServerWorld) world);
         }
     }
 
@@ -76,10 +76,10 @@ public class PlayerShopBlock extends BlockWithEntity {
     public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
         if (state.getBlock() != newState.getBlock()) {
             BlockEntity blockEntity = world.getBlockEntity(pos);
-            if (blockEntity instanceof PlayerShopBlockEntity playerShopBlockEntity) {
+            if (blockEntity instanceof ShopBlockEntity shopBlockEntity) {
                 if (world instanceof ServerWorld serverWorld) {
-                    ItemScatterer.spawn(world, pos, playerShopBlockEntity);
-                    playerShopBlockEntity.removeVillager(serverWorld);
+                    ItemScatterer.spawn(world, pos, shopBlockEntity);
+                    shopBlockEntity.removeVillager(serverWorld);
                 }
 
                 world.updateComparators(pos, this);

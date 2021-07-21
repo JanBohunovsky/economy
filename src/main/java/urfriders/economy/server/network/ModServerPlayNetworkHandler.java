@@ -13,7 +13,7 @@ public class ModServerPlayNetworkHandler {
 
             server.execute(() -> {
                 if (player.currentScreenHandler instanceof PlayerShopScreenHandler playerShopScreenHandler) {
-                    playerShopScreenHandler.updateShop(player.getServerWorld(), player);
+//                    playerShopScreenHandler.updateShop(player.getServerWorld(), player);
                 } else {
                     System.out.println("update_shop: Current screen handler is not player shop");
                 }

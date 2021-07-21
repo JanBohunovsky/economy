@@ -7,14 +7,12 @@ import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
-import net.minecraft.server.world.ServerWorld;
-import urfriders.economy.block.entity.PlayerShopBlockEntity;
 
 public class PlayerShopScreenHandler extends ScreenHandler {
     private final Inventory inventory;
 
     public PlayerShopScreenHandler(int syncId, PlayerInventory playerInventory) {
-        this(syncId, playerInventory, new SimpleInventory(2));
+        this(syncId, playerInventory, new SimpleInventory(27));
     }
 
     public PlayerShopScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inventory) {
@@ -24,28 +22,23 @@ public class PlayerShopScreenHandler extends ScreenHandler {
 
         inventory.onOpen(playerInventory.player);
 
-        // Trading Station inventory
-        this.addSlot(new Slot(inventory, 0, 62, 35));
-        this.addSlot(new Slot(inventory, 1, 98, 35));
+        // Shop inventory
+        for (int y = 0; y < 3; y++) {
+            for (int x = 0; x < 9; x++) {
+                this.addSlot(new Slot(inventory, x + y * 9, 8 + x * 18, 18 + y * 18));
+            }
+        }
 
         // Player inventory
         for (int y = 0; y < 3; y++) {
             for (int x = 0; x < 9; x++) {
-                this.addSlot(new Slot(playerInventory, x + y * 9 + 9, 8 + x * 18, 84 + y * 18));
+                this.addSlot(new Slot(playerInventory, x + y * 9 + 9, 8 + x * 18, 85 + y * 18));
             }
         }
 
         // Player hotbar
         for (int i = 0; i < 9; i++) {
             this.addSlot(new Slot(playerInventory, i, 8 + i * 18, 142));
-        }
-    }
-
-    public void updateShop(ServerWorld world, PlayerEntity player) {
-        if (inventory instanceof PlayerShopBlockEntity playerShopBlockEntity) {
-            playerShopBlockEntity.updateVillager(world, player);
-        } else {
-            System.out.println("PlayerShop Screen: inventory is not block entity");
         }
     }
 

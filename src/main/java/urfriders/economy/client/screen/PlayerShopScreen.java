@@ -1,29 +1,21 @@
 package urfriders.economy.client.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import urfriders.economy.Economy;
-import urfriders.economy.network.ModPackets;
 import urfriders.economy.screen.PlayerShopScreenHandler;
 
 public class PlayerShopScreen extends HandledScreen<PlayerShopScreenHandler> {
-    private static final Identifier TEXTURE = new Identifier(Economy.MOD_ID, "textures/gui/player_shop.png");
-
-    private CustomButton customButton;
+    private static final Identifier TEXTURE = new Identifier("textures/gui/container/generic_54.png");
 
     public PlayerShopScreen(PlayerShopScreenHandler handler, PlayerInventory playerInventory, Text title) {
         super(handler, playerInventory, title);
+        this.backgroundHeight = 114 + 3 * 18;
+        this.playerInventoryTitleY = this.backgroundHeight - 94;
     }
 
     @Override
@@ -34,7 +26,9 @@ public class PlayerShopScreen extends HandledScreen<PlayerShopScreenHandler> {
 
         int x = (width - backgroundWidth) / 2;
         int y = (height - backgroundHeight) / 2;
-        drawTexture(matrices, x, y, 0, 0, backgroundWidth, backgroundHeight);
+//        drawTexture(matrices, x, y, 0, 0, backgroundWidth, backgroundHeight);
+        drawTexture(matrices, x, y, 0, 0, this.backgroundWidth, 3 * 18 + 17);
+        drawTexture(matrices, x, y + 3 * 18 + 17, 0, 126, this.backgroundWidth, 96);
     }
 
     @Override
@@ -42,24 +36,5 @@ public class PlayerShopScreen extends HandledScreen<PlayerShopScreenHandler> {
         renderBackground(matrices);
         super.render(matrices, mouseX, mouseY, delta);
         drawMouseoverTooltip(matrices, mouseX, mouseY);
-    }
-
-    @Override
-    protected void init() {
-        super.init();
-        // Center the title
-        titleX = (backgroundWidth - textRenderer.getWidth(title)) / 2;
-
-        customButton = addDrawableChild(new CustomButton(this.x + 61, this.y + 61, 54, 20, new LiteralText("Update"), (button) -> {
-            ClientPlayNetworking.send(ModPackets.UPDATE_SHOP_C2S, PacketByteBufs.empty());
-        }));
-    }
-
-    @Environment(EnvType.CLIENT)
-    class CustomButton extends ButtonWidget {
-
-        public CustomButton(int x, int y, int width, int height, Text message, PressAction onPress) {
-            super(x, y, width, height, message, onPress);
-        }
     }
 }

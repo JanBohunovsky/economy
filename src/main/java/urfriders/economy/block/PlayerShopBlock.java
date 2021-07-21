@@ -67,7 +67,7 @@ public class PlayerShopBlock extends BlockWithEntity {
 
         BlockEntity blockEntity = world.getBlockEntity(pos);
         if (blockEntity instanceof PlayerShopBlockEntity playerShopBlockEntity) {
-            playerShopBlockEntity.setOwner(player);
+            playerShopBlockEntity.initialize(player);
             playerShopBlockEntity.spawnVillager((ServerWorld) world);
         }
     }

@@ -18,6 +18,6 @@ public class ModEntities {
 
     public static void registerEntities() {
         Registry.register(Registry.ENTITY_TYPE, new Identifier(Economy.MOD_ID, "shop_villager"), SHOP_VILLAGER);
-        FabricDefaultAttributeRegistry.register(SHOP_VILLAGER, ShopVillagerEntity.createVillagerAttributes());
+        FabricDefaultAttributeRegistry.register(SHOP_VILLAGER, ShopVillagerEntity.createShopVillagerAttributes());
     }
 }

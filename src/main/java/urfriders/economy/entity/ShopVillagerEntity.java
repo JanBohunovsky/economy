@@ -1,88 +1,75 @@
 package urfriders.economy.entity;
 
-import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.passive.VillagerEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.entity.attribute.DefaultAttributeContainer.Builder;
+import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtHelper;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.village.TradeOffer;
-import net.minecraft.village.TradeOfferList;
+import net.minecraft.village.VillagerData;
+import net.minecraft.village.VillagerDataContainer;
+import net.minecraft.village.VillagerProfession;
+import net.minecraft.village.VillagerType;
 import net.minecraft.world.World;
 import urfriders.economy.block.entity.PlayerShopBlockEntity;
-import urfriders.economy.screen.ShopVillagerScreenHandler;
 
-public class ShopVillagerEntity extends VillagerEntity {
+public class ShopVillagerEntity extends MobEntity implements VillagerDataContainer {
 
+    // TODO: Create custom class for this called VillagerStyle and create custom VillagerClothingFeatureRenderer
+    //       that supports this new class.
+    private VillagerData villagerData;
     private BlockPos shopPos;
 
-    public ShopVillagerEntity(EntityType<? extends VillagerEntity> entityType, World world) {
+    protected ShopVillagerEntity(EntityType<? extends MobEntity> entityType, World world) {
         super(entityType, world);
+        villagerData = new VillagerData(VillagerType.PLAINS, VillagerProfession.NONE, 0);
     }
 
-    public void setShop(PlayerShopBlockEntity entity) {
-        shopPos = entity.getPos();
+    public static Builder createShopVillagerAttributes() {
+        return MobEntity.createMobAttributes()
+            .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0D)
+            .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 48.0D);
+    }
+    @Override
+    public VillagerData getVillagerData() {
+        return villagerData;
     }
 
     @Override
-    protected void afterUsing(TradeOffer offer) {
-        super.afterUsing(offer);
-
-        System.out.println("ShopVillagerEntity: afterUsing called");
+    public void setVillagerData(VillagerData villagerData) {
+        this.villagerData = villagerData;
     }
 
-    @Override
-    public void restock() {
-        // Disable restocking just to be safe
+    public void setShopPos(BlockPos pos) {
+        shopPos = pos;
     }
 
-    @Override
-    public boolean shouldRestock() {
-        // Disable restocking just to be safe
-        return false;
-    }
-
-    public void sendOffers(PlayerEntity player, Text text, int levelProgress) {
-        player.openHandledScreen(new ExtendedScreenHandlerFactory() {
-            @Override
-            public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
-                TradeOfferList tradeOfferList = ShopVillagerEntity.this.getOffers();
-                tradeOfferList.toPacket(buf);
-                buf.writeVarInt(levelProgress);
-                buf.writeVarInt(ShopVillagerEntity.this.getExperience());
-                buf.writeBoolean(ShopVillagerEntity.this.isLeveledMerchant());
-                buf.writeBoolean(ShopVillagerEntity.this.canRefreshTrades());
-            }
-
-            @Override
-            public Text getDisplayName() {
-                return text;
-            }
-
-            @Override
-            public ScreenHandler createMenu(int syncId, PlayerInventory inv, PlayerEntity player) {
-                return new ShopVillagerScreenHandler(syncId, inv, ShopVillagerEntity.this);
-            }
-        });
+    private PlayerShopBlockEntity getBlockEntity() {
+        return (PlayerShopBlockEntity)world.getBlockEntity(shopPos);
     }
 
     @Override
     public void writeCustomDataToNbt(NbtCompound nbt) {
         super.writeCustomDataToNbt(nbt);
 
-        nbt.putIntArray("shopPos", new int[] {shopPos.getX(), shopPos.getY(), shopPos.getZ()});
+        nbt.put("ShopPos", NbtHelper.fromBlockPos(shopPos));
     }
 
     @Override
     public void readCustomDataFromNbt(NbtCompound nbt) {
         super.readCustomDataFromNbt(nbt);
 
-        int[] shopPosArray = nbt.getIntArray("shopPos");
-        shopPos = new BlockPos(shopPosArray[0], shopPosArray[1], shopPosArray[2]);
+        if (nbt.contains("ShopPos", NbtElement.COMPOUND_TYPE)) {
+            shopPos = NbtHelper.toBlockPos(nbt.getCompound("ShopPos"));
+        } else {
+            throw new RuntimeException("ShopPos is missing. Please only summon this entity by using economy:player_shop block.");
+        }
+
+        this.setCanPickUpLoot(false);
+        this.setInvulnerable(true);
+        this.setAiDisabled(true);
+        this.setPersistent();
     }
 }

@@ -24,11 +24,11 @@ public class ShopStorageScreen extends HandledScreen<ShopStorageScreenHandler> {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, TEXTURE);
 
-        int x = (width - backgroundWidth) / 2;
-        int y = (height - backgroundHeight) / 2;
-//        drawTexture(matrices, x, y, 0, 0, backgroundWidth, backgroundHeight);
-        drawTexture(matrices, x, y, 0, 0, this.backgroundWidth, 3 * 18 + 17);
-        drawTexture(matrices, x, y + 3 * 18 + 17, 0, 126, this.backgroundWidth, 96);
+        int startX = (width - backgroundWidth) / 2;
+        int startY = (height - backgroundHeight) / 2;
+//        drawTexture(matrices, startX, startY, 0, 0, backgroundWidth, backgroundHeight);
+        drawTexture(matrices, startX, startY, 0, 0, this.backgroundWidth, 3 * 18 + 17);
+        drawTexture(matrices, startX, startY + 3 * 18 + 17, 0, 126, this.backgroundWidth, 96);
     }
 
     @Override

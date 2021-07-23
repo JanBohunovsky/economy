@@ -18,5 +18,9 @@
     "block.economy.shop": "Shop",
     "shop.container": "Shop storage",
     "shop.name": "%s's Shop",
-    "shop.differentOwner": "This shop is owned by %s."
+    "shop.name.owner": "Your Shop",
+    "shop.differentOwner": "This shop is owned by %s.",
+    "shop.offers": "Offers",
+    "shop.offer.outOfStock": "Item is out of stock.",
+    "shop.offer.disabled": "This offer is disabled."
 }

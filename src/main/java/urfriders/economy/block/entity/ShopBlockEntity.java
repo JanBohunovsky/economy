@@ -8,6 +8,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
@@ -28,11 +29,15 @@ import urfriders.economy.block.ShopBlock;
 import urfriders.economy.entity.ModEntities;
 import urfriders.economy.entity.ShopVillagerEntity;
 import urfriders.economy.inventory.ImplementedInventory;
+import urfriders.economy.item.ModItems;
 import urfriders.economy.screen.ShopStorageScreenHandler;
+import urfriders.economy.shop.Shop;
+import urfriders.economy.shop.ShopOffer;
+import urfriders.economy.shop.ShopOfferList;
 
 import java.util.UUID;
 
-public class ShopBlockEntity extends BlockEntity implements NamedScreenHandlerFactory, ImplementedInventory {
+public class ShopBlockEntity extends BlockEntity implements Shop, NamedScreenHandlerFactory, ImplementedInventory {
     private static final Logger LOGGER = LogManager.getLogger();
 
     private final DefaultedList<ItemStack> items = DefaultedList.ofSize(27, ItemStack.EMPTY);
@@ -41,6 +46,8 @@ public class ShopBlockEntity extends BlockEntity implements NamedScreenHandlerFa
     private String ownerName;
     private UUID villagerUuid;
     private VillagerData villagerStyle;
+    private PlayerEntity customer;
+    private ShopOfferList offers;
 
     public ShopBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.SHOP, pos, state);
@@ -50,6 +57,20 @@ public class ShopBlockEntity extends BlockEntity implements NamedScreenHandlerFa
         ownerUuid = player.getUuid();
         ownerName = player.getName().asString();
         villagerStyle = new VillagerData(VillagerType.PLAINS, VillagerProfession.NONE, 0);
+    }
+
+    public UUID getOwnerUuid() {
+        return ownerUuid;
+    }
+
+    public ShopVillagerEntity getVillager(ServerWorld world) {
+        Entity entity = world.getEntity(villagerUuid);
+        if (entity instanceof ShopVillagerEntity villager) {
+            return villager;
+        }
+
+        LOGGER.error("Villager not found '{}'", villagerUuid);
+        return null;
     }
 
     public void spawnVillager(ServerWorld world) {
@@ -89,16 +110,6 @@ public class ShopBlockEntity extends BlockEntity implements NamedScreenHandlerFa
         }
     }
 
-    private ShopVillagerEntity getVillager(ServerWorld world) {
-        Entity entity = world.getEntity(villagerUuid);
-        if (entity instanceof ShopVillagerEntity villager) {
-            return villager;
-        }
-
-        LOGGER.error("Villager not found '{}'", villagerUuid);
-        return null;
-    }
-
     @Override
     public DefaultedList<ItemStack> getItems() {
         return items;
@@ -106,7 +117,11 @@ public class ShopBlockEntity extends BlockEntity implements NamedScreenHandlerFa
 
     @Override
     public boolean canPlayerUse(PlayerEntity player) {
-        return player.getUuid().equals(ownerUuid);
+        if (world == null || world.getBlockEntity(pos) != this) {
+            return false;
+        } else {
+            return player.squaredDistanceTo((double)pos.getX() + 0.5D, (double)pos.getY() + 0.5D, (double)pos.getZ() + 0.5D) <= 64.0D;
+        }
     }
 
     @Override
@@ -129,6 +144,60 @@ public class ShopBlockEntity extends BlockEntity implements NamedScreenHandlerFa
     }
 
     @Override
+    public void setCurrentCustomer(@Nullable PlayerEntity player) {
+        customer = player;
+    }
+
+    @Override
+    public @Nullable PlayerEntity getCurrentCustomer() {
+        return customer;
+    }
+
+    public boolean hasCustomer() {
+        return customer != null;
+    }
+
+    @Override
+    public ShopOfferList getOffers() {
+        if (offers == null) {
+            offers = new ShopOfferList();
+            offers.add(new ShopOffer(new ItemStack(ModItems.COPPER_COIN, 1), new ItemStack(Items.DIRT, 64), 128));
+            offers.add(new ShopOffer(new ItemStack(ModItems.IRON_COIN, 1), new ItemStack(Items.COBBLESTONE, 64), 128));
+            offers.add(new ShopOffer(new ItemStack(ModItems.GOLD_COIN, 1), new ItemStack(Items.NETHER_STAR, 1), 0));
+
+            ShopOffer offer = new ShopOffer(new ItemStack(Items.STICK, 1), new ItemStack(ModItems.DIAMOND_COIN, 1), 64);
+            offer.disable();
+            offers.add(offer);
+        }
+
+        return offers;
+    }
+
+    public void setOffers(ShopOfferList offers) {
+        this.offers = offers;
+    }
+
+    @Override
+    public void setOffersFromServer(ShopOfferList offerList) {
+    }
+
+    @Override
+    public void trade(ShopOffer offer) {
+        offer.decrementStock();
+        // TODO: update storage
+
+        if (world instanceof ServerWorld serverWorld) {
+            ShopVillagerEntity villagerEntity = getVillager(serverWorld);
+            villagerEntity.ambientSoundChance = -villagerEntity.getMinAmbientSoundDelay();
+        }
+    }
+
+    @Override
+    public void onSellingItem(ItemStack itemStack) {
+        // TODO: play sound
+    }
+
+    @Override
     public NbtCompound writeNbt(NbtCompound nbt) {
         super.writeNbt(nbt);
 
@@ -140,6 +209,11 @@ public class ShopBlockEntity extends BlockEntity implements NamedScreenHandlerFa
 
         if (villagerUuid != null) {
             nbt.putUuid("AssignedVillager", villagerUuid);
+        }
+
+        ShopOfferList offers = getOffers();
+        if (!offers.isEmpty()) {
+            nbt.put("Offers", offers.toNbt());
         }
 
         Inventories.writeNbt(nbt, items);
@@ -163,6 +237,10 @@ public class ShopBlockEntity extends BlockEntity implements NamedScreenHandlerFa
             .ifPresent(villagerData -> villagerStyle = villagerData);
 
         villagerUuid = nbt.getUuid("AssignedVillager");
+
+        if (nbt.contains("Offers", NbtElement.LIST_TYPE)) {
+            offers = ShopOfferList.fromNbt(nbt.getList("Offers", NbtElement.COMPOUND_TYPE));
+        }
 
         Inventories.readNbt(nbt, items);
     }

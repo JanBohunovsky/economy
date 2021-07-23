@@ -8,7 +8,8 @@ import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry;
 import urfriders.economy.client.network.ModClientPlayNetworkHandler;
 import urfriders.economy.client.render.ShopVillagerEntityRenderer;
 import urfriders.economy.client.screen.ShopStorageScreen;
-import urfriders.economy.client.screen.ShopVillagerScreen;
+import urfriders.economy.client.screen.ShopVillagerCustomerScreen;
+import urfriders.economy.client.screen.ShopVillagerOwnerScreen;
 import urfriders.economy.entity.ModEntities;
 import urfriders.economy.screen.ModScreens;
 
@@ -21,7 +22,8 @@ public class EconomyClient implements ClientModInitializer {
 
         // Register screens
         ScreenRegistry.register(ModScreens.SHOP_STORAGE, ShopStorageScreen::new);
-        ScreenRegistry.register(ModScreens.SHOP_VILLAGER, ShopVillagerScreen::new);
+        ScreenRegistry.register(ModScreens.SHOP_VILLAGER_CUSTOMER, ShopVillagerCustomerScreen::new);
+        ScreenRegistry.register(ModScreens.SHOP_VILLAGER_OWNER, ShopVillagerOwnerScreen::new);
 
         // Register entity renderers
         EntityRendererRegistry.INSTANCE.register(ModEntities.SHOP_VILLAGER, ShopVillagerEntityRenderer::new);

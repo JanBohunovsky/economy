@@ -48,8 +48,8 @@ public class ShopVillagerEntity extends MobEntity implements VillagerDataContain
     @Override
     protected void initDataTracker() {
         super.initDataTracker();
-        dataTracker.startTracking(VILLAGER_DATA, new VillagerData(VillagerType.PLAINS, VillagerProfession.NONE, 0));
-        dataTracker.startTracking(SHOP_POS, null);
+        this.dataTracker.startTracking(VILLAGER_DATA, new VillagerData(VillagerType.PLAINS, VillagerProfession.NONE, 0));
+        this.dataTracker.startTracking(SHOP_POS, null);
     }
 
     public static Builder createShopVillagerAttributes() {
@@ -59,25 +59,25 @@ public class ShopVillagerEntity extends MobEntity implements VillagerDataContain
     }
 
     private ShopBlockEntity getShopBlockEntity() {
-        return (ShopBlockEntity)world.getBlockEntity(getShopPos());
+        return (ShopBlockEntity)this.world.getBlockEntity(getShopPos());
     }
 
     @Override
     public VillagerData getVillagerData() {
-        return dataTracker.get(VILLAGER_DATA);
+        return this.dataTracker.get(VILLAGER_DATA);
     }
 
     @Override
     public void setVillagerData(VillagerData villagerData) {
-        dataTracker.set(VILLAGER_DATA, villagerData);
+        this.dataTracker.set(VILLAGER_DATA, villagerData);
     }
 
     public BlockPos getShopPos() {
-        return dataTracker.get(SHOP_POS);
+        return this.dataTracker.get(SHOP_POS);
     }
 
     public void setShopPos(BlockPos pos) {
-        dataTracker.set(SHOP_POS, pos);
+        this.dataTracker.set(SHOP_POS, pos);
     }
 
     @Override
@@ -90,14 +90,14 @@ public class ShopVillagerEntity extends MobEntity implements VillagerDataContain
         boolean isOwner = player.getUuid().equals(shopBlockEntity.getOwnerUuid());
         boolean hasNoOffers = shopBlockEntity.getOffers().isEmpty();
         if (hand == Hand.MAIN_HAND) {
-            if (hasNoOffers && !isOwner && !world.isClient) {
+            if (hasNoOffers && !isOwner && !this.world.isClient) {
                 sayNo();
             }
 
             player.incrementStat(Stats.TALKED_TO_VILLAGER);
         }
 
-        if (!world.isClient) {
+        if (!this.world.isClient) {
             NamedScreenHandlerFactory factory = isOwner
                 ? createOwnerScreenHandlerFactory()
                 : createCustomerScreenHandlerFactory();
@@ -108,7 +108,7 @@ public class ShopVillagerEntity extends MobEntity implements VillagerDataContain
             }
         }
 
-        return ActionResult.success(world.isClient);
+        return ActionResult.success(this.world.isClient);
     }
 
     private NamedScreenHandlerFactory createOwnerScreenHandlerFactory() {
@@ -161,7 +161,7 @@ public class ShopVillagerEntity extends MobEntity implements VillagerDataContain
 
     private void sayNo() {
         // swing head
-        if (!world.isClient) {
+        if (!this.world.isClient) {
             this.playSound(SoundEvents.ENTITY_VILLAGER_NO, this.getSoundVolume(), this.getSoundPitch());
         }
     }

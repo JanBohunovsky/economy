@@ -22,5 +22,6 @@
     "shop.differentOwner": "This shop is owned by %s.",
     "shop.offers": "Offers",
     "shop.offer.outOfStock": "Item is out of stock.",
+    "shop.offer.fullStorage": "Storage is full.",
     "shop.offer.disabled": "This offer is disabled."
 }

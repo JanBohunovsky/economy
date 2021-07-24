@@ -7,30 +7,25 @@ import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
-import net.minecraft.screen.slot.SlotActionType;
-import urfriders.economy.screen.slot.GhostSlot;
+import urfriders.economy.shop.ShopStorage;
 
 public class ShopStorageScreenHandler extends ScreenHandler {
     private final Inventory inventory;
 
     public ShopStorageScreenHandler(int syncId, PlayerInventory playerInventory) {
-        this(syncId, playerInventory, new SimpleInventory(36));
+        this(syncId, playerInventory, new SimpleInventory(ShopStorage.SIZE));
     }
 
     public ShopStorageScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inventory) {
         super(ModScreens.SHOP_STORAGE, syncId);
-        checkSize(inventory, 36);
+        checkSize(inventory, ShopStorage.SIZE);
         this.inventory = inventory;
 
         inventory.onOpen(playerInventory.player);
 
         // Shop inventory
-        this.addSlot(new GhostSlot(inventory, 0, 8, 18));
         for (int y = 0; y < 4; y++) {
             for (int x = 0; x < 9; x++) {
-                if (x == 0 && y == 0) {
-                    continue;
-                }
                 this.addSlot(new Slot(inventory, x + y * 9, 8 + x * 18, 18 + y * 18));
             }
         }
@@ -54,57 +49,10 @@ public class ShopStorageScreenHandler extends ScreenHandler {
     }
 
     @Override
-    public void onSlotClick(int slotIndex, int button, SlotActionType actionType, PlayerEntity player) {
-        Slot slot = slotIndex < 0 ? null : this.getSlot(slotIndex);
-
-        if (slot instanceof GhostSlot) {
-            if (button == 2) {
-                slot.setStack(ItemStack.EMPTY);
-                return;
-            }
-
-            if (actionType == SlotActionType.PICKUP || actionType == SlotActionType.SWAP) {
-                ItemStack cursorStack = this.getCursorStack();
-                ItemStack slotStack = slot.getStack();
-
-                if (cursorStack.isEmpty()) {
-                    if (button == 0) {
-                        slot.setStack(ItemStack.EMPTY);
-                    } else if (button == 1) {
-                        slotStack.decrement(1);
-                        slot.setStack(slotStack);
-                    }
-                } else if (ItemStack.areItemsEqualIgnoreDamage(slotStack, cursorStack)) {
-                    int amount = cursorStack.getCount();
-                    if (button == 1) {
-                        amount = 1;
-                    }
-
-                    slotStack.increment(amount);
-                    slot.setStack(slotStack);
-                } else {
-                    ItemStack cursorStackCopy = cursorStack.copy();
-                    if (button == 1) {
-                        cursorStackCopy.setCount(1);
-                    }
-
-                    slot.setStack(cursorStackCopy);
-                }
-
-                slot.markDirty();
-            }
-
-            return;
-        }
-
-        super.onSlotClick(slotIndex, button, actionType, player);
-    }
-
-    @Override
     public ItemStack transferSlot(PlayerEntity player, int index) {
         Slot slot = this.slots.get(index);
 
-        if (!slot.hasStack() || slot instanceof GhostSlot) {
+        if (!slot.hasStack()) {
             return ItemStack.EMPTY;
         }
 

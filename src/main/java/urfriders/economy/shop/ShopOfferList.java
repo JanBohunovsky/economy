@@ -27,6 +27,7 @@ public class ShopOfferList extends ArrayList<ShopOffer> {
         return null;
     }
 
+    // TODO: move this to ShopOffer
     public void toPacket(PacketByteBuf buf) {
         buf.writeByte(size() & 255);
 
@@ -40,7 +41,8 @@ public class ShopOfferList extends ArrayList<ShopOffer> {
                 buf.writeItemStack(secondBuyItem);
             }
 
-            buf.writeInt(offer.getStock());
+            buf.writeInt(offer.getTradesLeft());
+            buf.writeBoolean(offer.isStorageFull());
             buf.writeBoolean(offer.isManuallyDisabled());
         }
     }
@@ -61,6 +63,8 @@ public class ShopOfferList extends ArrayList<ShopOffer> {
             int stock = buf.readInt();
 
             ShopOffer offer = new ShopOffer(firstBuyItem, secondBuyItem, sellItem, stock);
+            offer.setFullStorage(buf.readBoolean());
+
             if (buf.readBoolean()) {
                 offer.disable();
             }

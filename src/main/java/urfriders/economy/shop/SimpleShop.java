@@ -34,7 +34,7 @@ public class SimpleShop implements Shop {
 
     @Override
     public void trade(ShopOffer offer) {
-        offer.decrementStock();
+        offer.onTrade();
     }
 
     @Override

@@ -1,15 +1,19 @@
 package urfriders.economy.mixin;
 
-import net.minecraft.client.gui.screen.TitleScreen;
+import net.minecraft.village.MerchantInventory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(TitleScreen.class)
+@Mixin(MerchantInventory.class)
 public class ExampleMixin {
-	@Inject(at = @At("HEAD"), method = "init()V")
-	private void init(CallbackInfo info) {
-		System.out.println("This line is printed by an example mod mixin!");
+    private static final Logger LOGGER = LogManager.getLogger();
+
+	@Inject(at = @At("HEAD"), method = "setOfferIndex")
+	private void setOfferIndex(int index, CallbackInfo info) {
+	    LOGGER.info("MerchantInventory.setOfferIndex({})", index);
 	}
 }

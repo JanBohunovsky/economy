@@ -8,71 +8,94 @@ public class ShopOffer {
     private final ItemStack firstBuyItem;
     private final ItemStack secondBuyItem;
     private final ItemStack sellItem;
-    private int stock;
+    private int tradesLeft;
     private boolean disabled;
+    private boolean fullStorage;
 
-    public ShopOffer(ItemStack buyItem, ItemStack sellItem, int stock) {
-        this(buyItem, ItemStack.EMPTY, sellItem, stock);
+    public ShopOffer(ItemStack buyItem, ItemStack sellItem, int tradesLeft) {
+        this(buyItem, ItemStack.EMPTY, sellItem, tradesLeft);
     }
 
-    public ShopOffer(ItemStack firstBuyItem, ItemStack secondBuyItem, ItemStack sellItem, int stock) {
+    public ShopOffer(ItemStack firstBuyItem, ItemStack secondBuyItem, ItemStack sellItem, int tradesLeft) {
         this.firstBuyItem = firstBuyItem;
         this.secondBuyItem = secondBuyItem;
         this.sellItem = sellItem;
-        this.stock = stock;
+        this.tradesLeft = tradesLeft;
     }
 
     public ItemStack getFirstBuyItem() {
-        return firstBuyItem;
+        return this.firstBuyItem;
     }
 
     public ItemStack getSecondBuyItem() {
-        return secondBuyItem;
+        return this.secondBuyItem;
     }
 
     public ItemStack getSellItem() {
-        return sellItem;
+        return this.sellItem;
     }
 
     public ItemStack copySellItem() {
-        return sellItem.copy();
+        return this.sellItem.copy();
     }
 
-    public int getStock() {
-        return stock;
+    public int getTradesLeft() {
+        return this.tradesLeft;
     }
 
-    public void setStock(int stock) {
-        this.stock = stock;
-    }
-
-    public void decrementStock() {
-        stock--;
+    public void onTrade() {
+        this.tradesLeft--;
     }
 
     public boolean isOutOfStock() {
-        return stock <= 0;
+        return this.tradesLeft <= 0;
+    }
+
+    public boolean isStorageFull() {
+        return this.fullStorage;
     }
 
     public boolean isManuallyDisabled() {
-        return disabled;
+        return this.disabled;
     }
 
     public boolean isDisabled() {
-        return isOutOfStock() || isManuallyDisabled();
+        return this.isManuallyDisabled() || this.isOutOfStock() || this.isStorageFull();
+    }
+
+    public String getDisabledReason() {
+        if (this.isOutOfStock()) {
+            return "outOfStock";
+        }
+        if (this.isStorageFull()) {
+            return "fullStorage";
+        }
+
+        return "disabled";
+    }
+
+    public void setFullStorage(boolean fullStorage) {
+        this.fullStorage = fullStorage;
     }
 
     public void enable() {
-        disabled = false;
+        this.disabled = false;
     }
 
     public void disable() {
-        disabled = true;
+        this.disabled = true;
+    }
+
+    public boolean update(ShopStorage storage) {
+        // Check if each buy item can fit into storage.
+        // Check if the storage has sell item.
+        // Return if this offer has changed.
+        return false;
     }
 
     public boolean matchesBuyItems(ItemStack firstBuyItem, ItemStack secondBuyItem) {
-        return acceptsBuyItem(firstBuyItem, this.firstBuyItem) && firstBuyItem.getCount() >= this.firstBuyItem.getCount()
-            && acceptsBuyItem(secondBuyItem, this.secondBuyItem) && secondBuyItem.getCount() >= this.secondBuyItem.getCount();
+        return this.acceptsBuyItem(firstBuyItem, this.firstBuyItem) && firstBuyItem.getCount() >= this.firstBuyItem.getCount()
+            && this.acceptsBuyItem(secondBuyItem, this.secondBuyItem) && secondBuyItem.getCount() >= this.secondBuyItem.getCount();
     }
 
     public static ShopOffer fromNbt(NbtCompound nbt) {
@@ -80,9 +103,10 @@ public class ShopOffer {
             ItemStack.fromNbt(nbt.getCompound("buy")),
             ItemStack.fromNbt(nbt.getCompound("buyExtra")),
             ItemStack.fromNbt(nbt.getCompound("sell")),
-            nbt.getInt("stock")
+            nbt.getInt("tradesLeft")
         );
 
+        offer.fullStorage = nbt.getBoolean("fullStorage");
         offer.disabled = nbt.getBoolean("disabled");
 
         return offer;
@@ -93,7 +117,8 @@ public class ShopOffer {
         nbt.put("buy", firstBuyItem.writeNbt(new NbtCompound()));
         nbt.put("buyExtra", secondBuyItem.writeNbt(new NbtCompound()));
         nbt.put("sell", sellItem.writeNbt(new NbtCompound()));
-        nbt.putInt("stock", stock);
+        nbt.putInt("tradesLeft", tradesLeft);
+        nbt.putBoolean("fullStorage", fullStorage);
         nbt.putBoolean("disabled", disabled);
         return nbt;
     }

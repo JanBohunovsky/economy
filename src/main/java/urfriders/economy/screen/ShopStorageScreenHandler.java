@@ -12,18 +12,18 @@ public class ShopStorageScreenHandler extends ScreenHandler {
     private final Inventory inventory;
 
     public ShopStorageScreenHandler(int syncId, PlayerInventory playerInventory) {
-        this(syncId, playerInventory, new SimpleInventory(27));
+        this(syncId, playerInventory, new SimpleInventory(36));
     }
 
     public ShopStorageScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inventory) {
         super(ModScreens.SHOP_STORAGE, syncId);
-        checkSize(inventory, 2);
+        checkSize(inventory, 36);
         this.inventory = inventory;
 
         inventory.onOpen(playerInventory.player);
 
         // Shop inventory
-        for (int y = 0; y < 3; y++) {
+        for (int y = 0; y < 4; y++) {
             for (int x = 0; x < 9; x++) {
                 this.addSlot(new Slot(inventory, x + y * 9, 8 + x * 18, 18 + y * 18));
             }
@@ -32,13 +32,13 @@ public class ShopStorageScreenHandler extends ScreenHandler {
         // Player inventory
         for (int y = 0; y < 3; y++) {
             for (int x = 0; x < 9; x++) {
-                this.addSlot(new Slot(playerInventory, x + y * 9 + 9, 8 + x * 18, 85 + y * 18));
+                this.addSlot(new Slot(playerInventory, x + y * 9 + 9, 8 + x * 18, 104 + y * 18));
             }
         }
 
         // Player hotbar
         for (int i = 0; i < 9; i++) {
-            this.addSlot(new Slot(playerInventory, i, 8 + i * 18, 142));
+            this.addSlot(new Slot(playerInventory, i, 8 + i * 18, 162));
         }
     }
 

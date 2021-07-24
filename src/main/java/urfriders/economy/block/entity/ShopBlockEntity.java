@@ -40,7 +40,7 @@ import java.util.UUID;
 public class ShopBlockEntity extends BlockEntity implements Shop, NamedScreenHandlerFactory, ImplementedInventory {
     private static final Logger LOGGER = LogManager.getLogger();
 
-    private final DefaultedList<ItemStack> items = DefaultedList.ofSize(27, ItemStack.EMPTY);
+    private final DefaultedList<ItemStack> items = DefaultedList.ofSize(36, ItemStack.EMPTY);
 
     private UUID ownerUuid;
     private String ownerName;

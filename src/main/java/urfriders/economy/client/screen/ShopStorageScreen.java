@@ -7,14 +7,15 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import urfriders.economy.Economy;
 import urfriders.economy.screen.ShopStorageScreenHandler;
 
 public class ShopStorageScreen extends HandledScreen<ShopStorageScreenHandler> {
-    private static final Identifier TEXTURE = new Identifier("textures/gui/container/generic_54.png");
+    private static final Identifier TEXTURE = new Identifier(Economy.MOD_ID, "textures/gui/shop_storage.png");
 
     public ShopStorageScreen(ShopStorageScreenHandler handler, PlayerInventory playerInventory, Text title) {
         super(handler, playerInventory, title);
-        this.backgroundHeight = 114 + 3 * 18;
+        this.backgroundHeight = 186;
         this.playerInventoryTitleY = this.backgroundHeight - 94;
     }
 
@@ -26,9 +27,7 @@ public class ShopStorageScreen extends HandledScreen<ShopStorageScreenHandler> {
 
         int startX = (width - backgroundWidth) / 2;
         int startY = (height - backgroundHeight) / 2;
-//        drawTexture(matrices, startX, startY, 0, 0, backgroundWidth, backgroundHeight);
-        drawTexture(matrices, startX, startY, 0, 0, this.backgroundWidth, 3 * 18 + 17);
-        drawTexture(matrices, startX, startY + 3 * 18 + 17, 0, 126, this.backgroundWidth, 96);
+        drawTexture(matrices, startX, startY, 0, 0, backgroundWidth, backgroundHeight);
     }
 
     @Override

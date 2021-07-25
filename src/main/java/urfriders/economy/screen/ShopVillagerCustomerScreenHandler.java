@@ -8,42 +8,44 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.Property;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
+import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import urfriders.economy.block.entity.ShopBlockEntity;
-import urfriders.economy.entity.ShopVillagerEntity;
+import org.jetbrains.annotations.Nullable;
 import urfriders.economy.screen.slot.ShopOutputSlot;
-import urfriders.economy.shop.CustomerShopInventory;
-import urfriders.economy.shop.Shop;
-import urfriders.economy.shop.ShopOfferList;
-import urfriders.economy.shop.SimpleShop;
+import urfriders.economy.shop.*;
 
 public class ShopVillagerCustomerScreenHandler extends ScreenHandler {
     private static final Logger LOGGER = LogManager.getLogger();
 
-    protected final Shop shop;
-    protected final CustomerShopInventory shopInventory;
-    protected final Property selectedOffer;
+    private final Shop shop;
+    private final TradeInventory tradeInventory;
+    private final Property offerIndex = new Property() {
+        @Override
+        public int get() {
+            return tradeInventory.getOfferIndex();
+        }
+
+        @Override
+        public void set(int value) {
+            tradeInventory.setOfferIndex(value);
+        }
+    };
 
     public ShopVillagerCustomerScreenHandler(int syncId, PlayerInventory playerInventory, PacketByteBuf buf) {
-        this(syncId, playerInventory, new SimpleShop(playerInventory.player));
-        this.shop.setOffersFromServer(ShopOfferList.fromPacket(buf));
+        this(syncId, playerInventory, new ClientShop(playerInventory.player, ShopOfferList.fromPacket(buf)));
     }
 
     public ShopVillagerCustomerScreenHandler(int syncId, PlayerInventory playerInventory, Shop shop) {
         super(ModScreens.SHOP_VILLAGER_CUSTOMER, syncId);
-        this.selectedOffer = Property.create();
         this.shop = shop;
-        this.shopInventory = new CustomerShopInventory(shop);
+        this.tradeInventory = new TradeInventory(shop);
 
         // Trading slots
-        this.addSlot(new Slot(this.shopInventory, 0, 136, 37));
-        this.addSlot(new Slot(this.shopInventory, 1, 162, 37));
-        this.addSlot(new ShopOutputSlot(this.shop, this.shopInventory, 2, 220, 37));
+        this.addSlot(new Slot(this.tradeInventory, 0, 136, 37));
+        this.addSlot(new Slot(this.tradeInventory, 1, 162, 37));
+        this.addSlot(new ShopOutputSlot(this.shop, this.tradeInventory, 2, 220, 37));
 
         // Player inventory
         for (int y = 0; y < 3; y++) {
@@ -57,12 +59,23 @@ public class ShopVillagerCustomerScreenHandler extends ScreenHandler {
             this.addSlot(new Slot(playerInventory, i, 108 + i * 18, 142));
         }
 
-        this.addProperty(this.selectedOffer);
-        this.selectedOffer.set(-1);
+        this.addProperty(this.offerIndex);
     }
 
-    public int getSelectedOffer() {
-        return this.selectedOffer.get();
+    public int getOfferIndex() {
+        return this.offerIndex.get();
+    }
+
+    @Nullable
+    public ShopOffer getSelectedOffer() {
+        int selectedIndex = getOfferIndex();
+        if (selectedIndex >= 0 && selectedIndex < this.getOffers().size()) {
+            // Manually selected offer.
+            return this.getOffers().get(selectedIndex);
+        } else {
+            // Offer based on input items.
+            return this.tradeInventory.getOffer();
+        }
     }
 
     public ShopOfferList getOffers() {
@@ -70,12 +83,30 @@ public class ShopVillagerCustomerScreenHandler extends ScreenHandler {
     }
 
     @Override
+    public void onSlotClick(int slotIndex, int button, SlotActionType actionType, PlayerEntity player) {
+        if (slotIndex == TradeInventory.SELL_SLOT) {
+            ShopOffer offer = this.getSelectedOffer();
+            // Trade begin
+            if (offer == null || !this.shop.canTrade(offer)) {
+                return;
+            }
+        }
+
+        super.onSlotClick(slotIndex, button, actionType, player);
+
+        if (slotIndex == TradeInventory.SELL_SLOT) {
+            // Trade end
+            // including shift-click trading
+            this.shop.updateOffers();
+        }
+    }
+
+    @Override
     public boolean onButtonClick(PlayerEntity player, int id) {
         LOGGER.info("onButtonClick: id:{}, world:{}", id, player.world.isClient ? "client" : "server");
 
         if (id >= 0 && id < this.shop.getOffers().size()) {
-            this.selectedOffer.set(id);
-            this.shopInventory.setOfferIndex(id);
+            this.offerIndex.set(id);
             this.switchTo(id);
         }
 
@@ -84,7 +115,7 @@ public class ShopVillagerCustomerScreenHandler extends ScreenHandler {
 
     @Override
     public void onContentChanged(Inventory inventory) {
-        this.shopInventory.markDirty();
+        this.tradeInventory.updateOffers();
         super.onContentChanged(inventory);
     }
 
@@ -93,21 +124,10 @@ public class ShopVillagerCustomerScreenHandler extends ScreenHandler {
         return this.shop.getCurrentCustomer() == player;
     }
 
-    private void playYesSound() {
-        if (!this.shop.getWorld().isClient) {
-            ShopBlockEntity shopBlockEntity = (ShopBlockEntity)this.shop;
-            ShopVillagerEntity villagerEntity = shopBlockEntity.getVillager((ServerWorld)this.shop.getWorld());
-            this.shop.getWorld().playSound(
-                villagerEntity.getX(),
-                villagerEntity.getY(),
-                villagerEntity.getZ(),
-                SoundEvents.ENTITY_VILLAGER_YES,
-                SoundCategory.NEUTRAL,
-                1.0F,
-                1.0F,
-                false
-            );
-        }
+    @Override
+    public boolean canInsertIntoSlot(ItemStack stack, Slot slot) {
+        // Disables the double-click merge stack thing
+        return super.canInsertIntoSlot(stack, slot);
     }
 
     @Override
@@ -121,15 +141,14 @@ public class ShopVillagerCustomerScreenHandler extends ScreenHandler {
 
             if (index == 2) {
                 // Output slot
-                if (!insertItem(originalStack, this.shopInventory.size(), this.slots.size(), true)) {
+                if (!insertItem(originalStack, this.tradeInventory.size(), this.slots.size(), true)) {
                     return ItemStack.EMPTY;
                 }
 
                 slot.onQuickTransfer(originalStack, newStack);
-                this.playYesSound();
             } else if (index < 2) {
                 // Input slots
-                if (!insertItem(originalStack, this.shopInventory.size(), this.slots.size(), false)) {
+                if (!insertItem(originalStack, this.tradeInventory.size(), this.slots.size(), false)) {
                     return ItemStack.EMPTY;
                 }
             } else {
@@ -168,44 +187,44 @@ public class ShopVillagerCustomerScreenHandler extends ScreenHandler {
         }
 
         if (!player.isAlive() || player instanceof ServerPlayerEntity serverPlayerEntity && serverPlayerEntity.isDisconnected()) {
-            ItemStack firstBuyItem = this.shopInventory.removeStack(0);
+            ItemStack firstBuyItem = this.tradeInventory.removeStack(0);
             if (!firstBuyItem.isEmpty()) {
                 player.dropItem(firstBuyItem, false);
             }
 
-            ItemStack secondBuyItem = this.shopInventory.removeStack(1);
+            ItemStack secondBuyItem = this.tradeInventory.removeStack(1);
             if (!secondBuyItem.isEmpty()) {
                 player.dropItem(secondBuyItem, false);
             }
         } else if (player instanceof ServerPlayerEntity) {
-            player.getInventory().offerOrDrop(this.shopInventory.removeStack(0));
-            player.getInventory().offerOrDrop(this.shopInventory.removeStack(1));
+            player.getInventory().offerOrDrop(this.tradeInventory.removeStack(0));
+            player.getInventory().offerOrDrop(this.tradeInventory.removeStack(1));
         }
     }
 
     private void switchTo(int offerIndex) {
         if (offerIndex < getOffers().size()) {
             // Give the player their items back
-            ItemStack firstBuyItem = this.shopInventory.getStack(0);
+            ItemStack firstBuyItem = this.tradeInventory.getStack(0);
             if (!firstBuyItem.isEmpty()) {
                 if (!insertItem(firstBuyItem, 3, 39, true)) {
                     return;
                 }
 
-                this.shopInventory.setStack(0, firstBuyItem);
+                this.tradeInventory.setStack(0, firstBuyItem);
             }
 
-            ItemStack secondBuyItem = this.shopInventory.getStack(1);
+            ItemStack secondBuyItem = this.tradeInventory.getStack(1);
             if (!secondBuyItem.isEmpty()) {
                 if (!insertItem(secondBuyItem, 3, 39, true)) {
                     return;
                 }
 
-                this.shopInventory.setStack(1, secondBuyItem);
+                this.tradeInventory.setStack(1, secondBuyItem);
             }
 
             // Try to fill in the new items
-            if (this.shopInventory.getStack(0).isEmpty() && this.shopInventory.getStack(1).isEmpty()) {
+            if (this.tradeInventory.getStack(0).isEmpty() && this.tradeInventory.getStack(1).isEmpty()) {
                 ItemStack newFirstBuyItem = getOffers().get(offerIndex).getFirstBuyItem();
                 this.autofill(0, newFirstBuyItem);
                 ItemStack newSecondBuyItem = getOffers().get(offerIndex).getSecondBuyItem();
@@ -223,7 +242,7 @@ public class ShopVillagerCustomerScreenHandler extends ScreenHandler {
         for (int i = 3; i < 39; i++) {
             ItemStack inventoryStack = this.slots.get(i).getStack();
             if (!inventoryStack.isEmpty() && ItemStack.canCombine(stack, inventoryStack)) {
-                ItemStack shopStack = this.shopInventory.getStack(slot);
+                ItemStack shopStack = this.tradeInventory.getStack(slot);
                 int alreadyInShop = shopStack.isEmpty() ? 0 : shopStack.getCount();
                 int toBeMoved = Math.min(stack.getMaxCount() - alreadyInShop, inventoryStack.getCount());
 
@@ -232,7 +251,7 @@ public class ShopVillagerCustomerScreenHandler extends ScreenHandler {
 
                 inventoryStack.decrement(toBeMoved);
                 newStack.setCount(newCount);
-                this.shopInventory.setStack(slot, newStack);
+                this.tradeInventory.setStack(slot, newStack);
 
                 if (newCount >= stack.getMaxCount()) {
                     break;

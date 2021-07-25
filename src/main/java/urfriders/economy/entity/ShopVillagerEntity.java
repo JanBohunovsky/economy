@@ -10,6 +10,7 @@ import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtHelper;
@@ -17,6 +18,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.stat.Stats;
 import net.minecraft.text.Text;
@@ -117,6 +119,7 @@ public class ShopVillagerEntity extends MobEntity implements VillagerDataContain
         return new ExtendedScreenHandlerFactory() {
             @Override
             public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
+                shopBlockEntity.prepareOffers();
                 ShopOfferList offers = shopBlockEntity.getOffers();
                 offers.toPacket(buf);
             }
@@ -143,6 +146,7 @@ public class ShopVillagerEntity extends MobEntity implements VillagerDataContain
         return new ExtendedScreenHandlerFactory() {
             @Override
             public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
+                shopBlockEntity.prepareOffers();
                 ShopOfferList offers = shopBlockEntity.getOffers();
                 offers.toPacket(buf);
             }
@@ -164,6 +168,29 @@ public class ShopVillagerEntity extends MobEntity implements VillagerDataContain
         if (!this.world.isClient) {
             this.playSound(SoundEvents.ENTITY_VILLAGER_NO, this.getSoundVolume(), this.getSoundPitch());
         }
+    }
+
+    public void onTrade() {
+        this.ambientSoundChance = -this.getMinAmbientSoundDelay();
+    }
+
+    public void onSellingItem(ItemStack stack) {
+        if (!this.world.isClient && this.ambientSoundChance > 20 - this.getMinAmbientSoundDelay()) {
+            this.ambientSoundChance = -this.getMinAmbientSoundDelay();
+            this.playSound(
+                stack.isEmpty() ? SoundEvents.ENTITY_VILLAGER_NO : SoundEvents.ENTITY_VILLAGER_YES,
+                this.getSoundVolume(),
+                this.getSoundPitch()
+            );
+        }
+    }
+
+    @Nullable
+    @Override
+    protected SoundEvent getAmbientSound() {
+        return getShopBlockEntity().hasCustomer()
+            ? SoundEvents.ENTITY_VILLAGER_TRADE
+            : SoundEvents.ENTITY_VILLAGER_AMBIENT;
     }
 
     @Override

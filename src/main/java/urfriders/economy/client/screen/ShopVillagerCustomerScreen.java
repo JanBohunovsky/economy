@@ -48,10 +48,10 @@ public class ShopVillagerCustomerScreen extends HandledScreen<ShopVillagerCustom
     }
 
     protected void drawForeground(MatrixStack matrices, int mouseX, int mouseY) {
-        this.textRenderer.draw(matrices, this.title, (float)(49 + this.backgroundWidth / 2 - this.textRenderer.getWidth(this.title) / 2), 6.0F, 4210752);
-        this.textRenderer.draw(matrices, this.playerInventoryTitle, (float)this.playerInventoryTitleX, (float)this.playerInventoryTitleY, 4210752);
+        this.textRenderer.draw(matrices, this.title, (float)(49 + this.backgroundWidth / 2 - this.textRenderer.getWidth(this.title) / 2), 6.0F, 0x404040);
+        this.textRenderer.draw(matrices, this.playerInventoryTitle, (float)this.playerInventoryTitleX, (float)this.playerInventoryTitleY, 0x404040);
         int textWidth = this.textRenderer.getWidth(OFFERS_TEXT);
-        this.textRenderer.draw(matrices, OFFERS_TEXT, (float)(5 - textWidth / 2 + 48), 6.0F, 4210752);
+        this.textRenderer.draw(matrices, OFFERS_TEXT, (float)(5 - textWidth / 2 + 48), 6.0F, 0x404040);
     }
 
     protected void drawBackground(MatrixStack matrices, float delta, int mouseX, int mouseY) {
@@ -63,20 +63,12 @@ public class ShopVillagerCustomerScreen extends HandledScreen<ShopVillagerCustom
 
         drawTexture(matrices, startX, startY, this.getZOffset(), 0.0F, 0.0F, this.backgroundWidth, this.backgroundHeight, 256, 512);
 
-        ShopOfferList offers = this.handler.getOffers();
-        if (!offers.isEmpty()) {
-            int index = handler.getSelectedOffer();
-            if (index < 0 || index >= offers.size()) {
-                return;
-            }
-
-            ShopOffer offer = offers.get(index);
-            if (offer.isDisabled()) {
-                // Draw X over the main arrow
-                RenderSystem.setShaderTexture(0, TEXTURE);
-                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-                drawTexture(matrices, this.x + 83 + 99, this.y + 35, this.getZOffset(), 311.0F, 0.0F, 28, 21, 256, 512);
-            }
+        ShopOffer offer = this.handler.getSelectedOffer();
+        if (offer != null && offer.isDisabled()) {
+            // Draw X over the main arrow
+            RenderSystem.setShaderTexture(0, TEXTURE);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            drawTexture(matrices, this.x + 83 + 99, this.y + 35, this.getZOffset(), 311.0F, 0.0F, 28, 21, 256, 512);
         }
     }
 
@@ -99,6 +91,13 @@ public class ShopVillagerCustomerScreen extends HandledScreen<ShopVillagerCustom
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         this.renderBackground(matrices);
         super.render(matrices, mouseX, mouseY, delta);
+        this.textRenderer.draw(matrices, Integer.toString(this.handler.getOfferIndex()), 3, 3, 0xffffff);
+        if (this.handler.getSelectedOffer() != null) {
+            ShopOffer offer = this.handler.getSelectedOffer();
+            this.textRenderer.draw(matrices, Integer.toString(offer.getTradesLeft()), 3, 13, 0xffffff);
+            this.textRenderer.draw(matrices, Integer.toString(offer.getAvailableSpaceForFirstItem()), 3, 23, 0xffffff);
+            this.textRenderer.draw(matrices, Integer.toString(offer.getAvailableSpaceForSecondItem()), 3, 33, 0xffffff);
+        }
 
         ShopOfferList offers = this.handler.getOffers();
         if (!offers.isEmpty()) {
@@ -109,16 +108,19 @@ public class ShopVillagerCustomerScreen extends HandledScreen<ShopVillagerCustom
             this.renderScrollbar(matrices, startX, startY, offers);
 
             // Render tooltip for main arrow
-            if (handler.getSelectedOffer() >= 0) {
-                ShopOffer offer = offers.get(handler.getSelectedOffer());
-                if (offer.isDisabled() && this.isPointWithinBounds(186, 35, 22, 21, mouseX, mouseY)) {
-                    Text text = new TranslatableText(DISABLED_TEXT_KEY.concat(offer.getDisabledReason()));
-                    this.renderTooltip(matrices, text, mouseX, mouseY);
-                }
+            ShopOffer offer = this.handler.getSelectedOffer();
+            if (offer != null && offer.isDisabled() && this.isPointWithinBounds(186, 35, 22, 21, mouseX, mouseY)) {
+                Text text = new TranslatableText(DISABLED_TEXT_KEY.concat(offer.getDisabledReason()));
+                this.renderTooltip(matrices, text, mouseX, mouseY);
             }
 
+            // Render tooltips for buttons
             for (OfferButtonWidget offerButton : this.offerButtons) {
                 offerButton.visible = offerButton.index < offers.size();
+
+                if (offerButton.isHovered()) {
+                    offerButton.renderTooltip(matrices, mouseX, mouseY);
+                }
             }
 
             RenderSystem.enableDepthTest();
@@ -192,13 +194,10 @@ public class ShopVillagerCustomerScreen extends HandledScreen<ShopVillagerCustom
 
         @Override
         public void renderButton(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-            this.isSelected = handler.getSelectedOffer() == indexStartOffset + this.index;
+            this.isSelected = handler.getOfferIndex() == indexStartOffset + this.index;
 
             super.renderButton(matrices, mouseX, mouseY, delta);
             this.renderOffer(matrices);
-            if (this.isHovered()) {
-                this.renderTooltip(matrices, mouseX, mouseY);
-            }
         }
 
         private void renderOffer(MatrixStack matrices) {
@@ -227,9 +226,9 @@ public class ShopVillagerCustomerScreen extends HandledScreen<ShopVillagerCustom
             RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderTexture(0, TEXTURE);
             if (offer.isDisabled()) {
-                drawTexture(matrices, this.x + 55, this.y + 4, this.getZOffset(), 25.0F, 171.0F, 10, 9, 256, 512);
+                drawTexture(matrices, this.x + 55, this.y + 4, ShopVillagerCustomerScreen.this.getZOffset(), 25.0F, 171.0F, 10, 9, 256, 512);
             } else {
-                drawTexture(matrices, this.x + 55, this.y + 4, this.getZOffset(), 15.0F, 171.0F, 10, 9, 256, 512);
+                drawTexture(matrices, this.x + 55, this.y + 4, ShopVillagerCustomerScreen.this.getZOffset(), 15.0F, 171.0F, 10, 9, 256, 512);
             }
         }
 

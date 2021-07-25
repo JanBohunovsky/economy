@@ -150,6 +150,83 @@ public class ShopStorage implements Inventory {
         }
     }
 
+    public boolean canFit(ItemStack... stacks) {
+        int emptySlots = this.getEmptySlotCount();
+        int requiredSlots = 0;
+
+        for (ItemStack target : stacks) {
+            requiredSlots += Math.ceil(target.getCount() / (double)this.getMaxCountPerStack());
+        }
+
+        if (emptySlots >= requiredSlots) {
+            return true;
+        }
+
+        for (ItemStack target : stacks) {
+            if (this.getExclusiveAvailableSpaceFor(target) < target.getCount()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public boolean hasStack(ItemStack target) {
+        if (target.isEmpty()) {
+            return false;
+        }
+
+        int count = 0;
+        for (ItemStack storageStack : this.stacks) {
+            if (ItemStack.canCombine(target, storageStack)) {
+                count += storageStack.getCount();
+            }
+
+            if (count >= target.getCount()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public int getEmptySlotCount() {
+        int count = 0;
+        for (ItemStack stack : this.stacks) {
+            if (stack.isEmpty()) {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
+    /**
+     * Returns number of items that can fit into occupied slots of the same item.
+     */
+    public int getExclusiveAvailableSpaceFor(ItemStack target) {
+        int maxCountPerStack = Math.min(this.getMaxCountPerStack(), target.getMaxCount());
+        int count = 0;
+        for (ItemStack storageStack : this.stacks) {
+            if (ItemStack.canCombine(target, storageStack)) {
+                count += maxCountPerStack - storageStack.getCount();
+            }
+        }
+
+        return count;
+    }
+
+    public int getItemCount(ItemStack target) {
+        int count = 0;
+        for (ItemStack storageStack : this.stacks) {
+            if (ItemStack.canCombine(target, storageStack)) {
+                count += storageStack.getCount();
+            }
+        }
+
+        return count;
+    }
+
     private void addToExistingSlot(ItemStack stack) {
         for (ItemStack storageStack : this.stacks) {
             if (ItemStack.canCombine(storageStack, stack)) {

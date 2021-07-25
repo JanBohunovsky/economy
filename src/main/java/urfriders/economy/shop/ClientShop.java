@@ -5,12 +5,13 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
-public class SimpleShop implements Shop {
+public class ClientShop implements Shop {
     private final PlayerEntity customer;
-    private ShopOfferList offers = new ShopOfferList();
+    private ShopOfferList offers;
 
-    public SimpleShop(PlayerEntity player) {
-        customer = player;
+    public ClientShop(PlayerEntity player, ShopOfferList offers) {
+        this.customer = player;
+        this.offers = offers;
     }
 
     @Override
@@ -33,12 +34,21 @@ public class SimpleShop implements Shop {
     }
 
     @Override
+    public void updateOffers() {
+    }
+
+    @Override
+    public boolean canTrade(ShopOffer offer) {
+        return !offer.isDisabled() && !offer.getSellItem().isEmpty();
+    }
+
+    @Override
     public void trade(ShopOffer offer) {
         offer.onTrade();
     }
 
     @Override
-    public void onSellingItem(ItemStack itemStack) {
+    public void onSellingItem(ItemStack stack) {
     }
 
     @Override

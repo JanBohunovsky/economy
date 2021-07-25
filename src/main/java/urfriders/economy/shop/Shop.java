@@ -13,11 +13,15 @@ public interface Shop {
 
     ShopOfferList getOffers();
 
-    void setOffersFromServer(ShopOfferList offerList);
+    void setOffersFromServer(ShopOfferList offers);
+
+    void updateOffers();
+
+    boolean canTrade(ShopOffer offer);
 
     void trade(ShopOffer offer);
 
-    void onSellingItem(ItemStack itemStack);
+    void onSellingItem(ItemStack stack);
 
     World getWorld();
 }

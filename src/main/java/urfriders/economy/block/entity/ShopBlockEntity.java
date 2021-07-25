@@ -1,6 +1,8 @@
 package urfriders.economy.block.entity;
 
 import com.mojang.serialization.Dynamic;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
@@ -11,11 +13,14 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandler;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
+import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.village.VillagerData;
 import net.minecraft.village.VillagerProfession;
@@ -27,12 +32,14 @@ import urfriders.economy.block.ShopBlock;
 import urfriders.economy.entity.ModEntities;
 import urfriders.economy.entity.ShopVillagerEntity;
 import urfriders.economy.item.ModItems;
+import urfriders.economy.network.ModPackets;
 import urfriders.economy.screen.ShopStorageScreenHandler;
 import urfriders.economy.shop.Shop;
 import urfriders.economy.shop.ShopOffer;
 import urfriders.economy.shop.ShopOfferList;
 import urfriders.economy.shop.ShopStorage;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 public class ShopBlockEntity extends BlockEntity implements Shop, NamedScreenHandlerFactory {
@@ -49,10 +56,7 @@ public class ShopBlockEntity extends BlockEntity implements Shop, NamedScreenHan
     public ShopBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.SHOP, pos, state);
         this.storage = new ShopStorage(this::canPlayerUse);
-
-        // Maybe change this to ShopStorage.onClose(player) { this.updateOffers(); }
-        // Because using markDirty would update offers maybe too often
-        this.storage.addListener((sender) -> this.updateOffers());
+        this.storage.addListener((sender) -> this.markDirty());
     }
 
     public void initialize(PlayerEntity player) {
@@ -69,8 +73,12 @@ public class ShopBlockEntity extends BlockEntity implements Shop, NamedScreenHan
         return this.ownerUuid;
     }
 
-    public ShopVillagerEntity getVillager(ServerWorld world) {
-        Entity entity = world.getEntity(this.villagerUuid);
+    public ShopVillagerEntity getVillager() {
+        if (!(world instanceof ServerWorld serverWorld)) {
+            return null;
+        }
+
+        Entity entity = serverWorld.getEntity(this.villagerUuid);
         if (entity instanceof ShopVillagerEntity villager) {
             return villager;
         }
@@ -95,7 +103,11 @@ public class ShopBlockEntity extends BlockEntity implements Shop, NamedScreenHan
         villager.setVillagerData(this.villagerStyle);
         villager.setShopPos(this.pos);
 
-        // Position and rotation
+        villager.setCanPickUpLoot(false);
+        villager.setInvulnerable(true);
+        villager.setAiDisabled(true);
+        villager.setPersistent();
+
         float yaw = world.getBlockState(this.pos).get(ShopBlock.FACING).asRotation();
         villager.refreshPositionAndAngles(this.pos.getX() + 0.5, this.pos.getY() + 1, this.pos.getZ() + 0.5, yaw, 0);
 
@@ -109,8 +121,8 @@ public class ShopBlockEntity extends BlockEntity implements Shop, NamedScreenHan
         this.villagerUuid = villager.getUuid();
     }
 
-    public void removeVillager(ServerWorld world) {
-        ShopVillagerEntity villager = getVillager(world);
+    public void removeVillager() {
+        ShopVillagerEntity villager = getVillager();
         if (villager != null) {
             villager.discard();
         }
@@ -162,22 +174,52 @@ public class ShopBlockEntity extends BlockEntity implements Shop, NamedScreenHan
     public ShopOfferList getOffers() {
         if (this.offers == null) {
             this.offers = new ShopOfferList();
-
-            // Example offers
-            this.offers.add(new ShopOffer(new ItemStack(ModItems.COPPER_COIN, 1), new ItemStack(Items.DIRT, 64), 64));
-            this.offers.add(new ShopOffer(new ItemStack(ModItems.IRON_COIN, 1), new ItemStack(Items.COBBLESTONE, 64), 10));
-            this.offers.add(new ShopOffer(new ItemStack(ModItems.GOLD_COIN, 1), new ItemStack(Items.NETHER_STAR, 1), 0));
-
-            ShopOffer offer = new ShopOffer(new ItemStack(Items.STICK, 1), new ItemStack(ModItems.DIAMOND_COIN, 1), 64);
-            offer.disable();
-            this.offers.add(offer);
-
-            offer = new ShopOffer(new ItemStack(Items.DIRT, 64), new ItemStack(Items.DIRT, 64), new ItemStack(ModItems.COPPER_COIN, 1), 64);
-            offer.setFullStorage(true);
-            this.offers.add(offer);
         }
 
         return this.offers;
+    }
+
+    @Override
+    public void setOffersFromServer(ShopOfferList offers) {
+    }
+
+    @Override
+    public void updateOffers() {
+        LOGGER.info("updateOffers()");
+        if (!this.hasCustomer()) {
+            return;
+        }
+
+        ArrayList<Pair<Byte, ShopOffer>> offersToUpdate = new ArrayList<>();
+        int emptySlots = this.storage.getEmptySlotCount();
+
+        for (int i = 0; i < this.getOffers().size(); i++) {
+            ShopOffer offer = this.getOffers().get(i);
+            if (offer.update(this.storage, emptySlots)) {
+                offersToUpdate.add(new Pair<>((byte) i, offer));
+            }
+        }
+
+        if (offersToUpdate.isEmpty()) {
+            return;
+        }
+
+        PacketByteBuf buf = PacketByteBufs.create();
+        buf.writeByte(offersToUpdate.size() & 255);
+
+        for (Pair<Byte, ShopOffer> offer : offersToUpdate) {
+            buf.writeByte(offer.getLeft());
+            offer.getRight().toPacket(buf);
+        }
+
+        ServerPlayNetworking.send((ServerPlayerEntity)this.customer, ModPackets.UPDATE_OFFERS_S2C, buf);
+    }
+
+    public void prepareOffers() {
+        int emptySlots = this.storage.getEmptySlotCount();
+        for (ShopOffer offer : this.getOffers()) {
+            offer.update(this.storage, emptySlots);
+        }
     }
 
     public void setOffers(ShopOfferList offers) {
@@ -185,37 +227,31 @@ public class ShopBlockEntity extends BlockEntity implements Shop, NamedScreenHan
     }
 
     @Override
-    public void setOffersFromServer(ShopOfferList offerList) {
+    public boolean canTrade(ShopOffer offer) {
+        return !offer.isDisabled()
+            && this.storage.hasStack(offer.getSellItem())
+            && this.storage.canFit(offer.getFirstBuyItem(), offer.getSecondBuyItem());
     }
 
     @Override
     public void trade(ShopOffer offer) {
+        LOGGER.info("trade");
         offer.onTrade();
-        // TODO: update storage
-        updateOffer(offer);
 
-        if (this.world instanceof ServerWorld serverWorld) {
-            ShopVillagerEntity villagerEntity = getVillager(serverWorld);
-            villagerEntity.ambientSoundChance = -villagerEntity.getMinAmbientSoundDelay();
+        this.storage.addStack(offer.getFirstBuyItem().copy());
+        if (!offer.getSecondBuyItem().isEmpty()) {
+            this.storage.addStack(offer.getSecondBuyItem().copy());
         }
+        this.storage.removeStack(offer.getSellItem().copy());
+
+        ShopVillagerEntity villagerEntity = getVillager();
+        villagerEntity.onTrade();
     }
 
     @Override
-    public void onSellingItem(ItemStack itemStack) {
-        // TODO: play sound
-    }
-
-    private void updateOffers() {
-        LOGGER.info("updateOffers called");
-        for (ShopOffer offer : this.getOffers()) {
-            updateOffer(offer);
-        }
-    }
-
-    private void updateOffer(ShopOffer offer) {
-        if (offer.update(this.storage)) {
-            // TODO: send packet to client
-        }
+    public void onSellingItem(ItemStack stack) {
+        ShopVillagerEntity villagerEntity = getVillager();
+        villagerEntity.onSellingItem(stack);
     }
 
     @Override
@@ -263,6 +299,15 @@ public class ShopBlockEntity extends BlockEntity implements Shop, NamedScreenHan
 
         if (nbt.contains("Offers", NbtElement.LIST_TYPE)) {
             this.offers = ShopOfferList.fromNbt(nbt.getList("Offers", NbtElement.COMPOUND_TYPE));
+        } else {
+            this.offers = new ShopOfferList();
+
+            // Example offers
+            this.offers.add(new ShopOffer(new ItemStack(ModItems.COPPER_COIN, 1), new ItemStack(Items.DIRT, 64)));
+            this.offers.add(new ShopOffer(new ItemStack(ModItems.IRON_COIN, 1), new ItemStack(Items.COBBLESTONE, 64)));
+            this.offers.add(new ShopOffer(new ItemStack(ModItems.GOLD_COIN, 1), new ItemStack(Items.NETHER_STAR, 1)));
+            this.offers.add(new ShopOffer(new ItemStack(Items.STICK, 1), ItemStack.EMPTY, new ItemStack(ModItems.DIAMOND_COIN, 1), true));
+            this.offers.add(new ShopOffer(new ItemStack(Items.DIRT, 64), new ItemStack(Items.DIRT, 64), new ItemStack(ModItems.COPPER_COIN, 1)));
         }
 
         if (nbt.contains("Storage", NbtElement.LIST_TYPE)) {

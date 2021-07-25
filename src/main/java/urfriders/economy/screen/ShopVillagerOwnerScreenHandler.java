@@ -4,13 +4,14 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandler;
+import urfriders.economy.shop.ClientShop;
 import urfriders.economy.shop.Shop;
-import urfriders.economy.shop.SimpleShop;
+import urfriders.economy.shop.ShopOfferList;
 
 public class ShopVillagerOwnerScreenHandler extends ScreenHandler {
 
     public ShopVillagerOwnerScreenHandler(int syncId, PlayerInventory playerInventory, PacketByteBuf buf) {
-        this(syncId, playerInventory, new SimpleShop(playerInventory.player));
+        this(syncId, playerInventory, new ClientShop(playerInventory.player, ShopOfferList.fromPacket(buf)));
     }
 
     public ShopVillagerOwnerScreenHandler(int syncId, PlayerInventory playerInventory, Shop shop) {

@@ -77,9 +77,9 @@ public class ShopBlock extends BlockWithEntity {
         if (state.getBlock() != newState.getBlock()) {
             BlockEntity blockEntity = world.getBlockEntity(pos);
             if (blockEntity instanceof ShopBlockEntity shopBlockEntity) {
-                if (world instanceof ServerWorld serverWorld) {
+                if (!world.isClient) {
                     ItemScatterer.spawn(world, pos, shopBlockEntity.getStorage());
-                    shopBlockEntity.removeVillager(serverWorld);
+                    shopBlockEntity.removeVillager();
                 }
 
                 world.updateComparators(pos, this);

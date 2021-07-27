@@ -3,6 +3,7 @@ package urfriders.economy;
 import net.fabricmc.api.ModInitializer;
 import urfriders.economy.block.ModBlocks;
 import urfriders.economy.block.entity.ModBlockEntities;
+import urfriders.economy.command.ModCommands;
 import urfriders.economy.entity.ModEntities;
 import urfriders.economy.item.ModItems;
 import urfriders.economy.screen.ModScreens;
@@ -21,5 +22,6 @@ public class Economy implements ModInitializer {
         ModBlockEntities.registerBlockEntities();
         ModEntities.registerEntities();
         ModScreens.registerScreenHandlers();
+        ModCommands.registerCommands();
 	}
 }

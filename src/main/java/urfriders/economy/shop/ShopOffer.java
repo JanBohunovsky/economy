@@ -3,6 +3,8 @@ package urfriders.economy.shop;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
+import urfriders.economy.inventory.ShopStorage;
+import urfriders.economy.item.CoinItem;
 
 public class ShopOffer {
     private final ItemStack firstBuyItem;
@@ -96,17 +98,27 @@ public class ShopOffer {
 
     public void onTrade() {
         this.tradesLeft--;
-        this.availableSpaceForFirstItem -= this.firstBuyItem.getCount();
-        this.availableSpaceForSecondItem -= this.secondBuyItem.getCount();
+
+        // Subtract space only for non-coin items
+        if (!(this.firstBuyItem.getItem() instanceof CoinItem)) {
+            this.availableSpaceForFirstItem -= this.firstBuyItem.getCount();
+        }
+        if (!this.secondBuyItem.isEmpty() && !(this.secondBuyItem.getItem() instanceof CoinItem)) {
+            this.availableSpaceForSecondItem -= this.secondBuyItem.getCount();
+        }
     }
 
     public boolean update(ShopStorage storage, int emptySlots) {
-        int newTradesLeft = (int)Math.floor(storage.getItemCount(this.sellItem) / (double)this.sellItem.getCount());
-        int newSpaceForFirst = storage.getExclusiveAvailableSpaceFor(this.firstBuyItem)
-            + (emptySlots * Math.min(this.firstBuyItem.getMaxCount(), storage.getMaxCountPerStack()));
+        int newTradesLeft = storage.getItemCount(this.sellItem) / this.sellItem.getCount();
+
+        int newSpaceForFirst = 1;
+        if (!(this.firstBuyItem.getItem() instanceof CoinItem)) {
+            newSpaceForFirst = storage.getExclusiveAvailableSpaceFor(this.firstBuyItem)
+                + (emptySlots * Math.min(this.firstBuyItem.getMaxCount(), storage.getMaxCountPerStack()));
+        }
 
         int newSpaceForSecond = 1;
-        if (!this.secondBuyItem.isEmpty()) {
+        if (!this.secondBuyItem.isEmpty() && !(this.secondBuyItem.getItem() instanceof CoinItem)) {
             newSpaceForSecond = storage.getExclusiveAvailableSpaceFor(this.secondBuyItem)
                 + ((emptySlots - 1) * Math.min(this.secondBuyItem.getMaxCount(), storage.getMaxCountPerStack()));
         }

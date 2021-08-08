@@ -66,7 +66,7 @@ public class CoinsCommand {
         Text message = new LiteralText(String.format("Your %d ", stack.getCount()))
             .append(coinItem.getName())
             .append(String.format("(s) have value of %,d.", value));
-        context.getSource().sendFeedback(message, false);
+        context.getSource().sendFeedback(message, true);
 
         return Command.SINGLE_SUCCESS;
     }

@@ -12,7 +12,7 @@ public class ModScreens {
     public static ScreenHandlerType<ShopVillagerOwnerScreenHandler> SHOP_VILLAGER_OWNER;
 
     public static void registerScreenHandlers() {
-        SHOP_STORAGE = ScreenHandlerRegistry.registerSimple(ShopBlock.ID, ShopStorageScreenHandler::new);
+        SHOP_STORAGE = ScreenHandlerRegistry.registerExtended(ShopBlock.ID, ShopStorageScreenHandler::new);
         SHOP_VILLAGER_CUSTOMER = ScreenHandlerRegistry.registerExtended(
             new Identifier(Economy.MOD_ID, "shop_villager_customer"),
             ShopVillagerCustomerScreenHandler::new

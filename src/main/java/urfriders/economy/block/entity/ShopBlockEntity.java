@@ -3,6 +3,7 @@ package urfriders.economy.block.entity;
 import com.mojang.serialization.Dynamic;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
@@ -14,7 +15,6 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -31,18 +31,18 @@ import org.jetbrains.annotations.Nullable;
 import urfriders.economy.block.ShopBlock;
 import urfriders.economy.entity.ModEntities;
 import urfriders.economy.entity.ShopVillagerEntity;
+import urfriders.economy.inventory.ShopStorage;
 import urfriders.economy.item.ModItems;
 import urfriders.economy.network.ModPackets;
 import urfriders.economy.screen.ShopStorageScreenHandler;
 import urfriders.economy.shop.Shop;
 import urfriders.economy.shop.ShopOffer;
 import urfriders.economy.shop.ShopOfferList;
-import urfriders.economy.shop.ShopStorage;
 
 import java.util.ArrayList;
 import java.util.UUID;
 
-public class ShopBlockEntity extends BlockEntity implements Shop, NamedScreenHandlerFactory {
+public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreenHandlerFactory {
     private static final Logger LOGGER = LogManager.getLogger();
 
     private final ShopStorage storage;
@@ -153,7 +153,13 @@ public class ShopBlockEntity extends BlockEntity implements Shop, NamedScreenHan
         if (!player.isSpectator()) {
             setCurrentCustomer(null);
         }
+
         return new ShopStorageScreenHandler(syncId, playerInventory, this.storage);
+    }
+
+    @Override
+    public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
+        buf.writeLong(this.storage.getCoins());
     }
 
     @Override
@@ -238,20 +244,19 @@ public class ShopBlockEntity extends BlockEntity implements Shop, NamedScreenHan
         LOGGER.info("trade");
         offer.onTrade();
 
+        // TODO: Check the returned values from these methods?
         this.storage.addStack(offer.getFirstBuyItem().copy());
         if (!offer.getSecondBuyItem().isEmpty()) {
             this.storage.addStack(offer.getSecondBuyItem().copy());
         }
         this.storage.removeStack(offer.getSellItem().copy());
 
-        ShopVillagerEntity villagerEntity = getVillager();
-        villagerEntity.onTrade();
+        getVillager().onTrade();
     }
 
     @Override
     public void onSellingItem(ItemStack stack) {
-        ShopVillagerEntity villagerEntity = getVillager();
-        villagerEntity.onSellingItem(stack);
+        getVillager().onSellingItem(stack);
     }
 
     @Override
@@ -273,7 +278,7 @@ public class ShopBlockEntity extends BlockEntity implements Shop, NamedScreenHan
             nbt.put("Offers", offers.toNbt());
         }
 
-        if (!this.storage.isEmpty()) {
+        if (!this.storage.isEmpty() || this.storage.getCoins() > 0) {
             nbt.put("Storage", this.storage.toNbt());
         }
 
@@ -310,8 +315,8 @@ public class ShopBlockEntity extends BlockEntity implements Shop, NamedScreenHan
             this.offers.add(new ShopOffer(new ItemStack(Items.DIRT, 64), new ItemStack(Items.DIRT, 64), new ItemStack(ModItems.COPPER_COIN, 1)));
         }
 
-        if (nbt.contains("Storage", NbtElement.LIST_TYPE)) {
-            this.storage.fromNbt(nbt.getList("Storage", NbtElement.COMPOUND_TYPE));
+        if (nbt.contains("Storage", NbtElement.COMPOUND_TYPE)) {
+            this.storage.fromNbt(nbt.getCompound("Storage"));
         }
     }
 }

@@ -1,4 +1,4 @@
-package urfriders.economy.shop;
+package urfriders.economy.inventory;
 
 import com.google.common.collect.Lists;
 import net.minecraft.entity.player.PlayerEntity;
@@ -7,21 +7,36 @@ import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.InventoryChangedListener;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.util.collection.DefaultedList;
+import urfriders.economy.item.CoinItem;
 
 import java.util.List;
 
 public class ShopStorage implements Inventory {
-    public static final int SIZE = 36;
+    public static final int SIZE = 54;
 
     private final DefaultedList<ItemStack> stacks;
     private final CanPlayerUseCheck canPlayerUseCheck;
+    private long coins;
     private List<InventoryChangedListener> listeners;
 
+    /**
+     * Server-side constructor
+     */
     public ShopStorage(CanPlayerUseCheck canPlayerUseCheck) {
         this.stacks = DefaultedList.ofSize(SIZE, ItemStack.EMPTY);
         this.canPlayerUseCheck = canPlayerUseCheck;
+    }
+
+    /**
+     * Client-side constructor
+     */
+    public ShopStorage(long coins) {
+        this.stacks = DefaultedList.ofSize(SIZE, ItemStack.EMPTY);
+        this.canPlayerUseCheck = player -> true;
+        this.coins = coins;
     }
 
     public void addListener(InventoryChangedListener listener) {
@@ -110,12 +125,47 @@ public class ShopStorage implements Inventory {
         this.markDirty();
     }
 
+    public long getCoins() {
+        return this.coins;
+    }
+
+    public void addCoins(ItemStack stack) {
+        if (stack.getItem() instanceof CoinItem coinItem) {
+            long value = coinItem.getValue() * stack.getCount();
+            this.coins += value;
+
+            this.markDirty();
+        }
+    }
+
+    public boolean removeCoins(ItemStack stack) {
+        if (!(stack.getItem() instanceof CoinItem coinItem)) {
+            return false;
+        }
+
+        long value = coinItem.getValue() * stack.getCount();
+
+        if (value > this.coins) {
+            return false;
+        }
+
+        this.coins -= value;
+
+        this.markDirty();
+        return true;
+    }
+
     /**
      * Adds an ItemStack to an existing slot if possible, otherwise to an empty slot, if possible.
      * @param stack ItemStack to add.
      * @return Leftover ItemStack aka what could not fit into this storage.
      */
     public ItemStack addStack(ItemStack stack) {
+        if (stack.getItem() instanceof CoinItem) {
+            this.addCoins(stack);
+            return ItemStack.EMPTY;
+        }
+
         ItemStack sourceStack = stack.copy();
         this.addToExistingSlot(sourceStack);
 
@@ -127,9 +177,19 @@ public class ShopStorage implements Inventory {
         return sourceStack.isEmpty() ? ItemStack.EMPTY : sourceStack;
     }
 
+    /**
+     * Removes an ItemStack from this storage, wherever it is and may remove only a portion if the storage does not have enough.
+     * @param stack ItemStack to remove (including the amount)
+     * @return The remaining ItemStack that could not be removed (if any).
+     */
     public ItemStack removeStack(ItemStack stack) {
-        ItemStack targetStack = stack.copy();
+        if (stack.getItem() instanceof CoinItem) {
+            return this.removeCoins(stack)
+                ? ItemStack.EMPTY
+                : stack.copy();
+        }
 
+        ItemStack targetStack = stack.copy();
         for (ItemStack storageStack : this.stacks) {
             if (ItemStack.canCombine(storageStack, targetStack)) {
                 int amount = Math.min(targetStack.getCount(), storageStack.getCount());
@@ -139,26 +199,27 @@ public class ShopStorage implements Inventory {
             }
 
             if (targetStack.isEmpty()) {
-                break;
+                return ItemStack.EMPTY;
             }
         }
 
-        if (targetStack.isEmpty()) {
-            return ItemStack.EMPTY;
-        } else {
-            return targetStack;
-        }
+        return targetStack;
     }
 
     public boolean canFit(ItemStack... stacks) {
         int emptySlots = this.getEmptySlotCount();
         int requiredSlots = 0;
+        boolean areCoins = true;
 
         for (ItemStack target : stacks) {
             requiredSlots += Math.ceil(target.getCount() / (double)this.getMaxCountPerStack());
+
+            if (areCoins && !target.isEmpty() && !(target.getItem() instanceof CoinItem)) {
+                areCoins = false;
+            }
         }
 
-        if (emptySlots >= requiredSlots) {
+        if (emptySlots >= requiredSlots || areCoins) {
             return true;
         }
 
@@ -174,6 +235,11 @@ public class ShopStorage implements Inventory {
     public boolean hasStack(ItemStack target) {
         if (target.isEmpty()) {
             return false;
+        }
+
+        if (target.getItem() instanceof CoinItem coinItem) {
+            long value = coinItem.getValue() * target.getCount();
+            return value <= this.coins;
         }
 
         int count = 0;
@@ -217,6 +283,14 @@ public class ShopStorage implements Inventory {
     }
 
     public int getItemCount(ItemStack target) {
+        if (target.getItem() instanceof CoinItem coinItem) {
+            long coinCount = this.coins / (coinItem.getValue() * target.getCount());
+
+            return coinCount > Integer.MAX_VALUE
+                ? Integer.MAX_VALUE
+                : (int)coinCount;
+        }
+
         int count = 0;
         for (ItemStack storageStack : this.stacks) {
             if (ItemStack.canCombine(target, storageStack)) {
@@ -260,30 +334,36 @@ public class ShopStorage implements Inventory {
         }
     }
 
-    public NbtList toNbt() {
-        NbtList result = new NbtList();
+    public NbtCompound toNbt() {
+        NbtCompound nbtCompound = new NbtCompound();
+        nbtCompound.putLong("Coins", this.coins);
 
+        NbtList nbtList = new NbtList();
         for (int i = 0; i < this.stacks.size(); i++) {
             ItemStack stack = this.stacks.get(i);
             if (!stack.isEmpty()) {
-                NbtCompound nbtCompound = new NbtCompound();
-                nbtCompound.putByte("Slot", (byte)i);
-                stack.writeNbt(nbtCompound);
-                result.add(nbtCompound);
+                NbtCompound nbtItem = new NbtCompound();
+                nbtItem.putByte("Slot", (byte)i);
+                stack.writeNbt(nbtItem);
+                nbtList.add(nbtItem);
             }
         }
 
-        return result;
+        nbtCompound.put("Items", nbtList);
+
+        return nbtCompound;
     }
 
-    public void fromNbt(NbtList nbtList) {
+    public void fromNbt(NbtCompound nbtCompound) {
         this.stacks.clear();
+        this.coins = nbtCompound.getLong("Coins");
 
+        NbtList nbtList = nbtCompound.getList("Items", NbtElement.COMPOUND_TYPE);
         for (int i = 0; i < nbtList.size(); i++) {
-            NbtCompound nbtCompound = nbtList.getCompound(i);
-            int slot = nbtCompound.getByte("Slot") & 255;
+            NbtCompound nbtItem = nbtList.getCompound(i);
+            int slot = nbtItem.getByte("Slot") & 255;
             if (slot < this.stacks.size()) {
-                this.stacks.set(slot, ItemStack.fromNbt(nbtCompound));
+                this.stacks.set(slot, ItemStack.fromNbt(nbtItem));
             }
         }
     }

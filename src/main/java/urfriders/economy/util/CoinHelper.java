@@ -19,6 +19,14 @@ public class CoinHelper {
         ModItems.NETHERITE_COIN
     };
 
+    public static int getCoinCount() {
+        return coins.length;
+    }
+
+    public static CoinItem getHighestCoin() {
+        return coins[coins.length - 1];
+    }
+
     /**
      * Returns an ItemStack with coin of the highest value possible for given value with the remainder.
      */
@@ -44,12 +52,12 @@ public class CoinHelper {
     public static ArrayList<ItemStack> getItemStacks(long value) {
         ArrayList<ItemStack> result = new ArrayList<>();
 
-        do {
+        while (value > 0) {
             Pair<ItemStack, Long> coin = getHighestItemStack(value);
 
             result.add(coin.getLeft());
             value = coin.getRight();
-        } while (value > 0);
+        }
 
         return result;
     }

@@ -1,4 +1,4 @@
-package urfriders.economy.shop;
+package urfriders.economy.inventory;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventories;
@@ -8,6 +8,9 @@ import net.minecraft.util.collection.DefaultedList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
+import urfriders.economy.shop.Shop;
+import urfriders.economy.shop.ShopOffer;
+import urfriders.economy.shop.ShopOfferList;
 
 public class TradeInventory implements Inventory {
     public static final int SELL_SLOT = 2;

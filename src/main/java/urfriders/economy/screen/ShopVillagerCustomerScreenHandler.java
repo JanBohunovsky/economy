@@ -13,8 +13,12 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
+import urfriders.economy.inventory.TradeInventory;
 import urfriders.economy.screen.slot.ShopOutputSlot;
-import urfriders.economy.shop.*;
+import urfriders.economy.shop.ClientShop;
+import urfriders.economy.shop.Shop;
+import urfriders.economy.shop.ShopOffer;
+import urfriders.economy.shop.ShopOfferList;
 
 public class ShopVillagerCustomerScreenHandler extends ScreenHandler {
     private static final Logger LOGGER = LogManager.getLogger();
@@ -127,7 +131,7 @@ public class ShopVillagerCustomerScreenHandler extends ScreenHandler {
     @Override
     public boolean canInsertIntoSlot(ItemStack stack, Slot slot) {
         // Disables the double-click merge stack thing
-        return super.canInsertIntoSlot(stack, slot);
+        return false;
     }
 
     @Override

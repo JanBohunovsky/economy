@@ -4,9 +4,9 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.stat.Stats;
+import urfriders.economy.inventory.TradeInventory;
 import urfriders.economy.shop.Shop;
 import urfriders.economy.shop.ShopOffer;
-import urfriders.economy.shop.TradeInventory;
 
 public class ShopOutputSlot extends Slot {
     private final Shop shop;
@@ -35,6 +35,7 @@ public class ShopOutputSlot extends Slot {
 
     @Override
     protected void onCrafted(ItemStack stack, int amount) {
+        // TODO: This is probably useless so remove it when confirmed
         this.amount += amount;
         this.onCrafted(stack);
     }
@@ -59,6 +60,8 @@ public class ShopOutputSlot extends Slot {
         if (offer.depleteBuyItems(firstBuyItem, secondBuyItem) || offer.depleteBuyItems(secondBuyItem, firstBuyItem)) {
             this.shop.trade(offer);
             player.incrementStat(Stats.TRADED_WITH_VILLAGER);
+
+            // Send update to the slots that the stacks have changed
             this.tradeInventory.setStack(0, firstBuyItem);
             this.tradeInventory.setStack(1, secondBuyItem);
         }

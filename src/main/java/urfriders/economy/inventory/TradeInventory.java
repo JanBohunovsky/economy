@@ -126,7 +126,7 @@ public class TradeInventory implements Inventory {
 
         if (offer != null && !offer.isDisabled()) {
             this.currentOffer = offer;
-            this.setStack(SELL_SLOT, offer.copySellItem());
+            this.setStack(SELL_SLOT, offer.getSellItem().copy());
         } else {
             this.setStack(SELL_SLOT, ItemStack.EMPTY);
         }

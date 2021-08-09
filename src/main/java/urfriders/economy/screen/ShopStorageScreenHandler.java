@@ -96,7 +96,7 @@ public class ShopStorageScreenHandler extends ScreenHandler {
         // Add coins by clicking with items in cursor in shop inventory (storage + coins)
         if (actionType == SlotActionType.PICKUP && indexInShopInventory(slotIndex)) {
             ItemStack cursorStack = this.getCursorStack();
-            if (!cursorStack.isEmpty() && cursorStack.getItem() instanceof CoinItem) {
+            if (!cursorStack.isEmpty() && CoinHelper.isCoinItem(cursorStack)) {
                 // Left click = all, right click = 1
                 int amount = button == 0 ? cursorStack.getCount() : 1;
                 ItemStack stackToAdd = cursorStack.split(amount);
@@ -116,7 +116,7 @@ public class ShopStorageScreenHandler extends ScreenHandler {
             PlayerInventory playerInventory = player.getInventory();
             ItemStack hotbarStack = playerInventory.getStack(button);
 
-            if (!hotbarStack.isEmpty() && hotbarStack.getItem() instanceof CoinItem) {
+            if (!hotbarStack.isEmpty() && CoinHelper.isCoinItem(hotbarStack)) {
                 playerInventory.setStack(button, ItemStack.EMPTY);
                 this.shopStorage.addCoins(hotbarStack);
                 this.updateCoinInventory();
@@ -154,7 +154,7 @@ public class ShopStorageScreenHandler extends ScreenHandler {
         // Remove coins by taking items from coin inventory
         if (actionType == SlotActionType.PICKUP && indexInCoinInventory(slotIndex)) {
             ItemStack cursorStack = this.getCursorStack();
-            if (!cursorStack.isEmpty() && cursorStack.getItem() instanceof CoinItem) {
+            if (!cursorStack.isEmpty() && CoinHelper.isCoinItem(cursorStack)) {
                 this.shopStorage.removeCoins(cursorStack);
                 this.updateCoinInventory();
                 return;
@@ -166,7 +166,7 @@ public class ShopStorageScreenHandler extends ScreenHandler {
             PlayerInventory playerInventory = player.getInventory();
             ItemStack hotbarStack = playerInventory.getStack(button);
 
-            if (!hotbarStack.isEmpty() && hotbarStack.getItem() instanceof CoinItem) {
+            if (!hotbarStack.isEmpty() && CoinHelper.isCoinItem(hotbarStack)) {
                 this.shopStorage.removeCoins(hotbarStack);
                 this.updateCoinInventory();
             }
@@ -224,7 +224,7 @@ public class ShopStorageScreenHandler extends ScreenHandler {
             }
         } else if (indexInPlayerInventory(index)) {
             // Insert item from Player inventory into Storage inventory
-            if (stack.getItem() instanceof CoinItem) {
+            if (CoinHelper.isCoinItem(stack)) {
                 this.shopStorage.addCoins(stack);
                 stack.setCount(0);
             } else if (!this.insertItem(stack, storageStart, playerStart, false)) {
@@ -238,7 +238,7 @@ public class ShopStorageScreenHandler extends ScreenHandler {
             slot.markDirty();
         }
 
-        if (originalStack.getItem() instanceof CoinItem) {
+        if (CoinHelper.isCoinItem(originalStack)) {
             this.updateCoinInventory();
         }
 

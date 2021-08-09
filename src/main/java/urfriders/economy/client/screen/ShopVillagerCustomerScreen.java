@@ -94,9 +94,9 @@ public class ShopVillagerCustomerScreen extends HandledScreen<ShopVillagerCustom
         this.textRenderer.draw(matrices, Integer.toString(this.handler.getOfferIndex()), 3, 3, 0xffffff);
         if (this.handler.getSelectedOffer() != null) {
             ShopOffer offer = this.handler.getSelectedOffer();
-            this.textRenderer.draw(matrices, Integer.toString(offer.getTradesLeft()), 3, 13, 0xffffff);
-            this.textRenderer.draw(matrices, Integer.toString(offer.getAvailableSpaceForFirstItem()), 3, 23, 0xffffff);
-            this.textRenderer.draw(matrices, Integer.toString(offer.getAvailableSpaceForSecondItem()), 3, 33, 0xffffff);
+            this.textRenderer.draw(matrices, String.format("%,d", offer.getSellItemStock()), 3, 13, 0xffffff);
+            this.textRenderer.draw(matrices, String.format("%,d", offer.getAvailableSpaceForFirstItem()), 3, 23, 0xffffff);
+            this.textRenderer.draw(matrices, String.format("%,d", offer.getAvailableSpaceForSecondItem()), 3, 33, 0xffffff);
         }
 
         ShopOfferList offers = this.handler.getOffers();

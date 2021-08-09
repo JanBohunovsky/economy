@@ -11,6 +11,7 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.util.collection.DefaultedList;
 import urfriders.economy.item.CoinItem;
+import urfriders.economy.util.CoinHelper;
 
 import java.util.List;
 
@@ -161,7 +162,7 @@ public class ShopStorage implements Inventory {
      * @return Leftover ItemStack aka what could not fit into this storage.
      */
     public ItemStack addStack(ItemStack stack) {
-        if (stack.getItem() instanceof CoinItem) {
+        if (CoinHelper.isCoinItem(stack)) {
             this.addCoins(stack);
             return ItemStack.EMPTY;
         }
@@ -183,7 +184,7 @@ public class ShopStorage implements Inventory {
      * @return The remaining ItemStack that could not be removed (if any).
      */
     public ItemStack removeStack(ItemStack stack) {
-        if (stack.getItem() instanceof CoinItem) {
+        if (CoinHelper.isCoinItem(stack)) {
             return this.removeCoins(stack)
                 ? ItemStack.EMPTY
                 : stack.copy();
@@ -214,7 +215,7 @@ public class ShopStorage implements Inventory {
         for (ItemStack target : stacks) {
             requiredSlots += Math.ceil(target.getCount() / (double)this.getMaxCountPerStack());
 
-            if (areCoins && !target.isEmpty() && !(target.getItem() instanceof CoinItem)) {
+            if (areCoins && !target.isEmpty() && !CoinHelper.isCoinItem(target)) {
                 areCoins = false;
             }
         }

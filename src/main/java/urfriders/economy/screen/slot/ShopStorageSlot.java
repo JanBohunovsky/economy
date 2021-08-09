@@ -3,7 +3,7 @@ package urfriders.economy.screen.slot;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.slot.Slot;
-import urfriders.economy.item.CoinItem;
+import urfriders.economy.util.CoinHelper;
 
 public class ShopStorageSlot extends Slot {
 
@@ -13,6 +13,6 @@ public class ShopStorageSlot extends Slot {
 
     @Override
     public boolean canInsert(ItemStack stack) {
-        return !(stack.getItem() instanceof CoinItem);
+        return !CoinHelper.isCoinItem(stack);
     }
 }

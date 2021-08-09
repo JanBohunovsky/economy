@@ -1,5 +1,6 @@
 package urfriders.economy.util;
 
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Pair;
 import org.apache.logging.log4j.LogManager;
@@ -25,6 +26,14 @@ public class CoinHelper {
 
     public static CoinItem getHighestCoin() {
         return coins[coins.length - 1];
+    }
+
+    public static boolean isCoinItem(ItemStack itemStack) {
+        return isCoinItem(itemStack.getItem());
+    }
+
+    public static boolean isCoinItem(Item item) {
+        return item instanceof CoinItem;
     }
 
     /**

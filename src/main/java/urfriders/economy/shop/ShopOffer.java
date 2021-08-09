@@ -4,14 +4,14 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import urfriders.economy.inventory.ShopStorage;
-import urfriders.economy.item.CoinItem;
+import urfriders.economy.util.CoinHelper;
 
 public class ShopOffer {
     private final ItemStack firstBuyItem;
     private final ItemStack secondBuyItem;
     private final ItemStack sellItem;
     private boolean disabled;
-    private int tradesLeft;
+    private int sellItemStock;
     private int availableSpaceForFirstItem;
     private int availableSpaceForSecondItem;
 
@@ -27,12 +27,12 @@ public class ShopOffer {
         this(firstBuyItem, secondBuyItem, sellItem, disabled, 0, 0, 0);
     }
 
-    private ShopOffer(ItemStack firstBuyItem, ItemStack secondBuyItem, ItemStack sellItem, boolean disabled, int tradesLeft, int availableSpaceForFirstItem, int availableSpaceForSecondItem) {
+    private ShopOffer(ItemStack firstBuyItem, ItemStack secondBuyItem, ItemStack sellItem, boolean disabled, int sellItemStock, int availableSpaceForFirstItem, int availableSpaceForSecondItem) {
         this.firstBuyItem = firstBuyItem;
         this.secondBuyItem = secondBuyItem;
         this.sellItem = sellItem;
         this.disabled = disabled;
-        this.tradesLeft = tradesLeft;
+        this.sellItemStock = sellItemStock;
         this.availableSpaceForFirstItem = availableSpaceForFirstItem;
         this.availableSpaceForSecondItem = availableSpaceForSecondItem;
     }
@@ -49,12 +49,8 @@ public class ShopOffer {
         return this.sellItem;
     }
 
-    public ItemStack copySellItem() {
-        return this.sellItem.copy();
-    }
-
     public boolean isDisabled() {
-        return this.disabled || this.tradesLeft <= 0 || this.availableSpaceForFirstItem <= 0 || this.availableSpaceForSecondItem <= 0;
+        return this.disabled || this.isOutOfStock() || this.isStorageFull();
     }
 
     public String getDisabledReason() {
@@ -62,15 +58,26 @@ public class ShopOffer {
             return "disabled";
         }
 
-        if (this.tradesLeft <= 0) {
-            return "outOfStock";
+        if (this.isOutOfStock()) {
+            return CoinHelper.isCoinItem(this.sellItem)
+                ? "outOfCoins"
+                : "outOfStock";
         }
 
-        if (this.availableSpaceForFirstItem <= 0 || this.availableSpaceForSecondItem <= 0) {
+        if (this.isStorageFull()) {
             return "fullStorage";
         }
 
         return "none";
+    }
+
+    private boolean isOutOfStock() {
+        return this.sellItemStock < this.sellItem.getCount();
+    }
+
+    private boolean isStorageFull() {
+        return this.availableSpaceForFirstItem < this.firstBuyItem.getCount()
+            || this.availableSpaceForSecondItem < this.secondBuyItem.getCount();
     }
 
     public void enable() {
@@ -82,8 +89,8 @@ public class ShopOffer {
     }
 
     @Deprecated
-    public int getTradesLeft() {
-        return this.tradesLeft;
+    public int getSellItemStock() {
+        return this.sellItemStock;
     }
 
     @Deprecated
@@ -97,46 +104,46 @@ public class ShopOffer {
     }
 
     public void onTrade() {
-        this.tradesLeft--;
-
-        // Subtract space only for non-coin items
-        if (!(this.firstBuyItem.getItem() instanceof CoinItem)) {
-            this.availableSpaceForFirstItem -= this.firstBuyItem.getCount();
-        }
-        if (!this.secondBuyItem.isEmpty() && !(this.secondBuyItem.getItem() instanceof CoinItem)) {
-            this.availableSpaceForSecondItem -= this.secondBuyItem.getCount();
-        }
+        this.sellItemStock -= this.sellItem.getCount();
+        this.availableSpaceForFirstItem -= this.firstBuyItem.getCount();
+        this.availableSpaceForSecondItem -= this.secondBuyItem.getCount();
     }
 
-    public boolean update(ShopStorage storage, int emptySlots) {
-        int newTradesLeft = storage.getItemCount(this.sellItem) / this.sellItem.getCount();
+    public boolean update(ShopStorage storage, int emptyStorageSlots) {
+        int newTradesLeft = storage.getItemCount(this.sellItem);
+        int newSpaceForFirst = this.calculateAvailableSpaceFor(this.firstBuyItem, storage, emptyStorageSlots);
+        int newSpaceForSecond = this.calculateAvailableSpaceFor(this.secondBuyItem, storage, emptyStorageSlots - 1);
 
-        int newSpaceForFirst = 1;
-        if (!(this.firstBuyItem.getItem() instanceof CoinItem)) {
-            newSpaceForFirst = storage.getExclusiveAvailableSpaceFor(this.firstBuyItem)
-                + (emptySlots * Math.min(this.firstBuyItem.getMaxCount(), storage.getMaxCountPerStack()));
-        }
-
-        int newSpaceForSecond = 1;
-        if (!this.secondBuyItem.isEmpty() && !(this.secondBuyItem.getItem() instanceof CoinItem)) {
-            newSpaceForSecond = storage.getExclusiveAvailableSpaceFor(this.secondBuyItem)
-                + ((emptySlots - 1) * Math.min(this.secondBuyItem.getMaxCount(), storage.getMaxCountPerStack()));
-        }
-
-        boolean changed = this.tradesLeft != newTradesLeft
+        boolean changed = this.sellItemStock != newTradesLeft
             || this.availableSpaceForFirstItem != newSpaceForFirst
             || this.availableSpaceForSecondItem != newSpaceForSecond;
 
-        this.tradesLeft = newTradesLeft;
+        this.sellItemStock = newTradesLeft;
         this.availableSpaceForFirstItem = newSpaceForFirst;
         this.availableSpaceForSecondItem = newSpaceForSecond;
 
         return changed;
     }
 
+    private int calculateAvailableSpaceFor(ItemStack itemStack, ShopStorage storage, int emptyStorageSlots) {
+        if (itemStack.isEmpty()) {
+            return Integer.MAX_VALUE;
+        }
+
+        if (CoinHelper.isCoinItem(itemStack)) {
+            return Integer.MAX_VALUE;
+        }
+
+        int exclusiveSpace = storage.getExclusiveAvailableSpaceFor(itemStack);
+        int maxStackCount = Math.min(itemStack.getMaxCount(), storage.getMaxCountPerStack());
+        int emptySpace = Math.max(emptyStorageSlots, 0) * maxStackCount;
+
+        return exclusiveSpace + emptySpace;
+    }
+
     public boolean matchesBuyItems(ItemStack firstBuyItem, ItemStack secondBuyItem) {
-        return this.acceptsBuyItem(firstBuyItem, this.firstBuyItem) && firstBuyItem.getCount() >= this.firstBuyItem.getCount()
-            && this.acceptsBuyItem(secondBuyItem, this.secondBuyItem) && secondBuyItem.getCount() >= this.secondBuyItem.getCount();
+        return ItemStack.canCombine(firstBuyItem, this.firstBuyItem) && firstBuyItem.getCount() >= this.firstBuyItem.getCount()
+            && ItemStack.canCombine(secondBuyItem, this.secondBuyItem) && secondBuyItem.getCount() >= this.secondBuyItem.getCount();
     }
 
     public void toPacket(PacketByteBuf buf) {
@@ -149,7 +156,7 @@ public class ShopOffer {
         }
 
         buf.writeBoolean(this.disabled);
-        buf.writeInt(this.tradesLeft);
+        buf.writeInt(this.sellItemStock);
         buf.writeInt(this.availableSpaceForFirstItem);
         buf.writeInt(this.availableSpaceForSecondItem);
     }
@@ -164,11 +171,11 @@ public class ShopOffer {
         }
 
         boolean disabled = buf.readBoolean();
-        int tradesLeft = buf.readInt();
+        int sellItemStock = buf.readInt();
         int availableSpaceForFirstItem = buf.readInt();
         int availableSpaceForSecondItem = buf.readInt();
 
-        return new ShopOffer(firstBuyItem, secondBuyItem, sellItem, disabled, tradesLeft, availableSpaceForFirstItem, availableSpaceForSecondItem);
+        return new ShopOffer(firstBuyItem, secondBuyItem, sellItem, disabled, sellItemStock, availableSpaceForFirstItem, availableSpaceForSecondItem);
     }
 
     public NbtCompound toNbt() {
@@ -187,26 +194,6 @@ public class ShopOffer {
             ItemStack.fromNbt(nbt.getCompound("sell")),
             nbt.getBoolean("disabled")
         );
-    }
-
-    private boolean acceptsBuyItem(ItemStack givenItem, ItemStack sampleItem) {
-//        if (givenItem.isEmpty() && sampleItem.isEmpty()) {
-//            return true;
-//        }
-//
-//        ItemStack copyGivenItem = givenItem.copy();
-////        if (copyGivenItem.isDamageable()) {
-////            copyGivenItem.setDamage(copyGivenItem.getDamage());
-////        }
-//
-//        boolean equalItems = ItemStack.areItemsEqualIgnoreDamage(copyGivenItem, sampleItem);
-//
-//        if (equalItems && sampleItem.hasNbt()) {
-//            return copyGivenItem.hasNbt() && NbtHelper.matches(sampleItem.getNbt(), copyGivenItem.getNbt(), false);
-//        }
-//
-//        return equalItems;
-        return ItemStack.canCombine(givenItem, sampleItem);
     }
 
     public boolean depleteBuyItems(ItemStack firstBuyItem, ItemStack secondBuyItem) {

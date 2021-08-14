@@ -15,10 +15,10 @@
     "environment": "*",
     "entrypoints": {
         "main": [
-            "urfriders.economy.Economy"
+            "dev.bohush.economy.Economy"
         ],
         "client": [
-            "urfriders.economy.client.EconomyClient"
+            "dev.bohush.economy.client.EconomyClient"
         ]
     },
     "mixins": [

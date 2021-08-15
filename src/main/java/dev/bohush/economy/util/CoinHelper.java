@@ -7,6 +7,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
@@ -26,6 +27,44 @@ public class CoinHelper {
 
     public static CoinItem getHighestCoin() {
         return coins[coins.length - 1];
+    }
+
+    @Nullable
+    public static CoinItem getNextTier(ItemStack coinStack) {
+        if (coinStack.getItem() instanceof CoinItem coinItem) {
+            return getNextTier(coinItem);
+        }
+
+        return null;
+    }
+
+    @Nullable
+    public static CoinItem getNextTier(CoinItem coinItem) {
+        int targetTier = coinItem.getTier() + 1;
+        if (targetTier >= coins.length) {
+            return null;
+        }
+
+        return coins[targetTier];
+    }
+
+    @Nullable
+    public static CoinItem getPreviousTier(ItemStack coinStack) {
+        if (coinStack.getItem() instanceof CoinItem coinItem) {
+            return getPreviousTier(coinItem);
+        }
+
+        return null;
+    }
+
+    @Nullable
+    public static CoinItem getPreviousTier(CoinItem coinItem) {
+        int targetTier = coinItem.getTier() - 1;
+        if (targetTier < 0) {
+            return null;
+        }
+
+        return coins[targetTier];
     }
 
     public static boolean isCoinItem(ItemStack itemStack) {

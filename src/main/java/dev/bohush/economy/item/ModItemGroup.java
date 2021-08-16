@@ -9,6 +9,6 @@ import net.minecraft.util.Identifier;
 public class ModItemGroup {
     public static final ItemGroup ALL = FabricItemGroupBuilder
             .create(new Identifier(Economy.MOD_ID, "all"))
-            .icon(() -> new ItemStack(ModItems.GOLD_COIN_PILE))
+            .icon(() -> new ItemStack(ModItems.MOD_ICON))
             .build();
 }

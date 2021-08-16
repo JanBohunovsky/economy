@@ -4,8 +4,6 @@
         "economy:copper_coin",
         "economy:iron_coin",
         "economy:gold_coin",
-        "economy:diamond_coin",
-        "economy:netherite_coin",
-        "economy:platinum_coin"
+        "economy:netherite_coin"
     ]
 }

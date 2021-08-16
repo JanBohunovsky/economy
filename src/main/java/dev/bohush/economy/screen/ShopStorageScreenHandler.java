@@ -36,8 +36,9 @@ public class ShopStorageScreenHandler extends ScreenHandler {
         shopStorage.onOpen(playerInventory.player);
 
         // Coin slots
+        var coinStartY = 25 + (18 * (coinInventory.size() - 1));
         for (int i = 0; i < coinInventory.size(); i++) {
-            this.addSlot(new ShopCoinSlot(this.coinInventory, i, 180, 97 - i * 18));
+            this.addSlot(new ShopCoinSlot(this.coinInventory, i, 180, coinStartY - i * 18));
         }
 
         // Shop storage

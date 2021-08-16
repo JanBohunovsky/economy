@@ -17,7 +17,6 @@ public class CoinHelper {
         ModItems.COPPER_COIN,
         ModItems.IRON_COIN,
         ModItems.GOLD_COIN,
-        ModItems.DIAMOND_COIN,
         ModItems.NETHERITE_COIN
     };
 

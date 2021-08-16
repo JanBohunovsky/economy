@@ -11,7 +11,7 @@
             "tag": "minecraft:planks"
         },
         "$": {
-            "tag": "economy:coin_piles"
+            "tag": "economy:coins"
         }
     },
     "result": {

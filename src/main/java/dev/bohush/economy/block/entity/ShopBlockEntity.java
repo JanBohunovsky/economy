@@ -311,7 +311,7 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
             this.offers.add(new ShopOffer(new ItemStack(ModItems.COPPER_COIN, 1), new ItemStack(Items.DIRT, 64)));
             this.offers.add(new ShopOffer(new ItemStack(ModItems.IRON_COIN, 1), new ItemStack(Items.COBBLESTONE, 64)));
             this.offers.add(new ShopOffer(new ItemStack(ModItems.GOLD_COIN, 1), new ItemStack(Items.NETHER_STAR, 1)));
-            this.offers.add(new ShopOffer(new ItemStack(Items.STICK, 1), ItemStack.EMPTY, new ItemStack(ModItems.DIAMOND_COIN, 1), true));
+            this.offers.add(new ShopOffer(new ItemStack(Items.STICK, 1), ItemStack.EMPTY, new ItemStack(ModItems.NETHERITE_COIN, 1), true));
             this.offers.add(new ShopOffer(new ItemStack(Items.DIRT, 64), new ItemStack(Items.DIRT, 64), new ItemStack(ModItems.COPPER_COIN, 1)));
         }
 

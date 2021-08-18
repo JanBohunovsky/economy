@@ -50,7 +50,7 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
     private String ownerName;
     private UUID villagerUuid;
     private VillagerData villagerStyle;
-    private PlayerEntity customer;
+    private PlayerEntity activePlayer;
     private ShopOfferList offers;
 
     public ShopBlockEntity(BlockPos pos, BlockState state) {
@@ -151,7 +151,7 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
         }
 
         if (!player.isSpectator()) {
-            setCurrentCustomer(null);
+            setActivePlayer(null);
         }
 
         return new ShopStorageScreenHandler(syncId, playerInventory, this.storage);
@@ -163,17 +163,17 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
     }
 
     @Override
-    public void setCurrentCustomer(@Nullable PlayerEntity player) {
-        this.customer = player;
+    public void setActivePlayer(@Nullable PlayerEntity player) {
+        this.activePlayer = player;
     }
 
     @Override
-    public @Nullable PlayerEntity getCurrentCustomer() {
-        return this.customer;
+    public @Nullable PlayerEntity getActivePlayer() {
+        return this.activePlayer;
     }
 
-    public boolean hasCustomer() {
-        return this.customer != null;
+    public boolean hasActivePlayer() {
+        return this.activePlayer != null;
     }
 
     @Override
@@ -192,7 +192,7 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
     @Override
     public void updateOffers() {
         LOGGER.info("updateOffers()");
-        if (!this.hasCustomer()) {
+        if (!this.hasActivePlayer()) {
             return;
         }
 
@@ -218,7 +218,7 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
             offer.getRight().toPacket(buf);
         }
 
-        ServerPlayNetworking.send((ServerPlayerEntity)this.customer, ModPackets.UPDATE_OFFERS_S2C, buf);
+        ServerPlayNetworking.send((ServerPlayerEntity)this.activePlayer, ModPackets.UPDATE_OFFERS_S2C, buf);
     }
 
     public void prepareOffers() {

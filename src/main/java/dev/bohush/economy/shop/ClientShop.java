@@ -6,21 +6,21 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 public class ClientShop implements Shop {
-    private final PlayerEntity customer;
+    private final PlayerEntity activePlayer;
     private ShopOfferList offers;
 
     public ClientShop(PlayerEntity player, ShopOfferList offers) {
-        this.customer = player;
+        this.activePlayer = player;
         this.offers = offers;
     }
 
     @Override
-    public void setCurrentCustomer(@Nullable PlayerEntity player) {
+    public void setActivePlayer(@Nullable PlayerEntity player) {
     }
 
     @Override
-    public @Nullable PlayerEntity getCurrentCustomer() {
-        return customer;
+    public @Nullable PlayerEntity getActivePlayer() {
+        return activePlayer;
     }
 
     @Override
@@ -53,6 +53,6 @@ public class ClientShop implements Shop {
 
     @Override
     public World getWorld() {
-        return this.customer.world;
+        return this.activePlayer.world;
     }
 }

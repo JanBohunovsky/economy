@@ -6,10 +6,10 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 public interface Shop {
-    void setCurrentCustomer(@Nullable PlayerEntity player);
+    void setActivePlayer(@Nullable PlayerEntity player);
 
     @Nullable
-    PlayerEntity getCurrentCustomer();
+    PlayerEntity getActivePlayer();
 
     ShopOfferList getOffers();
 

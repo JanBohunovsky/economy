@@ -1,7 +1,7 @@
 package dev.bohush.economy.client.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import dev.bohush.economy.screen.ShopVillagerCustomerScreenHandler;
+import dev.bohush.economy.screen.ShopVillagerScreenHandler;
 import dev.bohush.economy.shop.ShopOffer;
 import dev.bohush.economy.shop.ShopOfferList;
 import net.fabricmc.api.EnvType;
@@ -22,7 +22,7 @@ import net.minecraft.util.math.MathHelper;
 import java.util.ArrayList;
 
 @Environment(EnvType.CLIENT)
-public class ShopVillagerCustomerScreen extends HandledScreen<ShopVillagerCustomerScreenHandler> {
+public class ShopVillagerScreen extends HandledScreen<ShopVillagerScreenHandler> {
     protected static final Identifier TEXTURE = new Identifier("textures/gui/container/villager2.png");
     protected static final Text OFFERS_TEXT = new TranslatableText("shop.offers");
     protected static final String DISABLED_TEXT_KEY = "shop.offer.";
@@ -31,7 +31,7 @@ public class ShopVillagerCustomerScreen extends HandledScreen<ShopVillagerCustom
     protected int indexStartOffset;
     protected boolean scrolling;
 
-    public ShopVillagerCustomerScreen(ShopVillagerCustomerScreenHandler handler, PlayerInventory inventory, Text title) {
+    public ShopVillagerScreen(ShopVillagerScreenHandler handler, PlayerInventory inventory, Text title) {
         super(handler, inventory, title);
         this.backgroundWidth = 276;
         this.playerInventoryTitleX = 107;
@@ -226,9 +226,9 @@ public class ShopVillagerCustomerScreen extends HandledScreen<ShopVillagerCustom
             RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderTexture(0, TEXTURE);
             if (offer.isDisabled()) {
-                drawTexture(matrices, this.x + 55, this.y + 4, ShopVillagerCustomerScreen.this.getZOffset(), 25.0F, 171.0F, 10, 9, 256, 512);
+                drawTexture(matrices, this.x + 55, this.y + 4, ShopVillagerScreen.this.getZOffset(), 25.0F, 171.0F, 10, 9, 256, 512);
             } else {
-                drawTexture(matrices, this.x + 55, this.y + 4, ShopVillagerCustomerScreen.this.getZOffset(), 15.0F, 171.0F, 10, 9, 256, 512);
+                drawTexture(matrices, this.x + 55, this.y + 4, ShopVillagerScreen.this.getZOffset(), 15.0F, 171.0F, 10, 9, 256, 512);
             }
         }
 
@@ -252,11 +252,11 @@ public class ShopVillagerCustomerScreen extends HandledScreen<ShopVillagerCustom
 
                 if (offer.isDisabled() && mouseX >= this.x + 53 && mouseX <= this.x + 65) {
                     Text text = new TranslatableText(DISABLED_TEXT_KEY.concat(offer.getDisabledReason()));
-                    ShopVillagerCustomerScreen.this.renderTooltip(matrices, text, mouseX, mouseY);
+                    ShopVillagerScreen.this.renderTooltip(matrices, text, mouseX, mouseY);
                 }
 
                 if (!item.isEmpty()) {
-                    ShopVillagerCustomerScreen.this.renderTooltip(matrices, item, mouseX, mouseY);
+                    ShopVillagerScreen.this.renderTooltip(matrices, item, mouseX, mouseY);
                 }
             }
         }

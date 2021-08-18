@@ -87,7 +87,7 @@ public class TradeInventory implements Inventory {
 
     @Override
     public boolean canPlayerUse(PlayerEntity player) {
-        return shop.getCurrentCustomer() == player;
+        return shop.getActivePlayer() == player;
     }
 
     @Override

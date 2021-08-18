@@ -20,7 +20,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
-public class ShopVillagerCustomerScreenHandler extends ScreenHandler {
+public class ShopVillagerScreenHandler extends ScreenHandler {
     private static final Logger LOGGER = LogManager.getLogger();
 
     private final Shop shop;
@@ -37,12 +37,12 @@ public class ShopVillagerCustomerScreenHandler extends ScreenHandler {
         }
     };
 
-    public ShopVillagerCustomerScreenHandler(int syncId, PlayerInventory playerInventory, PacketByteBuf buf) {
+    public ShopVillagerScreenHandler(int syncId, PlayerInventory playerInventory, PacketByteBuf buf) {
         this(syncId, playerInventory, new ClientShop(playerInventory.player, ShopOfferList.fromPacket(buf)));
     }
 
-    public ShopVillagerCustomerScreenHandler(int syncId, PlayerInventory playerInventory, Shop shop) {
-        super(ModScreens.SHOP_VILLAGER_CUSTOMER, syncId);
+    public ShopVillagerScreenHandler(int syncId, PlayerInventory playerInventory, Shop shop) {
+        super(ModScreens.SHOP_VILLAGER, syncId);
         this.shop = shop;
         this.tradeInventory = new TradeInventory(shop);
 
@@ -125,7 +125,7 @@ public class ShopVillagerCustomerScreenHandler extends ScreenHandler {
 
     @Override
     public boolean canUse(PlayerEntity player) {
-        return this.shop.getCurrentCustomer() == player;
+        return this.shop.getActivePlayer() == player;
     }
 
     @Override
@@ -185,7 +185,7 @@ public class ShopVillagerCustomerScreenHandler extends ScreenHandler {
     @Override
     public void close(PlayerEntity player) {
         super.close(player);
-        this.shop.setCurrentCustomer(null);
+        this.shop.setActivePlayer(null);
         if (this.shop.getWorld().isClient) {
             return;
         }

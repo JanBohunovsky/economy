@@ -1,8 +1,7 @@
 package dev.bohush.economy.entity;
 
 import dev.bohush.economy.block.entity.ShopBlockEntity;
-import dev.bohush.economy.screen.ShopVillagerCustomerScreenHandler;
-import dev.bohush.economy.screen.ShopVillagerOwnerScreenHandler;
+import dev.bohush.economy.screen.ShopVillagerScreenHandler;
 import dev.bohush.economy.shop.ShopOfferList;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.entity.EntityType;
@@ -26,7 +25,6 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.stat.Stats;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
@@ -85,7 +83,7 @@ public class ShopVillagerEntity extends MobEntity implements VillagerDataContain
     @Override
     protected ActionResult interactMob(PlayerEntity player, Hand hand) {
         ShopBlockEntity shopBlockEntity = getShopBlockEntity();
-        if (!this.isAlive() || shopBlockEntity.hasCustomer()) {
+        if (!this.isAlive() || shopBlockEntity.hasActivePlayer()) {
             return super.interactMob(player, hand);
         }
 
@@ -105,7 +103,7 @@ public class ShopVillagerEntity extends MobEntity implements VillagerDataContain
                 : createCustomerScreenHandlerFactory();
 
             if (factory != null) {
-                shopBlockEntity.setCurrentCustomer(player);
+                shopBlockEntity.setActivePlayer(player);
                 player.openHandledScreen(factory);
             }
         }
@@ -158,7 +156,7 @@ public class ShopVillagerEntity extends MobEntity implements VillagerDataContain
 
             @Override
             public ScreenHandler createMenu(int syncId, PlayerInventory inv, PlayerEntity player) {
-                return new ShopVillagerCustomerScreenHandler(syncId, inv, shopBlockEntity);
+                return new ShopVillagerScreenHandler(syncId, inv, shopBlockEntity);
             }
         };
     }
@@ -188,7 +186,7 @@ public class ShopVillagerEntity extends MobEntity implements VillagerDataContain
     @Nullable
     @Override
     protected SoundEvent getAmbientSound() {
-        return getShopBlockEntity().hasCustomer()
+        return getShopBlockEntity().hasActivePlayer()
             ? SoundEvents.ENTITY_VILLAGER_TRADE
             : SoundEvents.ENTITY_VILLAGER_AMBIENT;
     }

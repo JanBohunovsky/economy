@@ -15,6 +15,7 @@
     "shop.name.owner": "Your Shop",
     "shop.differentOwner": "This shop is owned by %s.",
     "shop.offers": "Offers",
+    "shop.offers.edit": "Edit offers",
     "shop.offer.outOfStock": "Item is out of stock.",
     "shop.offer.outOfCoins": "Shop is out of coins.",
     "shop.offer.fullStorage": "Storage is full.",

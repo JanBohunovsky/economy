@@ -23,6 +23,7 @@ import org.jetbrains.annotations.Nullable;
 public class ShopVillagerScreenHandler extends ScreenHandler {
     private static final Logger LOGGER = LogManager.getLogger();
 
+    private final boolean isOwner;
     private final Shop shop;
     private final TradeInventory tradeInventory;
     private final Property offerIndex = new Property() {
@@ -38,11 +39,12 @@ public class ShopVillagerScreenHandler extends ScreenHandler {
     };
 
     public ShopVillagerScreenHandler(int syncId, PlayerInventory playerInventory, PacketByteBuf buf) {
-        this(syncId, playerInventory, new ClientShop(playerInventory.player, ShopOfferList.fromPacket(buf)));
+        this(syncId, playerInventory, new ClientShop(playerInventory.player, ShopOfferList.fromPacket(buf)), buf.readBoolean());
     }
 
-    public ShopVillagerScreenHandler(int syncId, PlayerInventory playerInventory, Shop shop) {
+    public ShopVillagerScreenHandler(int syncId, PlayerInventory playerInventory, Shop shop, boolean isOwner) {
         super(ModScreens.SHOP_VILLAGER, syncId);
+        this.isOwner = isOwner;
         this.shop = shop;
         this.tradeInventory = new TradeInventory(shop);
 
@@ -64,6 +66,10 @@ public class ShopVillagerScreenHandler extends ScreenHandler {
         }
 
         this.addProperty(this.offerIndex);
+    }
+
+    public boolean isOwner() {
+        return this.isOwner;
     }
 
     public int getOfferIndex() {

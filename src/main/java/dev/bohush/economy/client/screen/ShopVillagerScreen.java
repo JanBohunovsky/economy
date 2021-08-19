@@ -1,6 +1,7 @@
 package dev.bohush.economy.client.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import dev.bohush.economy.Economy;
 import dev.bohush.economy.screen.ShopVillagerScreenHandler;
 import dev.bohush.economy.shop.ShopOffer;
 import dev.bohush.economy.shop.ShopOfferList;
@@ -8,6 +9,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
+import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.PressableWidget;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
@@ -23,7 +25,7 @@ import java.util.ArrayList;
 
 @Environment(EnvType.CLIENT)
 public class ShopVillagerScreen extends HandledScreen<ShopVillagerScreenHandler> {
-    protected static final Identifier TEXTURE = new Identifier("textures/gui/container/villager2.png");
+    protected static final Identifier TEXTURE = new Identifier(Economy.MOD_ID, "textures/gui/shop_villager.png");
     protected static final Text OFFERS_TEXT = new TranslatableText("shop.offers");
 
     protected ArrayList<OfferButtonWidget> offerButtons = new ArrayList<>();
@@ -40,6 +42,12 @@ public class ShopVillagerScreen extends HandledScreen<ShopVillagerScreenHandler>
         super.init();
         int startX = (this.width - this.backgroundWidth) / 2;
         int startY = (this.height - this.backgroundHeight) / 2;
+
+        if (this.handler.isOwner()) {
+            int x = startX + 101 - EditButtonWidget.SIZE;
+            int y = startY + 4;
+            this.addDrawableChild(new EditButtonWidget(x, y));
+        }
 
         for (int i = 0; i < 7; i++) {
             offerButtons.add(this.addDrawableChild(new OfferButtonWidget(startX + 5, i * 20 + startY + 16 + 2, i)));
@@ -261,6 +269,40 @@ public class ShopVillagerScreen extends HandledScreen<ShopVillagerScreenHandler>
         @Override
         public boolean isHovered() {
             return super.isHovered() || this.isSelected;
+        }
+
+        @Override
+        public void appendNarrations(NarrationMessageBuilder builder) {
+            this.appendDefaultNarrations(builder);
+        }
+    }
+
+    @Environment(EnvType.CLIENT)
+    public class EditButtonWidget extends ClickableWidget {
+        public static final int SIZE = 11;
+
+        public EditButtonWidget(int x, int y) {
+            super(x, y, SIZE, SIZE, new TranslatableText("shop.offers.edit"));
+        }
+
+        @Override
+        public void onClick(double mouseX, double mouseY) {
+            super.onClick(mouseX, mouseY);
+        }
+
+        @Override
+        public void renderButton(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+            int hoverOffset = this.isHovered() ? SIZE : 0;
+            drawTexture(matrices, this.x, this.y, ShopVillagerScreen.this.backgroundWidth, hoverOffset, SIZE, SIZE, 512, 256);
+
+            if (this.isHovered()) {
+                this.renderTooltip(matrices, mouseX, mouseY);
+            }
+        }
+
+        @Override
+        public void renderTooltip(MatrixStack matrices, int mouseX, int mouseY) {
+            ShopVillagerScreen.this.renderTooltip(matrices, this.getMessage(), mouseX, mouseY);
         }
 
         @Override

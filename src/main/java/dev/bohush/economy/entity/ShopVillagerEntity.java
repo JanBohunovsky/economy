@@ -136,9 +136,9 @@ public class ShopVillagerEntity extends MobEntity implements VillagerDataContain
 //    }
 
     @Nullable
-    private NamedScreenHandlerFactory createScreenHandlerFactory(boolean ownerOverride) {
+    private NamedScreenHandlerFactory createScreenHandlerFactory(boolean isOwner) {
         ShopBlockEntity shopBlockEntity = getShopBlockEntity();
-        if (!ownerOverride) {
+        if (!isOwner) {
             if (shopBlockEntity.getOffers().isEmpty()) {
                 return null;
             }
@@ -150,6 +150,7 @@ public class ShopVillagerEntity extends MobEntity implements VillagerDataContain
                 shopBlockEntity.prepareOffers();
                 ShopOfferList offers = shopBlockEntity.getOffers();
                 offers.toPacket(buf);
+                buf.writeBoolean(isOwner);
             }
 
             @Override
@@ -159,7 +160,7 @@ public class ShopVillagerEntity extends MobEntity implements VillagerDataContain
 
             @Override
             public ScreenHandler createMenu(int syncId, PlayerInventory inv, PlayerEntity player) {
-                return new ShopVillagerScreenHandler(syncId, inv, shopBlockEntity);
+                return new ShopVillagerScreenHandler(syncId, inv, shopBlockEntity, isOwner);
             }
         };
     }

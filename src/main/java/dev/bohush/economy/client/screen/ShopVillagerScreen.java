@@ -25,7 +25,6 @@ import java.util.ArrayList;
 public class ShopVillagerScreen extends HandledScreen<ShopVillagerScreenHandler> {
     protected static final Identifier TEXTURE = new Identifier("textures/gui/container/villager2.png");
     protected static final Text OFFERS_TEXT = new TranslatableText("shop.offers");
-    protected static final String DISABLED_TEXT_KEY = "shop.offer.";
 
     protected ArrayList<OfferButtonWidget> offerButtons = new ArrayList<>();
     protected int indexStartOffset;
@@ -110,8 +109,7 @@ public class ShopVillagerScreen extends HandledScreen<ShopVillagerScreenHandler>
             // Render tooltip for main arrow
             ShopOffer offer = this.handler.getSelectedOffer();
             if (offer != null && offer.isDisabled() && this.isPointWithinBounds(186, 35, 22, 21, mouseX, mouseY)) {
-                Text text = new TranslatableText(DISABLED_TEXT_KEY.concat(offer.getDisabledReason()));
-                this.renderTooltip(matrices, text, mouseX, mouseY);
+                this.renderTooltip(matrices, offer.getDisabledReasonText(), mouseX, mouseY);
             }
 
             // Render tooltips for buttons
@@ -251,8 +249,7 @@ public class ShopVillagerScreen extends HandledScreen<ShopVillagerScreenHandler>
                 }
 
                 if (offer.isDisabled() && mouseX >= this.x + 53 && mouseX <= this.x + 65) {
-                    Text text = new TranslatableText(DISABLED_TEXT_KEY.concat(offer.getDisabledReason()));
-                    ShopVillagerScreen.this.renderTooltip(matrices, text, mouseX, mouseY);
+                    ShopVillagerScreen.this.renderTooltip(matrices, offer.getDisabledReasonText(), mouseX, mouseY);
                 }
 
                 if (!item.isEmpty()) {

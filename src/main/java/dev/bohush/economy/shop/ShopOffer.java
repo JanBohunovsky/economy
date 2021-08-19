@@ -5,6 +5,9 @@ import dev.bohush.economy.util.CoinHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 
 public class ShopOffer {
     private final ItemStack firstBuyItem;
@@ -53,22 +56,22 @@ public class ShopOffer {
         return this.disabled || this.isOutOfStock() || this.isStorageFull();
     }
 
-    public String getDisabledReason() {
+    public Text getDisabledReasonText() {
         if (this.disabled) {
-            return "disabled";
+            return new TranslatableText("shop.offer.disabled");
         }
 
         if (this.isOutOfStock()) {
             return CoinHelper.isCoinItem(this.sellItem)
-                ? "outOfCoins"
-                : "outOfStock";
+                ? new TranslatableText("shop.offer.outOfCoins")
+                : new TranslatableText("shop.offer.outOfStock");
         }
 
         if (this.isStorageFull()) {
-            return "fullStorage";
+            return new TranslatableText("shop.offer.fullStorage");
         }
 
-        return "none";
+        return new LiteralText("");
     }
 
     private boolean isOutOfStock() {

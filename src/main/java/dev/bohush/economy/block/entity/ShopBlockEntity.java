@@ -221,11 +221,13 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
         ServerPlayNetworking.send((ServerPlayerEntity)this.activePlayer, ModPackets.UPDATE_OFFERS_S2C, buf);
     }
 
-    public void prepareOffers() {
+    public ShopBlockEntity prepareOffers() {
         int emptySlots = this.storage.getEmptySlotCount();
         for (ShopOffer offer : this.getOffers()) {
             offer.update(this.storage, emptySlots);
         }
+
+        return this;
     }
 
     public void setOffers(ShopOfferList offers) {

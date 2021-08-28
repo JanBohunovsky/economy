@@ -1,4 +1,4 @@
-package dev.bohush.economy.client.screen;
+package dev.bohush.economy.client.gui.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.bohush.economy.Economy;

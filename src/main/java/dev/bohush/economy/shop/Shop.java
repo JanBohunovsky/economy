@@ -5,7 +5,19 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.UUID;
+
 public interface Shop {
+    UUID getOwnerUuid();
+
+    default boolean isActivePlayerOwner() {
+        if (this.getActivePlayer() == null) {
+            return false;
+        }
+
+        return this.getActivePlayer().getUuid().equals(this.getOwnerUuid());
+    }
+
     void setActivePlayer(@Nullable PlayerEntity player);
 
     @Nullable

@@ -1,6 +1,7 @@
 package dev.bohush.economy.entity;
 
 import dev.bohush.economy.block.entity.ShopBlockEntity;
+import dev.bohush.economy.screen.ShopVillagerOwnerScreenHandler;
 import dev.bohush.economy.screen.ShopVillagerScreenHandler;
 import dev.bohush.economy.shop.ShopOfferList;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
@@ -25,6 +26,7 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.stat.Stats;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
@@ -98,10 +100,9 @@ public class ShopVillagerEntity extends MobEntity implements VillagerDataContain
         }
 
         if (!this.world.isClient) {
-//            NamedScreenHandlerFactory factory = isOwner
-//                ? createOwnerScreenHandlerFactory()
-//                : createCustomerScreenHandlerFactory();
-            var factory = createScreenHandlerFactory(isOwner);
+            var factory = player.isSneaking() || !isOwner
+                ? createCustomerScreenFactory(isOwner)
+                : createOwnerScreenHandlerFactory();
 
             if (factory != null) {
                 shopBlockEntity.setActivePlayer(player);
@@ -112,31 +113,8 @@ public class ShopVillagerEntity extends MobEntity implements VillagerDataContain
         return ActionResult.success(this.world.isClient);
     }
 
-//    private NamedScreenHandlerFactory createOwnerScreenHandlerFactory() {
-//        ShopBlockEntity shopBlockEntity = getShopBlockEntity();
-//
-//        return new ExtendedScreenHandlerFactory() {
-//            @Override
-//            public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
-//                shopBlockEntity.prepareOffers();
-//                ShopOfferList offers = shopBlockEntity.getOffers();
-//                offers.toPacket(buf);
-//            }
-//
-//            @Override
-//            public Text getDisplayName() {
-//                return new TranslatableText("shop.name.owner");
-//            }
-//
-//            @Override
-//            public ScreenHandler createMenu(int syncId, PlayerInventory inv, PlayerEntity player) {
-//                return new ShopVillagerOwnerScreenHandler(syncId, inv, shopBlockEntity);
-//            }
-//        };
-//    }
-
     @Nullable
-    private NamedScreenHandlerFactory createScreenHandlerFactory(boolean isOwner) {
+    private NamedScreenHandlerFactory createCustomerScreenFactory(boolean isOwner) {
         ShopBlockEntity shopBlockEntity = getShopBlockEntity();
         if (!isOwner) {
             if (shopBlockEntity.getOffers().isEmpty()) {
@@ -146,21 +124,47 @@ public class ShopVillagerEntity extends MobEntity implements VillagerDataContain
 
         return new ExtendedScreenHandlerFactory() {
             @Override
-            public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
-                shopBlockEntity.prepareOffers();
-                ShopOfferList offers = shopBlockEntity.getOffers();
-                offers.toPacket(buf);
-                buf.writeBoolean(isOwner);
+            public ScreenHandler createMenu(int syncId, PlayerInventory inv, PlayerEntity player) {
+                return new ShopVillagerScreenHandler(syncId, inv, shopBlockEntity);
             }
 
             @Override
             public Text getDisplayName() {
-                return ShopVillagerEntity.this.getDisplayName();
+                return isOwner
+                    ? new TranslatableText("shop.name.owner")
+                    : ShopVillagerEntity.this.getDisplayName();
+            }
+
+            @Override
+            public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
+                buf.writeUuid(shopBlockEntity.getOwnerUuid());
+                shopBlockEntity.prepareOffers();
+                ShopOfferList offers = shopBlockEntity.getOffers();
+                offers.toPacket(buf);
+            }
+        };
+    }
+
+    private NamedScreenHandlerFactory createOwnerScreenHandlerFactory() {
+        ShopBlockEntity shopBlockEntity = getShopBlockEntity();
+
+        return new ExtendedScreenHandlerFactory() {
+            @Override
+            public Text getDisplayName() {
+                return new TranslatableText("shop.name.owner");
             }
 
             @Override
             public ScreenHandler createMenu(int syncId, PlayerInventory inv, PlayerEntity player) {
-                return new ShopVillagerScreenHandler(syncId, inv, shopBlockEntity, isOwner);
+                return new ShopVillagerOwnerScreenHandler(syncId, inv, shopBlockEntity);
+            }
+
+            @Override
+            public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
+                buf.writeUuid(shopBlockEntity.getOwnerUuid());
+                shopBlockEntity.prepareOffers();
+                ShopOfferList offers = shopBlockEntity.getOffers();
+                offers.toPacket(buf);
             }
         };
     }

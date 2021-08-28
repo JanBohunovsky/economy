@@ -2,16 +2,27 @@ package dev.bohush.economy.shop;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.UUID;
+
 public class ClientShop implements Shop {
+    private final UUID ownerUuid;
     private final PlayerEntity activePlayer;
     private ShopOfferList offers;
 
-    public ClientShop(PlayerEntity player, ShopOfferList offers) {
-        this.activePlayer = player;
-        this.offers = offers;
+    public ClientShop(PlayerEntity activePlayer, PacketByteBuf buf) {
+        this.activePlayer = activePlayer;
+
+        this.ownerUuid = buf.readUuid();
+        this.offers = ShopOfferList.fromPacket(buf);
+    }
+
+    @Override
+    public UUID getOwnerUuid() {
+        return this.ownerUuid;
     }
 
     @Override

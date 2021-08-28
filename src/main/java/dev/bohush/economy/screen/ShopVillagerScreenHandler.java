@@ -6,6 +6,7 @@ import dev.bohush.economy.shop.ClientShop;
 import dev.bohush.economy.shop.Shop;
 import dev.bohush.economy.shop.ShopOffer;
 import dev.bohush.economy.shop.ShopOfferList;
+import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
@@ -16,14 +17,17 @@ import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
 public class ShopVillagerScreenHandler extends ScreenHandler {
+    public static final int EDIT_BUTTON_ID = -99;
+
     private static final Logger LOGGER = LogManager.getLogger();
 
-    private final boolean isOwner;
     private final Shop shop;
     private final TradeInventory tradeInventory;
     private final Property offerIndex = new Property() {
@@ -39,12 +43,11 @@ public class ShopVillagerScreenHandler extends ScreenHandler {
     };
 
     public ShopVillagerScreenHandler(int syncId, PlayerInventory playerInventory, PacketByteBuf buf) {
-        this(syncId, playerInventory, new ClientShop(playerInventory.player, ShopOfferList.fromPacket(buf)), buf.readBoolean());
+        this(syncId, playerInventory, new ClientShop(playerInventory.player, buf));
     }
 
-    public ShopVillagerScreenHandler(int syncId, PlayerInventory playerInventory, Shop shop, boolean isOwner) {
+    public ShopVillagerScreenHandler(int syncId, PlayerInventory playerInventory, Shop shop) {
         super(ModScreens.SHOP_VILLAGER, syncId);
-        this.isOwner = isOwner;
         this.shop = shop;
         this.tradeInventory = new TradeInventory(shop);
 
@@ -69,7 +72,7 @@ public class ShopVillagerScreenHandler extends ScreenHandler {
     }
 
     public boolean isOwner() {
-        return this.isOwner;
+        return this.shop.isActivePlayerOwner();
     }
 
     public int getOfferIndex() {
@@ -115,12 +118,47 @@ public class ShopVillagerScreenHandler extends ScreenHandler {
     public boolean onButtonClick(PlayerEntity player, int id) {
         LOGGER.info("onButtonClick: id:{}, world:{}", id, player.world.isClient ? "client" : "server");
 
+        if (id == EDIT_BUTTON_ID) {
+            this.openOwnerScreen(player);
+        }
+
         if (id >= 0 && id < this.shop.getOffers().size()) {
             this.offerIndex.set(id);
             this.switchTo(id);
         }
 
         return true;
+    }
+
+    private void openOwnerScreen(PlayerEntity player) {
+        if (!this.isOwner()) {
+            return;
+        }
+
+        if (player.world.isClient) {
+            return;
+        }
+
+        var factory = new ExtendedScreenHandlerFactory() {
+            @Override
+            public ScreenHandler createMenu(int syncId, PlayerInventory inv, PlayerEntity player) {
+                return new ShopVillagerOwnerScreenHandler(syncId, inv, shop);
+            }
+
+            @Override
+            public Text getDisplayName() {
+                return new TranslatableText("shop.offers.edit");
+            }
+
+            @Override
+            public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
+                buf.writeUuid(shop.getOwnerUuid());
+                shop.getOffers().toPacket(buf);
+            }
+        };
+
+        this.shop.setActivePlayer(player);
+        player.openHandledScreen(factory);
     }
 
     @Override

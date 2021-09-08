@@ -4,7 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import dev.bohush.economy.Economy;
 import dev.bohush.economy.client.gui.widget.OfferListWidget;
 import dev.bohush.economy.client.gui.widget.ToolbarButtonWidget;
-import dev.bohush.economy.screen.ShopVillagerOwnerScreenHandler;
+import dev.bohush.economy.screen.ShopOwnerScreenHandler;
 import dev.bohush.economy.shop.ShopOffer;
 import dev.bohush.economy.shop.ShopOfferList;
 import net.fabricmc.api.EnvType;
@@ -25,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 @Environment(EnvType.CLIENT)
-public class ShopVillagerOwnerScreen extends HandledScreen<ShopVillagerOwnerScreenHandler> {
+public class ShopOwnerScreen extends HandledScreen<ShopOwnerScreenHandler> {
     protected static final Identifier TEXTURE = new Identifier(Economy.MOD_ID, "textures/gui/shop_owner.png");
     public static final int TEXTURE_WIDTH = 512;
     public static final int TEXTURE_HEIGHT = 256;
@@ -41,7 +41,7 @@ public class ShopVillagerOwnerScreen extends HandledScreen<ShopVillagerOwnerScre
     private ToolbarButtonWidget deleteOfferButton;
     private ToolbarButtonWidget newOfferButton;
 
-    public ShopVillagerOwnerScreen(ShopVillagerOwnerScreenHandler handler, PlayerInventory inventory, Text title) {
+    public ShopOwnerScreen(ShopOwnerScreenHandler handler, PlayerInventory inventory, Text title) {
         super(handler, inventory, title);
         this.backgroundWidth = 277;
         this.playerInventoryTitleX = 109;
@@ -55,7 +55,7 @@ public class ShopVillagerOwnerScreen extends HandledScreen<ShopVillagerOwnerScre
         int titleOffset = 101;
         this.titleX = titleOffset + (this.backgroundWidth - titleOffset - titleWidth) / 2;
 
-        var offerListWidget = new OfferListWidget(this, this.client, this.x + 7, this.y + 17, new ShopOfferList(), this::onOfferSelected, () -> null);
+        var offerListWidget = new OfferListWidget(this.x + 7, this.y + 17, new ShopOfferList(), this::onOfferSelected, () -> null);
         this.addDrawableChild(offerListWidget);
 
         int toolbarX = this.x + 58;
@@ -153,5 +153,14 @@ public class ShopVillagerOwnerScreen extends HandledScreen<ShopVillagerOwnerScre
     @Override
     public void drawTexture(MatrixStack matrices, int x, int y, int u, int v, int width, int height) {
         drawTexture(matrices, x, y, this.getZOffset(), u, v, width, height, TEXTURE_HEIGHT, TEXTURE_WIDTH);
+    }
+
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
+        if (this.getFocused() != null && this.getFocused().mouseDragged(mouseX, mouseY, button, deltaX, deltaY)) {
+            return true;
+        }
+
+        return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
     }
 }

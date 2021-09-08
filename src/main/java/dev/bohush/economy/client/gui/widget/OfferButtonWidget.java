@@ -6,11 +6,9 @@ import dev.bohush.economy.shop.ShopOffer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.PressableWidget;
 import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.LiteralText;
@@ -21,9 +19,6 @@ public class OfferButtonWidget extends PressableWidget {
     public static final int WIDTH = 88;
     public static final int HEIGHT = 20;
 
-    private final Screen screen;
-    private final MinecraftClient client;
-    private final ItemRenderer itemRenderer;
     private final int buttonIndex;
     private final PressAction pressAction;
 
@@ -31,11 +26,8 @@ public class OfferButtonWidget extends PressableWidget {
     @Nullable
     private ShopOffer offer;
 
-    public OfferButtonWidget(Screen screen, MinecraftClient client, int x, int y, int buttonIndex, PressAction pressAction) {
+    public OfferButtonWidget(int x, int y, int buttonIndex, PressAction pressAction) {
         super(x, y, WIDTH, HEIGHT, LiteralText.EMPTY);
-        this.screen = screen;
-        this.client = client;
-        this.itemRenderer = client.getItemRenderer();
         this.buttonIndex = buttonIndex;
         this.pressAction = pressAction;
         this.visible = false;
@@ -70,6 +62,10 @@ public class OfferButtonWidget extends PressableWidget {
         this.renderItem(this.offer.getSecondBuyItem(), 35);
         this.renderArrow(matrices);
         this.renderItem(offer.getSellItem(), 68);
+
+        if (this.hovered) {
+            this.renderTooltip(matrices, mouseX, mouseY);
+        }
     }
 
     private void renderItem(ItemStack stack, int x) {
@@ -77,12 +73,14 @@ public class OfferButtonWidget extends PressableWidget {
             return;
         }
 
-        this.itemRenderer.zOffset = 100;
+        var client = MinecraftClient.getInstance();
+        var itemRenderer = client.getItemRenderer();
+        itemRenderer.zOffset = 100;
 
-        this.itemRenderer.renderInGui(stack, this.x + x, this.y + 1);
-        this.itemRenderer.renderGuiItemOverlay(this.client.textRenderer, stack, this.x + x, this.y + 1);
+        itemRenderer.renderInGui(stack, this.x + x, this.y + 1);
+        itemRenderer.renderGuiItemOverlay(client.textRenderer, stack, this.x + x, this.y + 1);
 
-        this.itemRenderer.zOffset = 0;
+        itemRenderer.zOffset = 0;
     }
 
     private void renderArrow(MatrixStack matrices) {
@@ -115,12 +113,17 @@ public class OfferButtonWidget extends PressableWidget {
             hoveredItemStack = this.offer.getSellItem();
         }
 
+        var screen = MinecraftClient.getInstance().currentScreen;
+        if (screen == null) {
+            return;
+        }
+
         if (this.offer.isDisabled() && mouseX >= this.x + 52 && mouseX < this.x + 68) {
-            this.screen.renderTooltip(matrices, offer.getDisabledReasonText(), mouseX, mouseY);
+            screen.renderTooltip(matrices, offer.getDisabledReasonText(), mouseX, mouseY);
         }
 
         if (!hoveredItemStack.isEmpty()) {
-            this.screen.renderTooltip(matrices, this.screen.getTooltipFromItem(hoveredItemStack), mouseX, mouseY);
+            screen.renderTooltip(matrices, screen.getTooltipFromItem(hoveredItemStack), hoveredItemStack.getTooltipData(), mouseX, mouseY);
         }
     }
 

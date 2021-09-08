@@ -1,8 +1,8 @@
 package dev.bohush.economy.client;
 
+import dev.bohush.economy.client.gui.screen.ShopCustomerScreen;
+import dev.bohush.economy.client.gui.screen.ShopOwnerScreen;
 import dev.bohush.economy.client.gui.screen.ShopStorageScreen;
-import dev.bohush.economy.client.gui.screen.ShopVillagerOwnerScreen;
-import dev.bohush.economy.client.gui.screen.ShopVillagerScreen;
 import dev.bohush.economy.client.network.ModClientPlayNetworkHandler;
 import dev.bohush.economy.client.render.ShopVillagerEntityRenderer;
 import dev.bohush.economy.entity.ModEntities;
@@ -22,8 +22,8 @@ public class EconomyClient implements ClientModInitializer {
 
         // Register screens
         ScreenRegistry.register(ModScreens.SHOP_STORAGE, ShopStorageScreen::new);
-        ScreenRegistry.register(ModScreens.SHOP_VILLAGER, ShopVillagerScreen::new);
-        ScreenRegistry.register(ModScreens.SHOP_VILLAGER_OWNER, ShopVillagerOwnerScreen::new);
+        ScreenRegistry.register(ModScreens.SHOP_CUSTOMER, ShopCustomerScreen::new);
+        ScreenRegistry.register(ModScreens.SHOP_OWNER, ShopOwnerScreen::new);
 
         // Register entity renderers
         EntityRendererRegistry.INSTANCE.register(ModEntities.SHOP_VILLAGER, ShopVillagerEntityRenderer::new);

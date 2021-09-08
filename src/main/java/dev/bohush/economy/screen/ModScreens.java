@@ -8,18 +8,18 @@ import net.minecraft.util.Identifier;
 
 public class ModScreens {
     public static ScreenHandlerType<ShopStorageScreenHandler> SHOP_STORAGE;
-    public static ScreenHandlerType<ShopVillagerScreenHandler> SHOP_VILLAGER;
-    public static ScreenHandlerType<ShopVillagerOwnerScreenHandler> SHOP_VILLAGER_OWNER;
+    public static ScreenHandlerType<ShopCustomerScreenHandler> SHOP_CUSTOMER;
+    public static ScreenHandlerType<ShopOwnerScreenHandler> SHOP_OWNER;
 
     public static void registerScreenHandlers() {
         SHOP_STORAGE = ScreenHandlerRegistry.registerExtended(ShopBlock.ID, ShopStorageScreenHandler::new);
-        SHOP_VILLAGER = ScreenHandlerRegistry.registerExtended(
-            new Identifier(Economy.MOD_ID, "shop_villager"),
-            ShopVillagerScreenHandler::new
+        SHOP_CUSTOMER = ScreenHandlerRegistry.registerExtended(
+            new Identifier(Economy.MOD_ID, "shop_customer"),
+            ShopCustomerScreenHandler::new
         );
-        SHOP_VILLAGER_OWNER = ScreenHandlerRegistry.registerExtended(
-            new Identifier(Economy.MOD_ID, "shop_villager_owner"),
-            ShopVillagerOwnerScreenHandler::new
+        SHOP_OWNER = ScreenHandlerRegistry.registerExtended(
+            new Identifier(Economy.MOD_ID, "shop_owner"),
+            ShopOwnerScreenHandler::new
         );
     }
 }

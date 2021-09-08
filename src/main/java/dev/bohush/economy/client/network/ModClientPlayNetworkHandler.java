@@ -1,7 +1,7 @@
 package dev.bohush.economy.client.network;
 
 import dev.bohush.economy.network.ModPackets;
-import dev.bohush.economy.screen.ShopVillagerScreenHandler;
+import dev.bohush.economy.screen.ShopCustomerScreenHandler;
 import dev.bohush.economy.shop.ShopOffer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -26,10 +26,10 @@ public class ModClientPlayNetworkHandler {
             }
 
             client.execute(() -> {
-                if (client.player.currentScreenHandler instanceof ShopVillagerScreenHandler villagerScreenHandler) {
+                if (client.player.currentScreenHandler instanceof ShopCustomerScreenHandler customerScreenHandler) {
 
                     for (var offer : offersToUpdate) {
-                        villagerScreenHandler.getOffers().set(offer.getLeft(), offer.getRight());
+                        customerScreenHandler.getOffers().set(offer.getLeft(), offer.getRight());
                     }
                 }
             });

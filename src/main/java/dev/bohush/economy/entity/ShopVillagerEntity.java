@@ -1,8 +1,8 @@
 package dev.bohush.economy.entity;
 
 import dev.bohush.economy.block.entity.ShopBlockEntity;
-import dev.bohush.economy.screen.ShopVillagerOwnerScreenHandler;
-import dev.bohush.economy.screen.ShopVillagerScreenHandler;
+import dev.bohush.economy.screen.ShopCustomerScreenHandler;
+import dev.bohush.economy.screen.ShopOwnerScreenHandler;
 import dev.bohush.economy.shop.ShopOfferList;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.entity.EntityType;
@@ -125,7 +125,7 @@ public class ShopVillagerEntity extends MobEntity implements VillagerDataContain
         return new ExtendedScreenHandlerFactory() {
             @Override
             public ScreenHandler createMenu(int syncId, PlayerInventory inv, PlayerEntity player) {
-                return new ShopVillagerScreenHandler(syncId, inv, shopBlockEntity);
+                return new ShopCustomerScreenHandler(syncId, inv, shopBlockEntity);
             }
 
             @Override
@@ -156,7 +156,7 @@ public class ShopVillagerEntity extends MobEntity implements VillagerDataContain
 
             @Override
             public ScreenHandler createMenu(int syncId, PlayerInventory inv, PlayerEntity player) {
-                return new ShopVillagerOwnerScreenHandler(syncId, inv, shopBlockEntity);
+                return new ShopOwnerScreenHandler(syncId, inv, shopBlockEntity);
             }
 
             @Override

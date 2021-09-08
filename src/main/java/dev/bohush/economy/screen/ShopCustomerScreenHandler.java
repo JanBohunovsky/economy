@@ -6,7 +6,6 @@ import dev.bohush.economy.shop.ClientShop;
 import dev.bohush.economy.shop.Shop;
 import dev.bohush.economy.shop.ShopOffer;
 import dev.bohush.economy.shop.ShopOfferList;
-import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
@@ -17,15 +16,11 @@ import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
-public class ShopVillagerScreenHandler extends ScreenHandler {
-    public static final int EDIT_BUTTON_ID = -99;
-
+public class ShopCustomerScreenHandler extends ScreenHandler {
     private static final Logger LOGGER = LogManager.getLogger();
 
     private final Shop shop;
@@ -42,37 +37,33 @@ public class ShopVillagerScreenHandler extends ScreenHandler {
         }
     };
 
-    public ShopVillagerScreenHandler(int syncId, PlayerInventory playerInventory, PacketByteBuf buf) {
+    public ShopCustomerScreenHandler(int syncId, PlayerInventory playerInventory, PacketByteBuf buf) {
         this(syncId, playerInventory, new ClientShop(playerInventory.player, buf));
     }
 
-    public ShopVillagerScreenHandler(int syncId, PlayerInventory playerInventory, Shop shop) {
-        super(ModScreens.SHOP_VILLAGER, syncId);
+    public ShopCustomerScreenHandler(int syncId, PlayerInventory playerInventory, Shop shop) {
+        super(ModScreens.SHOP_CUSTOMER, syncId);
         this.shop = shop;
         this.tradeInventory = new TradeInventory(shop);
 
         // Trading slots
-        this.addSlot(new Slot(this.tradeInventory, 0, 136, 37));
-        this.addSlot(new Slot(this.tradeInventory, 1, 162, 37));
-        this.addSlot(new ShopOutputSlot(this.shop, this.tradeInventory, 2, 220, 37));
+        this.addSlot(new Slot(this.tradeInventory, 0, 137, 37));
+        this.addSlot(new Slot(this.tradeInventory, 1, 163, 37));
+        this.addSlot(new ShopOutputSlot(this.shop, this.tradeInventory, 2, 221, 37));
 
         // Player inventory
         for (int y = 0; y < 3; y++) {
             for (int x = 0; x < 9; x++) {
-                this.addSlot(new Slot(playerInventory, x + y * 9 + 9, 108 + x * 18, 84 + y * 18));
+                this.addSlot(new Slot(playerInventory, x + y * 9 + 9, 109 + x * 18, 84 + y * 18));
             }
         }
 
         // Player hotbar
         for (int i = 0; i < 9; i++) {
-            this.addSlot(new Slot(playerInventory, i, 108 + i * 18, 142));
+            this.addSlot(new Slot(playerInventory, i, 109 + i * 18, 142));
         }
 
         this.addProperty(this.offerIndex);
-    }
-
-    public boolean isOwner() {
-        return this.shop.isActivePlayerOwner();
     }
 
     public int getOfferIndex() {
@@ -118,47 +109,12 @@ public class ShopVillagerScreenHandler extends ScreenHandler {
     public boolean onButtonClick(PlayerEntity player, int id) {
         LOGGER.info("onButtonClick: id:{}, world:{}", id, player.world.isClient ? "client" : "server");
 
-        if (id == EDIT_BUTTON_ID) {
-            this.openOwnerScreen(player);
-        }
-
         if (id >= 0 && id < this.shop.getOffers().size()) {
             this.offerIndex.set(id);
             this.switchTo(id);
         }
 
         return true;
-    }
-
-    private void openOwnerScreen(PlayerEntity player) {
-        if (!this.isOwner()) {
-            return;
-        }
-
-        if (player.world.isClient) {
-            return;
-        }
-
-        var factory = new ExtendedScreenHandlerFactory() {
-            @Override
-            public ScreenHandler createMenu(int syncId, PlayerInventory inv, PlayerEntity player) {
-                return new ShopVillagerOwnerScreenHandler(syncId, inv, shop);
-            }
-
-            @Override
-            public Text getDisplayName() {
-                return new TranslatableText("shop.name.owner");
-            }
-
-            @Override
-            public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
-                buf.writeUuid(shop.getOwnerUuid());
-                shop.getOffers().toPacket(buf);
-            }
-        };
-
-        player.openHandledScreen(factory);
-        this.shop.setActivePlayer(player);
     }
 
     @Override
@@ -174,7 +130,7 @@ public class ShopVillagerScreenHandler extends ScreenHandler {
 
     @Override
     public boolean canInsertIntoSlot(ItemStack stack, Slot slot) {
-        // Disables the double-click merge stack thing
+        // Disables the double click merge stack thing
         return false;
     }
 

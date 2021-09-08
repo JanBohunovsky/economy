@@ -6,12 +6,10 @@ import dev.bohush.economy.shop.ShopOffer;
 import dev.bohush.economy.shop.ShopOfferList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.AbstractParentElement;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.Selectable;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
@@ -52,7 +50,7 @@ public class OfferListWidget extends AbstractParentElement implements Drawable, 
     private final ShopOfferList offers;
     private final ArrayList<OfferButtonWidget> buttons;
 
-    public OfferListWidget(Screen screen, MinecraftClient client, int x, int y, ShopOfferList offers,
+    public OfferListWidget(int x, int y, ShopOfferList offers,
                            OfferSelectedAction offerSelectedAction, SelectedOfferFunc selectedOfferFunc) {
         this.x = x;
         this.y = y;
@@ -62,7 +60,7 @@ public class OfferListWidget extends AbstractParentElement implements Drawable, 
         this.buttons = new ArrayList<>();
 
         for (int i = 0; i < BUTTON_COUNT; i++) {
-            var button = new OfferButtonWidget(screen, client, this.x + PADDING, this.y + PADDING + (OfferButtonWidget.HEIGHT * i), i, this::onButtonClick);
+            var button = new OfferButtonWidget(this.x + PADDING, this.y + PADDING + (OfferButtonWidget.HEIGHT * i), i, this::onButtonClick);
             this.buttons.add(button);
         }
     }
@@ -100,10 +98,6 @@ public class OfferListWidget extends AbstractParentElement implements Drawable, 
             button.setOffer(offer);
             button.setSelected(selectedOffer != null && offer == selectedOffer);
             button.render(matrices, mouseX, mouseY, delta);
-
-            if (button.isHovered()) {
-                button.renderTooltip(matrices, mouseX, mouseY);
-            }
         }
     }
 

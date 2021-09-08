@@ -8,16 +8,16 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 
-public class ShopVillagerOwnerScreenHandler extends ScreenHandler {
+public class ShopOwnerScreenHandler extends ScreenHandler {
 
     private final Shop shop;
 
-    public ShopVillagerOwnerScreenHandler(int syncId, PlayerInventory playerInventory, PacketByteBuf buf) {
+    public ShopOwnerScreenHandler(int syncId, PlayerInventory playerInventory, PacketByteBuf buf) {
         this(syncId, playerInventory, new ClientShop(playerInventory.player, buf));
     }
 
-    public ShopVillagerOwnerScreenHandler(int syncId, PlayerInventory playerInventory, Shop shop) {
-        super(ModScreens.SHOP_VILLAGER_OWNER, syncId);
+    public ShopOwnerScreenHandler(int syncId, PlayerInventory playerInventory, Shop shop) {
+        super(ModScreens.SHOP_OWNER, syncId);
         this.shop = shop;
 
         // Player inventory

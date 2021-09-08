@@ -147,7 +147,7 @@ public class ShopVillagerScreenHandler extends ScreenHandler {
 
             @Override
             public Text getDisplayName() {
-                return new TranslatableText("shop.offers.edit");
+                return new TranslatableText("shop.name.owner");
             }
 
             @Override
@@ -157,8 +157,8 @@ public class ShopVillagerScreenHandler extends ScreenHandler {
             }
         };
 
-        this.shop.setActivePlayer(player);
         player.openHandledScreen(factory);
+        this.shop.setActivePlayer(player);
     }
 
     @Override

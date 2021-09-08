@@ -100,7 +100,7 @@ public class ShopVillagerEntity extends MobEntity implements VillagerDataContain
         }
 
         if (!this.world.isClient) {
-            var factory = player.isSneaking() || !isOwner
+            var factory = !isOwner || player.isSneaking()
                 ? createCustomerScreenFactory(isOwner)
                 : createOwnerScreenHandlerFactory();
 

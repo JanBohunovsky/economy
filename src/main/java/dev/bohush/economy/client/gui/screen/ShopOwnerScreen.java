@@ -61,33 +61,33 @@ public class ShopOwnerScreen extends HandledScreen<ShopOwnerScreenHandler> {
         int toolbarX = this.x + 58;
         int buttonOffset = ToolbarButtonWidget.SIZE + 3;
 
-        this.moveUpOfferButton = new ToolbarButtonWidget(toolbarX, this.y + 5,
-            ToolbarButtonWidget.Style.DEFAULT,
-            ToolbarButtonWidget.Symbol.ARROW_UP,
-            new LiteralText("Move offer up"),
+        this.newOfferButton = new ToolbarButtonWidget(toolbarX, this.y + 5,
+            ToolbarButtonWidget.Style.SUCCESS,
+            ToolbarButtonWidget.Symbol.PLUS,
+            new LiteralText("Add new offer"),
             this::onToolbarButtonPressed);
-        this.addDrawableChild(moveUpOfferButton);
+        this.addDrawableChild(newOfferButton);
 
-        this.moveDownOfferButton = new ToolbarButtonWidget(toolbarX + buttonOffset, this.y + 5,
-            ToolbarButtonWidget.Style.DEFAULT,
-            ToolbarButtonWidget.Symbol.ARROW_DOWN,
-            new LiteralText("Move offer down"),
-            this::onToolbarButtonPressed);
-        this.addDrawableChild(moveDownOfferButton);
-
-        this.deleteOfferButton = new ToolbarButtonWidget(toolbarX + buttonOffset * 2, this.y + 5,
+        this.deleteOfferButton = new ToolbarButtonWidget(toolbarX + buttonOffset, this.y + 5,
             ToolbarButtonWidget.Style.DANGER,
             ToolbarButtonWidget.Symbol.MINUS,
             new LiteralText("Delete offer"),
             this::onToolbarButtonPressed);
         this.addDrawableChild(deleteOfferButton);
 
-        this.newOfferButton = new ToolbarButtonWidget(toolbarX + buttonOffset * 3, this.y + 5,
-            ToolbarButtonWidget.Style.SUCCESS,
-            ToolbarButtonWidget.Symbol.PLUS,
-            new LiteralText("Add new offer"),
+        this.moveUpOfferButton = new ToolbarButtonWidget(toolbarX + buttonOffset * 2, this.y + 5,
+            ToolbarButtonWidget.Style.DEFAULT,
+            ToolbarButtonWidget.Symbol.ARROW_UP,
+            new LiteralText("Move offer up"),
             this::onToolbarButtonPressed);
-        this.addDrawableChild(newOfferButton);
+        this.addDrawableChild(moveUpOfferButton);
+
+        this.moveDownOfferButton = new ToolbarButtonWidget(toolbarX + buttonOffset * 3, this.y + 5,
+            ToolbarButtonWidget.Style.DEFAULT,
+            ToolbarButtonWidget.Symbol.ARROW_DOWN,
+            new LiteralText("Move offer down"),
+            this::onToolbarButtonPressed);
+        this.addDrawableChild(moveDownOfferButton);
     }
 
     private void onOfferSelected(int offerIndex, ShopOffer offer) {
@@ -112,16 +112,16 @@ public class ShopOwnerScreen extends HandledScreen<ShopOwnerScreenHandler> {
         }
 
         if (keyCode == GLFW.GLFW_KEY_1) {
-            this.moveUpOfferButton.setActive(!this.moveUpOfferButton.isActive());
+            this.newOfferButton.setActive(!this.newOfferButton.isActive());
         }
         if (keyCode == GLFW.GLFW_KEY_2) {
-            this.moveDownOfferButton.setActive(!this.moveDownOfferButton.isActive());
-        }
-        if (keyCode == GLFW.GLFW_KEY_3) {
             this.deleteOfferButton.setActive(!this.deleteOfferButton.isActive());
         }
+        if (keyCode == GLFW.GLFW_KEY_3) {
+            this.moveUpOfferButton.setActive(!this.moveUpOfferButton.isActive());
+        }
         if (keyCode == GLFW.GLFW_KEY_4) {
-            this.newOfferButton.setActive(!this.newOfferButton.isActive());
+            this.moveDownOfferButton.setActive(!this.moveDownOfferButton.isActive());
         }
 
         return super.keyPressed(keyCode, scanCode, modifiers);

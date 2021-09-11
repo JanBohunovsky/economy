@@ -14,7 +14,7 @@ import net.minecraft.util.Identifier;
 public class ToolbarButtonWidget extends BaseButtonWidget {
     public static final Identifier TEXTURE = new Identifier(Economy.MOD_ID, "textures/gui/toolbar_button.png");
     public static final int TEXTURE_WIDTH = 64;
-    public static final int TEXTURE_HEIGHT = 64;
+    public static final int TEXTURE_HEIGHT = 32;
     public static final int SIZE = 9;
 
     private static final int HOVER_U = TEXTURE_WIDTH - SIZE - 2;

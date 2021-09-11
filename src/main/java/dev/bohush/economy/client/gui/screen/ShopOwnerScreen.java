@@ -3,6 +3,8 @@ package dev.bohush.economy.client.gui.screen;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.bohush.economy.Economy;
 import dev.bohush.economy.client.gui.widget.OfferListWidget;
+import dev.bohush.economy.client.gui.widget.OfferLockButtonWidget;
+import dev.bohush.economy.client.gui.widget.SmallButtonWidget;
 import dev.bohush.economy.client.gui.widget.ToolbarButtonWidget;
 import dev.bohush.economy.screen.ShopOwnerScreenHandler;
 import dev.bohush.economy.shop.ShopOffer;
@@ -36,6 +38,8 @@ public class ShopOwnerScreen extends HandledScreen<ShopOwnerScreenHandler> {
     @Nullable
     private DefaultedList<Slot> savedSlots = null;
 
+    private SmallButtonWidget saveButton;
+    private OfferLockButtonWidget lockButton;
     private ToolbarButtonWidget moveUpOfferButton;
     private ToolbarButtonWidget moveDownOfferButton;
     private ToolbarButtonWidget deleteOfferButton;
@@ -51,12 +55,27 @@ public class ShopOwnerScreen extends HandledScreen<ShopOwnerScreenHandler> {
     protected void init() {
         super.init();
 
+        int inventoryWidth = 18 * 9;
+        int inventoryX = this.playerInventoryTitleX - 1;
+
         int titleWidth = this.textRenderer.getWidth(this.title);
-        int titleOffset = 101;
-        this.titleX = titleOffset + (this.backgroundWidth - titleOffset - titleWidth) / 2;
+        this.titleX = inventoryX + (inventoryWidth - titleWidth) / 2;
 
         var offerListWidget = new OfferListWidget(this.x + 7, this.y + 17, new ShopOfferList(), this::onOfferSelected, () -> null);
         this.addDrawableChild(offerListWidget);
+
+        this.saveButton = new SmallButtonWidget(0, this.y + 64,
+            new LiteralText("Save"),
+            SmallButtonWidget.Style.SUCCESS,
+            SmallButtonWidget.Symbol.CHECKMARK,
+            (button) -> LOGGER.info("Save"));
+        this.saveButton.setX(this.x + inventoryX + (inventoryWidth - saveButton.getWidth()) / 2);
+        this.addDrawableChild(this.saveButton);
+
+        this.lockButton = new OfferLockButtonWidget(this.x + 250, this.y + 36, (button) -> {
+            this.lockButton.setLocked(!this.lockButton.isLocked());
+        });
+        this.addDrawableChild(this.lockButton);
 
         int toolbarX = this.x + 58;
         int buttonOffset = ToolbarButtonWidget.SIZE + 3;
@@ -65,37 +84,33 @@ public class ShopOwnerScreen extends HandledScreen<ShopOwnerScreenHandler> {
             ToolbarButtonWidget.Style.SUCCESS,
             ToolbarButtonWidget.Symbol.PLUS,
             new LiteralText("Add new offer"),
-            this::onToolbarButtonPressed);
-        this.addDrawableChild(newOfferButton);
+            (button) -> LOGGER.info("New offer"));
+        this.addDrawableChild(this.newOfferButton);
 
         this.deleteOfferButton = new ToolbarButtonWidget(toolbarX + buttonOffset, this.y + 5,
             ToolbarButtonWidget.Style.DANGER,
             ToolbarButtonWidget.Symbol.MINUS,
             new LiteralText("Delete offer"),
-            this::onToolbarButtonPressed);
-        this.addDrawableChild(deleteOfferButton);
+            (button) -> LOGGER.info("Delete offer"));
+        this.addDrawableChild(this.deleteOfferButton);
 
         this.moveUpOfferButton = new ToolbarButtonWidget(toolbarX + buttonOffset * 2, this.y + 5,
             ToolbarButtonWidget.Style.DEFAULT,
             ToolbarButtonWidget.Symbol.ARROW_UP,
             new LiteralText("Move offer up"),
-            this::onToolbarButtonPressed);
-        this.addDrawableChild(moveUpOfferButton);
+            (button) -> LOGGER.info("Move up"));
+        this.addDrawableChild(this.moveUpOfferButton);
 
         this.moveDownOfferButton = new ToolbarButtonWidget(toolbarX + buttonOffset * 3, this.y + 5,
             ToolbarButtonWidget.Style.DEFAULT,
             ToolbarButtonWidget.Symbol.ARROW_DOWN,
             new LiteralText("Move offer down"),
-            this::onToolbarButtonPressed);
-        this.addDrawableChild(moveDownOfferButton);
+            (button) -> LOGGER.info("Move down"));
+        this.addDrawableChild(this.moveDownOfferButton);
     }
 
     private void onOfferSelected(int offerIndex, ShopOffer offer) {
         LOGGER.info("offer selected: {}", offerIndex);
-    }
-
-    private void onToolbarButtonPressed(ToolbarButtonWidget button) {
-        LOGGER.info("toolbar button pressed: {}", button.getTooltipText().asString());
     }
 
     @Override
@@ -123,6 +138,12 @@ public class ShopOwnerScreen extends HandledScreen<ShopOwnerScreenHandler> {
         if (keyCode == GLFW.GLFW_KEY_4) {
             this.moveDownOfferButton.setActive(!this.moveDownOfferButton.isActive());
         }
+        if (keyCode == GLFW.GLFW_KEY_S) {
+            this.saveButton.setActive(!this.saveButton.isActive());
+        }
+        if (keyCode == GLFW.GLFW_KEY_L) {
+            this.lockButton.setActive(!this.lockButton.isActive());
+        }
 
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
@@ -140,14 +161,29 @@ public class ShopOwnerScreen extends HandledScreen<ShopOwnerScreenHandler> {
         RenderSystem.setShaderTexture(0, TEXTURE);
 
         this.drawTexture(matrices, this.x, this.y, 0, 0, this.backgroundWidth, this.backgroundHeight);
+
+        if (this.lockButton.isLocked()) {
+            RenderSystem.enableBlend();
+            this.drawTexture(matrices, this.x + 190, this.y + 37, this.backgroundWidth, 0, 15, 15);
+        }
     }
 
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         this.renderBackground(matrices);
         super.render(matrices, mouseX, mouseY, delta);
-
         this.drawMouseoverTooltip(matrices, mouseX, mouseY);
+    }
+
+    @Override
+    protected void drawMouseoverTooltip(MatrixStack matrices, int x, int y) {
+        super.drawMouseoverTooltip(matrices, x, y);
+
+        if (this.lockButton.isLocked()
+            && x >= this.x + 187 && x < this.x + 187 + 22
+            && y >= this.y + 34 && y < this.y + 34 + 21) {
+            this.renderTooltip(matrices, new TranslatableText("shop.offer.locked"), x, y);
+        }
     }
 
     @Override

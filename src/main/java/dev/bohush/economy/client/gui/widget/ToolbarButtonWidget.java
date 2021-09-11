@@ -20,41 +20,14 @@ public class ToolbarButtonWidget extends BaseButtonWidget {
     private static final int HOVER_U = TEXTURE_WIDTH - SIZE - 2;
     private static final int HOVER_V = TEXTURE_HEIGHT - SIZE - 2;
 
-    private final PressAction pressAction;
-
-    private Style style;
-    private Symbol symbol;
-    private Text tooltipText;
+    private final Style style;
+    private final Symbol symbol;
+    private final Text tooltipText;
 
     public ToolbarButtonWidget(int x, int y, Style style, Symbol symbol, Text tooltipText, PressAction pressAction) {
-        super(x, y, SIZE, SIZE);
+        super(x, y, SIZE, SIZE, pressAction);
         this.style = style;
         this.symbol = symbol;
-        this.tooltipText = tooltipText;
-        this.pressAction = pressAction;
-    }
-
-    public Style getStyle() {
-        return this.style;
-    }
-
-    public void setStyle(Style style) {
-        this.style = style;
-    }
-
-    public Symbol getSymbol() {
-        return this.symbol;
-    }
-
-    public void setSymbol(Symbol symbol) {
-        this.symbol = symbol;
-    }
-
-    public Text getTooltipText() {
-        return this.tooltipText;
-    }
-
-    public void setTooltipText(Text tooltipText) {
         this.tooltipText = tooltipText;
     }
 
@@ -62,6 +35,7 @@ public class ToolbarButtonWidget extends BaseButtonWidget {
     public void renderButton(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, TEXTURE);
+        RenderSystem.setShaderColor(1, 1, 1, 1);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();
@@ -79,11 +53,6 @@ public class ToolbarButtonWidget extends BaseButtonWidget {
         screen.renderTooltip(matrices, this.tooltipText, mouseX, mouseY);
     }
 
-    @Override
-    public void onClick(double mouseX, double mouseY) {
-        this.pressAction.onPress(this);
-    }
-
     public void drawTexture(MatrixStack matrices, int x, int y, int u, int v) {
         this.drawTexture(matrices, x, y, u, v, SIZE, SIZE);
     }
@@ -91,11 +60,6 @@ public class ToolbarButtonWidget extends BaseButtonWidget {
     @Override
     public void drawTexture(MatrixStack matrices, int x, int y, int u, int v, int width, int height) {
         drawTexture(matrices, x, y, this.getZOffset(), u, v, width, height, TEXTURE_HEIGHT, TEXTURE_WIDTH);
-    }
-
-    @Environment(EnvType.CLIENT)
-    public interface PressAction {
-        void onPress(ToolbarButtonWidget button);
     }
 
     @Environment(EnvType.CLIENT)

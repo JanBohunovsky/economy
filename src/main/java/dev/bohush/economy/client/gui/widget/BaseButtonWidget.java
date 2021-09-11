@@ -19,6 +19,8 @@ import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
 @Environment(EnvType.CLIENT)
 public abstract class BaseButtonWidget extends DrawableHelper implements Drawable, Element, Selectable {
 
+    protected final PressAction pressAction;
+
     protected int x;
     protected int y;
     protected int width;
@@ -30,11 +32,12 @@ public abstract class BaseButtonWidget extends DrawableHelper implements Drawabl
     protected boolean focused;
     protected float alpha = 1;
 
-    protected BaseButtonWidget(int x, int y, int width, int height) {
+    protected BaseButtonWidget(int x, int y, int width, int height, PressAction pressAction) {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
+        this.pressAction = pressAction;
     }
 
     public int getX() {
@@ -97,7 +100,9 @@ public abstract class BaseButtonWidget extends DrawableHelper implements Drawabl
 
     public abstract void renderTooltip(Screen screen, MatrixStack matrices, int mouseX, int mouseY);
 
-    public abstract void onClick(double mouseX, double mouseY);
+    public void onClick(double mouseX, double mouseY) {
+        this.pressAction.onPress(this);
+    }
 
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
@@ -155,5 +160,10 @@ public abstract class BaseButtonWidget extends DrawableHelper implements Drawabl
 
     @Override
     public void appendNarrations(NarrationMessageBuilder builder) {
+    }
+
+    @Environment(EnvType.CLIENT)
+    public interface PressAction {
+        void onPress(BaseButtonWidget button);
     }
 }

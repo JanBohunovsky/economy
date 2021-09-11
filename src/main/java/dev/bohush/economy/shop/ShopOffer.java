@@ -4,6 +4,7 @@ import dev.bohush.economy.inventory.ShopStorage;
 import dev.bohush.economy.util.CoinHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
@@ -13,7 +14,7 @@ public class ShopOffer {
     private final ItemStack firstBuyItem;
     private final ItemStack secondBuyItem;
     private final ItemStack sellItem;
-    private boolean disabled;
+    private boolean locked;
     private int sellItemStock;
     private int availableSpaceForFirstItem;
     private int availableSpaceForSecondItem;
@@ -26,15 +27,15 @@ public class ShopOffer {
         this(firstBuyItem, secondBuyItem, sellItem, false);
     }
 
-    public ShopOffer(ItemStack firstBuyItem, ItemStack secondBuyItem, ItemStack sellItem, boolean disabled) {
-        this(firstBuyItem, secondBuyItem, sellItem, disabled, 0, 0, 0);
+    public ShopOffer(ItemStack firstBuyItem, ItemStack secondBuyItem, ItemStack sellItem, boolean locked) {
+        this(firstBuyItem, secondBuyItem, sellItem, locked, 0, 0, 0);
     }
 
-    private ShopOffer(ItemStack firstBuyItem, ItemStack secondBuyItem, ItemStack sellItem, boolean disabled, int sellItemStock, int availableSpaceForFirstItem, int availableSpaceForSecondItem) {
+    private ShopOffer(ItemStack firstBuyItem, ItemStack secondBuyItem, ItemStack sellItem, boolean locked, int sellItemStock, int availableSpaceForFirstItem, int availableSpaceForSecondItem) {
         this.firstBuyItem = firstBuyItem;
         this.secondBuyItem = secondBuyItem;
         this.sellItem = sellItem;
-        this.disabled = disabled;
+        this.locked = locked;
         this.sellItemStock = sellItemStock;
         this.availableSpaceForFirstItem = availableSpaceForFirstItem;
         this.availableSpaceForSecondItem = availableSpaceForSecondItem;
@@ -53,12 +54,12 @@ public class ShopOffer {
     }
 
     public boolean isDisabled() {
-        return this.disabled || this.isOutOfStock() || this.isStorageFull();
+        return this.locked || this.isOutOfStock() || this.isStorageFull();
     }
 
     public Text getDisabledReasonText() {
-        if (this.disabled) {
-            return new TranslatableText("shop.offer.disabled");
+        if (this.locked) {
+            return new TranslatableText("shop.offer.locked");
         }
 
         if (this.isOutOfStock()) {
@@ -83,12 +84,16 @@ public class ShopOffer {
             || this.availableSpaceForSecondItem < this.secondBuyItem.getCount();
     }
 
-    public void enable() {
-        this.disabled = false;
+    public boolean isLocked() {
+        return this.locked;
     }
 
-    public void disable() {
-        this.disabled = true;
+    public void unlock() {
+        this.locked = false;
+    }
+
+    public void lock() {
+        this.locked = true;
     }
 
     @Deprecated
@@ -158,7 +163,7 @@ public class ShopOffer {
             buf.writeItemStack(this.secondBuyItem);
         }
 
-        buf.writeBoolean(this.disabled);
+        buf.writeBoolean(this.locked);
         buf.writeInt(this.sellItemStock);
         buf.writeInt(this.availableSpaceForFirstItem);
         buf.writeInt(this.availableSpaceForSecondItem);
@@ -173,12 +178,12 @@ public class ShopOffer {
             secondBuyItem = buf.readItemStack();
         }
 
-        boolean disabled = buf.readBoolean();
+        boolean locked = buf.readBoolean();
         int sellItemStock = buf.readInt();
         int availableSpaceForFirstItem = buf.readInt();
         int availableSpaceForSecondItem = buf.readInt();
 
-        return new ShopOffer(firstBuyItem, secondBuyItem, sellItem, disabled, sellItemStock, availableSpaceForFirstItem, availableSpaceForSecondItem);
+        return new ShopOffer(firstBuyItem, secondBuyItem, sellItem, locked, sellItemStock, availableSpaceForFirstItem, availableSpaceForSecondItem);
     }
 
     public NbtCompound toNbt() {
@@ -186,16 +191,23 @@ public class ShopOffer {
         nbt.put("buy", firstBuyItem.writeNbt(new NbtCompound()));
         nbt.put("buyExtra", secondBuyItem.writeNbt(new NbtCompound()));
         nbt.put("sell", sellItem.writeNbt(new NbtCompound()));
-        nbt.putBoolean("disabled", disabled);
+        nbt.putBoolean("locked", locked);
         return nbt;
     }
 
     public static ShopOffer fromNbt(NbtCompound nbt) {
+        boolean locked = false;
+        if (nbt.contains("locked", NbtElement.BYTE_TYPE)) {
+            locked = nbt.getBoolean("locked");
+        } else if (nbt.contains("disabled", NbtElement.BYTE_TYPE)) {
+            locked = nbt.getBoolean("disabled");
+        }
+
         return new ShopOffer(
             ItemStack.fromNbt(nbt.getCompound("buy")),
             ItemStack.fromNbt(nbt.getCompound("buyExtra")),
             ItemStack.fromNbt(nbt.getCompound("sell")),
-            nbt.getBoolean("disabled")
+            locked //nbt.getBoolean("locked")
         );
     }
 

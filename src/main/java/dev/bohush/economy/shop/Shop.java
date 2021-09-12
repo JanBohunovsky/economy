@@ -36,4 +36,6 @@ public interface Shop {
     void onSellingItem(ItemStack stack);
 
     World getWorld();
+
+    void markDirty();
 }

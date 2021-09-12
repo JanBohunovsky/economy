@@ -8,7 +8,6 @@ import dev.bohush.economy.client.gui.widget.SmallButtonWidget;
 import dev.bohush.economy.client.gui.widget.ToolbarButtonWidget;
 import dev.bohush.economy.screen.ShopOwnerScreenHandler;
 import dev.bohush.economy.shop.ShopOffer;
-import dev.bohush.economy.shop.ShopOfferList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
@@ -61,14 +60,19 @@ public class ShopOwnerScreen extends HandledScreen<ShopOwnerScreenHandler> {
         int titleWidth = this.textRenderer.getWidth(this.title);
         this.titleX = inventoryX + (inventoryWidth - titleWidth) / 2;
 
-        var offerListWidget = new OfferListWidget(this.x + 7, this.y + 17, new ShopOfferList(), this::onOfferSelected, () -> null);
+        var offerListWidget = new OfferListWidget(this.x + 7, this.y + 17, true,
+            this.handler.getOffers(),
+            this::onOfferSelected,
+            this.handler::getSelectedOffer);
         this.addDrawableChild(offerListWidget);
 
         this.saveButton = new SmallButtonWidget(0, this.y + 64,
             new LiteralText("Save"),
             SmallButtonWidget.Style.SUCCESS,
             SmallButtonWidget.Symbol.CHECKMARK,
-            (button) -> LOGGER.info("Save"));
+            (button) -> this.clickButton(this.lockButton.isLocked()
+                ? ShopOwnerScreenHandler.SAVE_LOCKED_OFFER_BUTTON
+                : ShopOwnerScreenHandler.SAVE_UNLOCKED_OFFER_BUTTON));
         this.saveButton.setX(this.x + inventoryX + (inventoryWidth - saveButton.getWidth()) / 2);
         this.addDrawableChild(this.saveButton);
 
@@ -84,33 +88,79 @@ public class ShopOwnerScreen extends HandledScreen<ShopOwnerScreenHandler> {
             ToolbarButtonWidget.Style.SUCCESS,
             ToolbarButtonWidget.Symbol.PLUS,
             new LiteralText("Add new offer"),
-            (button) -> LOGGER.info("New offer"));
+            (button) -> {
+                this.clickButton(ShopOwnerScreenHandler.NEW_OFFER_BUTTON);
+                offerListWidget.scrollTo(this.handler.getOfferIndex());
+                updateButtonState();
+            });
         this.addDrawableChild(this.newOfferButton);
 
         this.deleteOfferButton = new ToolbarButtonWidget(toolbarX + buttonOffset, this.y + 5,
             ToolbarButtonWidget.Style.DANGER,
             ToolbarButtonWidget.Symbol.MINUS,
             new LiteralText("Delete offer"),
-            (button) -> LOGGER.info("Delete offer"));
+            (button) -> {
+                this.clickButton(ShopOwnerScreenHandler.DELETE_OFFER_BUTTON);
+                offerListWidget.scrollTo(this.handler.getOfferIndex());
+                updateButtonState();
+            });
         this.addDrawableChild(this.deleteOfferButton);
 
         this.moveUpOfferButton = new ToolbarButtonWidget(toolbarX + buttonOffset * 2, this.y + 5,
             ToolbarButtonWidget.Style.DEFAULT,
             ToolbarButtonWidget.Symbol.ARROW_UP,
             new LiteralText("Move offer up"),
-            (button) -> LOGGER.info("Move up"));
+            (button) -> {
+                this.clickButton(ShopOwnerScreenHandler.MOVE_OFFER_UP_BUTTON);
+                offerListWidget.scrollTo(this.handler.getOfferIndex());
+                updateButtonState();
+            });
         this.addDrawableChild(this.moveUpOfferButton);
 
         this.moveDownOfferButton = new ToolbarButtonWidget(toolbarX + buttonOffset * 3, this.y + 5,
             ToolbarButtonWidget.Style.DEFAULT,
             ToolbarButtonWidget.Symbol.ARROW_DOWN,
             new LiteralText("Move offer down"),
-            (button) -> LOGGER.info("Move down"));
+            (button) -> {
+                this.clickButton(ShopOwnerScreenHandler.MOVE_OFFER_DOWN_BUTTON);
+                offerListWidget.scrollTo(this.handler.getOfferIndex());
+                updateButtonState();
+            });
         this.addDrawableChild(this.moveDownOfferButton);
+
+        this.updateButtonState();
     }
 
     private void onOfferSelected(int offerIndex, ShopOffer offer) {
-        LOGGER.info("offer selected: {}", offerIndex);
+        this.clickButton(offerIndex);
+        this.updateButtonState();
+    }
+
+    private void updateButtonState() {
+        var offer = this.handler.getSelectedOffer();
+        var index = this.handler.getOfferIndex();
+
+        if (offer == null) {
+            this.deleteOfferButton.setActive(false);
+            this.moveUpOfferButton.setActive(false);
+            this.moveDownOfferButton.setActive(false);
+            this.saveButton.setActive(false);
+            this.lockButton.setLocked(false);
+            this.lockButton.setActive(false);
+            return;
+        }
+
+        this.deleteOfferButton.setActive(true);
+        this.moveUpOfferButton.setActive(index > 0);
+        this.moveDownOfferButton.setActive(index < this.handler.getOffers().size() - 1);
+        this.saveButton.setActive(true);
+        this.lockButton.setActive(true);
+        this.lockButton.setLocked(offer.isLocked());
+    }
+
+    private void clickButton(int id) {
+        this.handler.onButtonClick(this.client.player, id);
+        this.client.interactionManager.clickButton(this.handler.syncId, id);
     }
 
     @Override
@@ -124,25 +174,6 @@ public class ShopOwnerScreen extends HandledScreen<ShopOwnerScreenHandler> {
                 this.handler.slots.addAll(this.savedSlots);
                 this.savedSlots = null;
             }
-        }
-
-        if (keyCode == GLFW.GLFW_KEY_1) {
-            this.newOfferButton.setActive(!this.newOfferButton.isActive());
-        }
-        if (keyCode == GLFW.GLFW_KEY_2) {
-            this.deleteOfferButton.setActive(!this.deleteOfferButton.isActive());
-        }
-        if (keyCode == GLFW.GLFW_KEY_3) {
-            this.moveUpOfferButton.setActive(!this.moveUpOfferButton.isActive());
-        }
-        if (keyCode == GLFW.GLFW_KEY_4) {
-            this.moveDownOfferButton.setActive(!this.moveDownOfferButton.isActive());
-        }
-        if (keyCode == GLFW.GLFW_KEY_S) {
-            this.saveButton.setActive(!this.saveButton.isActive());
-        }
-        if (keyCode == GLFW.GLFW_KEY_L) {
-            this.lockButton.setActive(!this.lockButton.isActive());
         }
 
         return super.keyPressed(keyCode, scanCode, modifiers);
@@ -172,7 +203,18 @@ public class ShopOwnerScreen extends HandledScreen<ShopOwnerScreenHandler> {
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         this.renderBackground(matrices);
         super.render(matrices, mouseX, mouseY, delta);
+        this.drawDebugText(matrices);
         this.drawMouseoverTooltip(matrices, mouseX, mouseY);
+    }
+
+    private void drawDebugText(MatrixStack matrices) {
+        this.textRenderer.draw(matrices, Integer.toString(this.handler.getOfferIndex()), 3, 3, 0xffffff);
+        if (this.handler.getSelectedOffer() != null) {
+            ShopOffer offer = this.handler.getSelectedOffer();
+            this.textRenderer.draw(matrices, String.format("%,d", offer.getSellItemStock()), 3, 13, 0xffffff);
+            this.textRenderer.draw(matrices, String.format("%,d", offer.getAvailableSpaceForFirstItem()), 3, 23, 0xffffff);
+            this.textRenderer.draw(matrices, String.format("%,d", offer.getAvailableSpaceForSecondItem()), 3, 33, 0xffffff);
+        }
     }
 
     @Override

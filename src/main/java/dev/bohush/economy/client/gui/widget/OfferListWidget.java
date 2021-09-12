@@ -35,6 +35,8 @@ public class OfferListWidget extends AbstractParentElement implements Drawable, 
     private static final int SCROLLBAR_WIDTH = 6;
     private static final int SCROLLBAR_MIN_SIZE = 3;
     private static final int SCROLLBAR_MAX_SIZE = 68;
+    private static final int SCROLLBAR_MIN_HEIGHT = SCROLLBAR_MIN_SIZE * 2 + 3;
+    private static final int SCROLLBAR_MAX_HEIGHT = SCROLLBAR_MAX_SIZE * 2 + 3;
     private static final int SCROLLBAR_X = PADDING + WIDTH - SCROLLBAR_WIDTH;
     private static final int SCROLLBAR_Y = PADDING;
 
@@ -50,8 +52,10 @@ public class OfferListWidget extends AbstractParentElement implements Drawable, 
     private final ShopOfferList offers;
     private final ArrayList<OfferButtonWidget> buttons;
 
-    public OfferListWidget(int x, int y, ShopOfferList offers,
-                           OfferSelectedAction offerSelectedAction, SelectedOfferFunc selectedOfferFunc) {
+    public OfferListWidget(int x, int y, boolean ownerView,
+                           ShopOfferList offers,
+                           OfferSelectedAction offerSelectedAction,
+                           SelectedOfferFunc selectedOfferFunc) {
         this.x = x;
         this.y = y;
         this.offerSelectedAction = offerSelectedAction;
@@ -60,7 +64,7 @@ public class OfferListWidget extends AbstractParentElement implements Drawable, 
         this.buttons = new ArrayList<>();
 
         for (int i = 0; i < BUTTON_COUNT; i++) {
-            var button = new OfferButtonWidget(this.x + PADDING, this.y + PADDING + (OfferButtonWidget.HEIGHT * i), i, this::onButtonClick);
+            var button = new OfferButtonWidget(this.x + PADDING, this.y + PADDING + (OfferButtonWidget.HEIGHT * i), i, ownerView, this::onButtonClick);
             this.buttons.add(button);
         }
     }
@@ -68,6 +72,11 @@ public class OfferListWidget extends AbstractParentElement implements Drawable, 
     @Override
     public List<? extends Element> children() {
         return this.buttons;
+    }
+
+    public void scrollTo(int offerIndex) {
+        int extraOfferCount = Math.max(this.offers.size() - BUTTON_COUNT, 0);
+        this.indexOffset = MathHelper.clamp(offerIndex - (BUTTON_COUNT - 1), 0, extraOfferCount);
     }
 
     @Override
@@ -81,12 +90,9 @@ public class OfferListWidget extends AbstractParentElement implements Drawable, 
         if (this.scrollbarHeight % 2 == 0) {
             this.scrollbarHeight--;
         }
+        this.scrollbarHeight = MathHelper.clamp(this.scrollbarHeight, SCROLLBAR_MIN_HEIGHT, SCROLLBAR_MAX_HEIGHT);
 
         this.renderScrollbar(matrices);
-
-        if (this.offers.isEmpty()) {
-            return;
-        }
 
         var selectedOffer = this.selectedOfferFunc.getSelectedOffer();
         for (var button : this.buttons) {
@@ -106,8 +112,7 @@ public class OfferListWidget extends AbstractParentElement implements Drawable, 
     }
 
     private void renderScrollbar(MatrixStack matrices) {
-        int innerScrollbarHeight = (this.scrollbarHeight - 3) / 2;
-        int size = MathHelper.clamp(innerScrollbarHeight, SCROLLBAR_MIN_SIZE, SCROLLBAR_MAX_SIZE);
+        int size = (this.scrollbarHeight - 3) / 2;
 
         int startX = this.x + SCROLLBAR_X;
         int startY = this.y + SCROLLBAR_Y;
@@ -115,15 +120,9 @@ public class OfferListWidget extends AbstractParentElement implements Drawable, 
         if (this.canScroll()) {
             int availableHeight = HEIGHT - this.scrollbarHeight;
             int steps = this.offers.size() - BUTTON_COUNT;
-            int heightPerStep = availableHeight / steps;
 
+            float heightPerStep = (float)availableHeight / steps;
             startY += this.indexOffset * heightPerStep;
-
-            // Align scrollbar with the bottom if we're at the bottom of the list.
-            // This is needed because the scrollbar's height is always odd.
-            if (this.indexOffset == steps) {
-                startY++;
-            }
         }
 
         int u = BACKGROUND_WIDTH;

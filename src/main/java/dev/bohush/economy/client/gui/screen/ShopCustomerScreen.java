@@ -42,7 +42,8 @@ public class ShopCustomerScreen extends HandledScreen<ShopCustomerScreenHandler>
         int offersOffset = 7;
         this.offersTitleX = offersOffset + (OfferListWidget.BACKGROUND_WIDTH - offersTextWidth) / 2;
 
-        var offerListWidget = new OfferListWidget(this.x + 7, this.y + 17, this.handler.getOffers(),
+        var offerListWidget = new OfferListWidget(this.x + 7, this.y + 17, false,
+            this.handler.getOffers(),
             this::onOfferSelected,
             this.handler::getSelectedOffer);
         this.addDrawableChild(offerListWidget);

@@ -15,9 +15,9 @@
     "shop.name.owner": "Your Shop",
     "shop.differentOwner": "This shop is owned by %s.",
     "shop.offers": "Offers",
-    "shop.offer.disabled": "This offer is disabled.",
-    "shop.offer.locked": "This offer is locked.",
-    "shop.offer.outOfStock": "Item is out of stock.",
-    "shop.offer.outOfCoins": "Not enough coins in shop.",
-    "shop.offer.fullStorage": "Storage is full."
+    "shop.offer.disabled": "This offer is disabled",
+    "shop.offer.locked": "This offer is locked",
+    "shop.offer.outOfStock": "Item is out of stock",
+    "shop.offer.outOfCoins": "Not enough coins in shop",
+    "shop.offer.fullStorage": "Storage is full"
 }

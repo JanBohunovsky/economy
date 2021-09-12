@@ -20,15 +20,17 @@ public class OfferButtonWidget extends PressableWidget {
     public static final int HEIGHT = 20;
 
     private final int buttonIndex;
+    private final boolean ownerView;
     private final PressAction pressAction;
 
     private boolean selected;
     @Nullable
     private ShopOffer offer;
 
-    public OfferButtonWidget(int x, int y, int buttonIndex, PressAction pressAction) {
+    public OfferButtonWidget(int x, int y, int buttonIndex, boolean ownerView, PressAction pressAction) {
         super(x, y, WIDTH, HEIGHT, LiteralText.EMPTY);
         this.buttonIndex = buttonIndex;
+        this.ownerView = ownerView;
         this.pressAction = pressAction;
         this.visible = false;
     }
@@ -90,7 +92,7 @@ public class OfferButtonWidget extends PressableWidget {
         RenderSystem.setShaderTexture(0, OfferListWidget.TEXTURE);
 
         int u = OfferListWidget.BACKGROUND_WIDTH;
-        if (this.offer.isDisabled()) {
+        if (this.showX()) {
             u += 10;
         }
 
@@ -118,13 +120,21 @@ public class OfferButtonWidget extends PressableWidget {
             return;
         }
 
-        if (this.offer.isDisabled() && mouseX >= this.x + 52 && mouseX < this.x + 68) {
+        if (this.showX() && mouseX >= this.x + 52 && mouseX < this.x + 68) {
             screen.renderTooltip(matrices, offer.getDisabledReasonText(), mouseX, mouseY);
         }
 
         if (!hoveredItemStack.isEmpty()) {
             screen.renderTooltip(matrices, screen.getTooltipFromItem(hoveredItemStack), hoveredItemStack.getTooltipData(), mouseX, mouseY);
         }
+    }
+
+    private boolean showX() {
+        if (this.offer == null) {
+            return false;
+        }
+
+        return this.ownerView ? this.offer.isLocked() : this.offer.isDisabled();
     }
 
     @Override

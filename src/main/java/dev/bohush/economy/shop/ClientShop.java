@@ -66,4 +66,8 @@ public class ClientShop implements Shop {
     public World getWorld() {
         return this.activePlayer.world;
     }
+
+    @Override
+    public void markDirty() {
+    }
 }

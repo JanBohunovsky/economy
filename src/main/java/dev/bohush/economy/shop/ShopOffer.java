@@ -41,6 +41,10 @@ public class ShopOffer {
         this.availableSpaceForSecondItem = availableSpaceForSecondItem;
     }
 
+    public boolean isInvalid() {
+        return this.sellItem.isEmpty() || (this.firstBuyItem.isEmpty() && this.secondBuyItem.isEmpty());
+    }
+
     public ItemStack getFirstBuyItem() {
         return this.firstBuyItem;
     }
@@ -75,11 +79,11 @@ public class ShopOffer {
         return new LiteralText("");
     }
 
-    private boolean isOutOfStock() {
+    public boolean isOutOfStock() {
         return this.sellItemStock < this.sellItem.getCount();
     }
 
-    private boolean isStorageFull() {
+    public boolean isStorageFull() {
         return this.availableSpaceForFirstItem < this.firstBuyItem.getCount()
             || this.availableSpaceForSecondItem < this.secondBuyItem.getCount();
     }

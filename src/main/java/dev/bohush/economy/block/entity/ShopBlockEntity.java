@@ -5,7 +5,6 @@ import dev.bohush.economy.block.ShopBlock;
 import dev.bohush.economy.entity.ModEntities;
 import dev.bohush.economy.entity.ShopVillagerEntity;
 import dev.bohush.economy.inventory.ShopStorage;
-import dev.bohush.economy.item.ModItems;
 import dev.bohush.economy.network.ModPackets;
 import dev.bohush.economy.screen.ShopStorageScreenHandler;
 import dev.bohush.economy.shop.Shop;
@@ -20,7 +19,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
@@ -221,13 +219,12 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
         ServerPlayNetworking.send((ServerPlayerEntity)this.activePlayer, ModPackets.UPDATE_OFFERS_S2C, buf);
     }
 
-    public ShopBlockEntity prepareOffers() {
+    public void prepareOffers() {
         int emptySlots = this.storage.getEmptySlotCount();
+
         for (ShopOffer offer : this.getOffers()) {
             offer.update(this.storage, emptySlots);
         }
-
-        return this;
     }
 
     public void setOffers(ShopOfferList offers) {
@@ -306,15 +303,6 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
 
         if (nbt.contains("Offers", NbtElement.LIST_TYPE)) {
             this.offers = ShopOfferList.fromNbt(nbt.getList("Offers", NbtElement.COMPOUND_TYPE));
-        } else {
-            this.offers = new ShopOfferList();
-
-            // Example offers
-            this.offers.add(new ShopOffer(new ItemStack(ModItems.COPPER_COIN, 1), new ItemStack(Items.DIRT, 64)));
-            this.offers.add(new ShopOffer(new ItemStack(ModItems.IRON_COIN, 1), new ItemStack(Items.COBBLESTONE, 64)));
-            this.offers.add(new ShopOffer(new ItemStack(ModItems.GOLD_COIN, 1), new ItemStack(Items.NETHER_STAR, 1)));
-            this.offers.add(new ShopOffer(new ItemStack(Items.STICK, 1), ItemStack.EMPTY, new ItemStack(ModItems.NETHERITE_COIN, 1), true));
-            this.offers.add(new ShopOffer(new ItemStack(Items.DIRT, 64), new ItemStack(Items.DIRT, 64), new ItemStack(ModItems.COPPER_COIN, 1)));
         }
 
         if (nbt.contains("Storage", NbtElement.COMPOUND_TYPE)) {

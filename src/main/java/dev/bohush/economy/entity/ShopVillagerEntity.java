@@ -170,7 +170,7 @@ public class ShopVillagerEntity extends MobEntity implements VillagerDataContain
     }
 
     private void sayNo() {
-        // swing head
+        // TODO: swing head
         if (!this.world.isClient) {
             this.playSound(SoundEvents.ENTITY_VILLAGER_NO, this.getSoundVolume(), this.getSoundPitch());
         }

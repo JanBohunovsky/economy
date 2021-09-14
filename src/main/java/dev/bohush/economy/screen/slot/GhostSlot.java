@@ -7,8 +7,19 @@ import net.minecraft.screen.slot.Slot;
 
 public class GhostSlot extends Slot {
 
+    private boolean enabled;
+
     public GhostSlot(Inventory inventory, int index, int x, int y) {
         super(inventory, index, x, y);
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return enabled;
     }
 
     @Override
@@ -33,7 +44,6 @@ public class GhostSlot extends Slot {
 
     @Override
     public void setStack(ItemStack stack) {
-        ItemStack copy = stack.copy();
-        super.setStack(copy);
+        super.setStack(stack.copy());
     }
 }

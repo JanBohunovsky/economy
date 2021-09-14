@@ -1,6 +1,6 @@
 package dev.bohush.economy.screen;
 
-import dev.bohush.economy.screen.slot.ShopGhostSlot;
+import dev.bohush.economy.screen.slot.GhostSlot;
 import dev.bohush.economy.shop.ClientShop;
 import dev.bohush.economy.shop.Shop;
 import dev.bohush.economy.shop.ShopOffer;
@@ -41,9 +41,9 @@ public class ShopOwnerScreenHandler extends ScreenHandler {
         this.offerInventory = new SimpleInventory(3);
 
         // Offer slots
-        this.addSlot(new ShopGhostSlot(this.offerInventory, 0, 137, 37));
-        this.addSlot(new ShopGhostSlot(this.offerInventory, 1, 163, 37));
-        this.addSlot(new ShopGhostSlot(this.offerInventory, 2, 221, 37));
+        this.addSlot(new GhostSlot(this.offerInventory, 0, 137, 37));
+        this.addSlot(new GhostSlot(this.offerInventory, 1, 163, 37));
+        this.addSlot(new GhostSlot(this.offerInventory, 2, 221, 37));
 
         // Player inventory
         for (int y = 0; y < 3; y++) {
@@ -151,7 +151,7 @@ public class ShopOwnerScreenHandler extends ScreenHandler {
 
         for (int i = 0; i < 3; i++) {
             var slot = this.getSlot(i);
-            if (slot instanceof ShopGhostSlot ghostSlot) {
+            if (slot instanceof GhostSlot ghostSlot) {
                 ghostSlot.setEnabled(offer != null);
                 ghostSlot.setStack(ItemStack.EMPTY);
             }
@@ -177,7 +177,7 @@ public class ShopOwnerScreenHandler extends ScreenHandler {
 
     @Override
     public void onSlotClick(int slotIndex, int button, SlotActionType actionType, PlayerEntity player) {
-        if (slotIndex >= 0 && slotIndex < 3 && this.getSlot(slotIndex) instanceof ShopGhostSlot ghostSlot) {
+        if (slotIndex >= 0 && slotIndex < 3 && this.getSlot(slotIndex) instanceof GhostSlot ghostSlot) {
             // Clear slot on middle click
             if (button == 2) {
                 ghostSlot.setStack(ItemStack.EMPTY);
@@ -226,7 +226,7 @@ public class ShopOwnerScreenHandler extends ScreenHandler {
     public ItemStack transferSlot(PlayerEntity player, int index) {
         var slot = this.getSlot(index);
 
-        if (!slot.hasStack() || slot instanceof ShopGhostSlot || index < 3) {
+        if (!slot.hasStack() || slot instanceof GhostSlot || index < 3) {
             return ItemStack.EMPTY;
         }
 

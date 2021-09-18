@@ -1,6 +1,5 @@
 package dev.bohush.economy.block.entity;
 
-import com.mojang.serialization.Dynamic;
 import dev.bohush.economy.block.ShopBlock;
 import dev.bohush.economy.entity.ModEntities;
 import dev.bohush.economy.entity.ShopVillagerEntity;
@@ -10,6 +9,8 @@ import dev.bohush.economy.screen.ShopStorageScreenHandler;
 import dev.bohush.economy.shop.Shop;
 import dev.bohush.economy.shop.ShopOffer;
 import dev.bohush.economy.shop.ShopOfferList;
+import dev.bohush.economy.shop.villager.ShopVillagerStyle;
+import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
@@ -21,7 +22,6 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -30,9 +30,6 @@ import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.village.VillagerData;
-import net.minecraft.village.VillagerProfession;
-import net.minecraft.village.VillagerType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
@@ -40,14 +37,14 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.UUID;
 
-public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreenHandlerFactory {
+public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreenHandlerFactory, BlockEntityClientSerializable {
     private static final Logger LOGGER = LogManager.getLogger();
 
     private final ShopStorage storage;
     private UUID ownerUuid;
     private String ownerName;
     private UUID villagerUuid;
-    private VillagerData villagerStyle;
+    private ShopVillagerStyle villagerStyle;
     private PlayerEntity activePlayer;
     private ShopOfferList offers;
 
@@ -55,12 +52,12 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
         super(ModBlockEntities.SHOP, pos, state);
         this.storage = new ShopStorage(this::canPlayerUse);
         this.storage.addListener((sender) -> this.markDirty());
+        this.villagerStyle = ShopVillagerStyle.DEFAULT;
     }
 
     public void initialize(PlayerEntity player) {
         this.ownerUuid = player.getUuid();
         this.ownerName = player.getName().asString();
-        this.villagerStyle = new VillagerData(VillagerType.PLAINS, VillagerProfession.NONE, 0);
     }
 
     public ShopStorage getStorage() {
@@ -98,7 +95,6 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
         }
 
         villager.setCustomName(new TranslatableText("shop.name", this.ownerName));
-        villager.setVillagerData(this.villagerStyle);
         villager.setShopPos(this.pos);
 
         villager.setCanPickUpLoot(false);
@@ -124,6 +120,14 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
         if (villager != null) {
             villager.discard();
         }
+    }
+
+    public ShopVillagerStyle getVillagerStyle() {
+        return this.villagerStyle;
+    }
+
+    public void setVillagerStyle(ShopVillagerStyle style) {
+        this.villagerStyle = style;
     }
 
     public boolean canPlayerUse(PlayerEntity player) {
@@ -259,14 +263,26 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
     }
 
     @Override
+    public NbtCompound toClientTag(NbtCompound tag) {
+        tag.put("VillagerStyle", this.villagerStyle.toNbt());
+
+        return tag;
+    }
+
+    @Override
+    public void fromClientTag(NbtCompound tag) {
+        if (tag.contains("VillagerStyle")) {
+            this.villagerStyle = ShopVillagerStyle.fromNbt(tag.getCompound("VillagerStyle"));
+        }
+    }
+
+    @Override
     public NbtCompound writeNbt(NbtCompound nbt) {
         super.writeNbt(nbt);
 
         nbt.putUuid("Owner", this.ownerUuid);
         nbt.putString("OwnerName", this.ownerName);
-        VillagerData.CODEC.encodeStart(NbtOps.INSTANCE, this.villagerStyle)
-            .resultOrPartial(LOGGER::error)
-            .ifPresent((nbtElement -> nbt.put("VillagerStyle", nbtElement)));
+        nbt.put("VillagerStyle", this.villagerStyle.toNbt());
 
         if (this.villagerUuid != null) {
             nbt.putUuid("AssignedVillager", this.villagerUuid);
@@ -288,18 +304,23 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
     public void readNbt(NbtCompound nbt) {
         super.readNbt(nbt);
 
-        this.ownerUuid = nbt.getUuid("Owner");
+        if (nbt.containsUuid("Owner")) {
+            this.ownerUuid = nbt.getUuid("Owner");
+        }
+
         if (nbt.contains("OwnerName", NbtElement.STRING_TYPE)) {
             this.ownerName = nbt.getString("OwnerName");
         } else {
             this.ownerName = "someone else";
         }
 
-        VillagerData.CODEC.parse(new Dynamic<>(NbtOps.INSTANCE, nbt.get("VillagerStyle")))
-            .resultOrPartial(LOGGER::error)
-            .ifPresent(villagerData -> this.villagerStyle = villagerData);
+        if (nbt.contains("VillagerStyle", NbtElement.COMPOUND_TYPE)) {
+            this.villagerStyle = ShopVillagerStyle.fromNbt(nbt.getCompound("VillagerStyle"));
+        }
 
-        this.villagerUuid = nbt.getUuid("AssignedVillager");
+        if (nbt.containsUuid("AssignedVillager")) {
+            this.villagerUuid = nbt.getUuid("AssignedVillager");
+        }
 
         if (nbt.contains("Offers", NbtElement.LIST_TYPE)) {
             this.offers = ShopOfferList.fromNbt(nbt.getList("Offers", NbtElement.COMPOUND_TYPE));

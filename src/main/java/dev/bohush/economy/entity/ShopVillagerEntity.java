@@ -1,5 +1,6 @@
 package dev.bohush.economy.entity;
 
+import dev.bohush.economy.Economy;
 import dev.bohush.economy.block.entity.ShopBlockEntity;
 import dev.bohush.economy.screen.ShopCustomerScreenHandler;
 import dev.bohush.economy.screen.ShopOwnerScreenHandler;
@@ -29,28 +30,27 @@ import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.village.VillagerData;
-import net.minecraft.village.VillagerDataContainer;
-import net.minecraft.village.VillagerProfession;
-import net.minecraft.village.VillagerType;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
-public class ShopVillagerEntity extends MobEntity implements VillagerDataContainer {
-    // TODO: Create custom class for this called VillagerStyle and create custom VillagerClothingFeatureRenderer
-    //       that supports this new class.
-    private static final TrackedData<VillagerData> VILLAGER_DATA = DataTracker.registerData(ShopVillagerEntity.class, TrackedDataHandlerRegistry.VILLAGER_DATA);
+import java.util.Arrays;
+
+public class ShopVillagerEntity extends MobEntity {
+    public static Identifier ID = new Identifier(Economy.MOD_ID, "shop_villager");
+
     private static final TrackedData<BlockPos> SHOP_POS = DataTracker.registerData(ShopVillagerEntity.class, TrackedDataHandlerRegistry.BLOCK_POS);
 
     protected ShopVillagerEntity(EntityType<? extends MobEntity> entityType, World world) {
         super(entityType, world);
+        Arrays.fill(this.armorDropChances, 0);
+        Arrays.fill(this.handDropChances, 0);
     }
 
     @Override
     protected void initDataTracker() {
         super.initDataTracker();
-        this.dataTracker.startTracking(VILLAGER_DATA, new VillagerData(VillagerType.PLAINS, VillagerProfession.NONE, 0));
         this.dataTracker.startTracking(SHOP_POS, null);
     }
 
@@ -60,18 +60,21 @@ public class ShopVillagerEntity extends MobEntity implements VillagerDataContain
             .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 48.0D);
     }
 
+    public int getHeadRollingTimeLeft() {
+        return 0; // TODO: this.dataTracker.get(HEAD_ROLLING_TIME_LEFT);
+    }
+
     private ShopBlockEntity getShopBlockEntity() {
-        return (ShopBlockEntity)this.world.getBlockEntity(getShopPos());
-    }
+        var shopBlockEntity = (ShopBlockEntity)this.world.getBlockEntity(getShopPos());
 
-    @Override
-    public VillagerData getVillagerData() {
-        return this.dataTracker.get(VILLAGER_DATA);
-    }
+        if (shopBlockEntity == null) {
+            // Oh no, we're about to crash
+            // Remove this entity to prevent multiple crashes
+            LOGGER.error("Shop block entity not found @ {}", getShopPos());
+            this.discard();
+        }
 
-    @Override
-    public void setVillagerData(VillagerData villagerData) {
-        this.dataTracker.set(VILLAGER_DATA, villagerData);
+        return shopBlockEntity;
     }
 
     public BlockPos getShopPos() {
@@ -211,7 +214,7 @@ public class ShopVillagerEntity extends MobEntity implements VillagerDataContain
         super.readCustomDataFromNbt(nbt);
 
         if (nbt.contains("ShopPos", NbtElement.COMPOUND_TYPE)) {
-            setShopPos(NbtHelper.toBlockPos(nbt.getCompound("ShopPos")));
+            this.setShopPos(NbtHelper.toBlockPos(nbt.getCompound("ShopPos")));
         } else {
             throw new RuntimeException("ShopPos is missing. Please only summon this entity by using economy:shop block.");
         }

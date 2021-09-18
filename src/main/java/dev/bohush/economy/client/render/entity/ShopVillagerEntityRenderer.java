@@ -1,26 +1,24 @@
-package dev.bohush.economy.client.render;
+package dev.bohush.economy.client.render.entity;
 
+import dev.bohush.economy.client.render.entity.feature.ShopVillagerStyleFeatureRenderer;
+import dev.bohush.economy.client.render.entity.model.ModEntityModels;
+import dev.bohush.economy.client.render.entity.model.ShopVillagerEntityModel;
 import dev.bohush.economy.entity.ShopVillagerEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.MobEntityRenderer;
-import net.minecraft.client.render.entity.feature.HeadFeatureRenderer;
-import net.minecraft.client.render.entity.feature.VillagerClothingFeatureRenderer;
 import net.minecraft.client.render.entity.feature.VillagerHeldItemFeatureRenderer;
-import net.minecraft.client.render.entity.model.EntityModelLayers;
-import net.minecraft.client.render.entity.model.VillagerResemblingModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 
 @Environment(EnvType.CLIENT)
-public class ShopVillagerEntityRenderer extends MobEntityRenderer<ShopVillagerEntity, VillagerResemblingModel<ShopVillagerEntity>> {
+public class ShopVillagerEntityRenderer extends MobEntityRenderer<ShopVillagerEntity, ShopVillagerEntityModel> {
     private static final Identifier TEXTURE = new Identifier("textures/entity/villager/villager.png");
 
     public ShopVillagerEntityRenderer(EntityRendererFactory.Context context) {
-        super(context, new VillagerResemblingModel<>(context.getPart(EntityModelLayers.VILLAGER)), 0.5F);
-        this.addFeature(new HeadFeatureRenderer<>(this, context.getModelLoader()));
-        this.addFeature(new VillagerClothingFeatureRenderer<>(this, context.getResourceManager(), "villager"));
+        super(context, new ShopVillagerEntityModel(context.getPart(ModEntityModels.SHOP_VILLAGER_LAYER)), 0.5F);
+        this.addFeature(new ShopVillagerStyleFeatureRenderer(this));
         this.addFeature(new VillagerHeldItemFeatureRenderer<>(this));
     }
 

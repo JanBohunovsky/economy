@@ -19,5 +19,22 @@
     "shop.offer.locked": "This offer is locked",
     "shop.offer.outOfStock": "Item is out of stock",
     "shop.offer.outOfCoins": "Not enough coins in shop",
-    "shop.offer.fullStorage": "Storage is full"
+    "shop.offer.fullStorage": "Storage is full",
+
+    "shop_villager.hat.desert": "Desert Hat",
+    "shop_villager.hat.savanna": "Leaf Headband",
+    "shop_villager.hat.snow": "Snow Hat",
+    "shop_villager.hat.swamp": "Lily Pad",
+    "shop_villager.hat.butcher": "Headband",
+    "shop_villager.hat.farmer": "Straw Hat",
+    "shop_villager.hat.fisherman": "Fisherman's Hat",
+    "shop_villager.hat.fletcher": "Fletcher's Hat",
+    "shop_villager.hat.book": "Book",
+    "shop_villager.hat.shepherd": "Shepherd's Hat",
+    "shop_villager.accessory.armorer": "Armorer's Goggles",
+    "shop_villager.accessory.cartographer": "Monocle",
+    "shop_villager.accessory.reading_glasses": "Reading Glasses",
+    "shop_villager.accessory.weaponsmith": "Eyepatch",
+    "shop_villager.accessory.sunglasses": "Sunglasses",
+    "shop_villager.accessory.pillager_mask": "Pillager Mask"
 }

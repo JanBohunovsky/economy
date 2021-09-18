@@ -1,12 +1,10 @@
 package dev.bohush.economy.entity;
 
-import dev.bohush.economy.Economy;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
 public class ModEntities {
@@ -17,7 +15,7 @@ public class ModEntities {
         .build();
 
     public static void registerEntities() {
-        Registry.register(Registry.ENTITY_TYPE, new Identifier(Economy.MOD_ID, "shop_villager"), SHOP_VILLAGER);
+        Registry.register(Registry.ENTITY_TYPE, ShopVillagerEntity.ID, SHOP_VILLAGER);
         FabricDefaultAttributeRegistry.register(SHOP_VILLAGER, ShopVillagerEntity.createShopVillagerAttributes());
     }
 }

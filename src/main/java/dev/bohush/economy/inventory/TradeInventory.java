@@ -145,16 +145,6 @@ public class TradeInventory implements Inventory {
 
     public void setOfferIndex(int index) {
         this.offerIndex = index;
-
-        if (index >= 0) {
-            ShopOffer offer = this.shop.getOffers().get(this.offerIndex);
-            LOGGER.info("Current offer: {} -> {}",
-                offer.getSecondBuyItem().isEmpty()
-                    ? offer.getFirstBuyItem().toString()
-                    : offer.getFirstBuyItem().toString().concat(" + ").concat(offer.getSecondBuyItem().toString()),
-                offer.getSellItem().toString());
-        }
-
         this.updateOffers();
     }
 

@@ -1,6 +1,5 @@
 package dev.bohush.economy.client.render.entity.feature;
 
-import dev.bohush.economy.block.entity.ShopBlockEntity;
 import dev.bohush.economy.client.render.entity.model.ShopVillagerEntityModel;
 import dev.bohush.economy.entity.ShopVillagerEntity;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -23,16 +22,13 @@ public class ShopVillagerStyleFeatureRenderer extends FeatureRenderer<ShopVillag
             return;
         }
 
-        var world = entity.getEntityWorld();
-        var shopBlockEntity = (ShopBlockEntity)world.getBlockEntity(entity.getShopPos());
+        var shopBlockEntity = entity.getShopBlockEntity();
         if (shopBlockEntity == null) {
-            LOGGER.warn("Shop block entity is null!");
             return;
         }
 
         var villagerStyle = shopBlockEntity.getVillagerStyle();
         if (villagerStyle == null) {
-            LOGGER.warn("Villager style is null!");
             return;
         }
 

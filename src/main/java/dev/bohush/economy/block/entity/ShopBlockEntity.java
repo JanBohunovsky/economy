@@ -16,7 +16,6 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
@@ -43,8 +42,10 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
     private final ShopStorage storage;
     private UUID ownerUuid;
     private String ownerName;
+    @Nullable
     private UUID villagerUuid;
     private ShopVillagerStyle villagerStyle;
+    @Nullable
     private PlayerEntity activePlayer;
     private ShopOfferList offers;
 
@@ -69,11 +70,11 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
     }
 
     public ShopVillagerEntity getVillager() {
-        if (!(world instanceof ServerWorld serverWorld)) {
+        if (!(this.world instanceof ServerWorld serverWorld)) {
             return null;
         }
 
-        Entity entity = serverWorld.getEntity(this.villagerUuid);
+        var entity = serverWorld.getEntity(this.villagerUuid);
         if (entity instanceof ShopVillagerEntity villager) {
             return villager;
         }
@@ -88,19 +89,13 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
             return;
         }
 
-        ShopVillagerEntity villager = ModEntities.SHOP_VILLAGER.create(world);
+        var villager = ModEntities.SHOP_VILLAGER.create(world);
         if (villager == null) {
             LOGGER.error("Failed to create villager.");
             return;
         }
 
-        villager.setCustomName(new TranslatableText("shop.name", this.ownerName));
         villager.setShopPos(this.pos);
-
-        villager.setCanPickUpLoot(false);
-        villager.setInvulnerable(true);
-        villager.setAiDisabled(true);
-        villager.setPersistent();
 
         float yaw = world.getBlockState(this.pos).get(ShopBlock.FACING).asRotation();
         villager.refreshPositionAndAngles(this.pos.getX() + 0.5, this.pos.getY() + 1, this.pos.getZ() + 0.5, yaw, 0);
@@ -116,7 +111,7 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
     }
 
     public void removeVillager() {
-        ShopVillagerEntity villager = getVillager();
+        var villager = this.getVillager();
         if (villager != null) {
             villager.discard();
         }
@@ -128,6 +123,9 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
 
     public void setVillagerStyle(ShopVillagerStyle style) {
         this.villagerStyle = style;
+        if (!this.world.isClient) {
+            this.sync();
+        }
     }
 
     public boolean canPlayerUse(PlayerEntity player) {
@@ -143,6 +141,14 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
         return new TranslatableText("shop.container");
     }
 
+    public Text getShopDisplayName() {
+        return new TranslatableText("shop.name", this.ownerName);
+    }
+
+    public Text getOwnerDisplayName() {
+        return new TranslatableText("shop.name.owner");
+    }
+
     @Nullable
     @Override
     public ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
@@ -153,7 +159,7 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
         }
 
         if (!player.isSpectator()) {
-            setActivePlayer(null);
+            this.setActivePlayer(null);
         }
 
         return new ShopStorageScreenHandler(syncId, playerInventory, this.storage);
@@ -254,17 +260,18 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
         }
         this.storage.removeStack(offer.getSellItem().copy());
 
-        getVillager().onTrade();
+        this.getVillager().onTrade();
     }
 
     @Override
     public void onSellingItem(ItemStack stack) {
-        getVillager().onSellingItem(stack);
+        this.getVillager().onSellingItem(stack);
     }
 
     @Override
     public NbtCompound toClientTag(NbtCompound tag) {
         tag.put("VillagerStyle", this.villagerStyle.toNbt());
+        tag.putString("OwnerName", this.ownerName);
 
         return tag;
     }
@@ -273,6 +280,10 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
     public void fromClientTag(NbtCompound tag) {
         if (tag.contains("VillagerStyle")) {
             this.villagerStyle = ShopVillagerStyle.fromNbt(tag.getCompound("VillagerStyle"));
+        }
+
+        if (tag.contains("OwnerName")) {
+            this.ownerName = tag.getString("OwnerName");
         }
     }
 
@@ -288,7 +299,7 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
             nbt.putUuid("AssignedVillager", this.villagerUuid);
         }
 
-        ShopOfferList offers = getOffers();
+        var offers = getOffers();
         if (!offers.isEmpty()) {
             nbt.put("Offers", offers.toNbt());
         }
@@ -310,8 +321,6 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
 
         if (nbt.contains("OwnerName", NbtElement.STRING_TYPE)) {
             this.ownerName = nbt.getString("OwnerName");
-        } else {
-            this.ownerName = "someone else";
         }
 
         if (nbt.contains("VillagerStyle", NbtElement.COMPOUND_TYPE)) {

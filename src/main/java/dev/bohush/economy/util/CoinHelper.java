@@ -85,7 +85,6 @@ public class CoinHelper {
                 ItemStack stack = new ItemStack(coinItem, amount);
                 long remainder = value - amount * coinItem.getValue();
 
-                LOGGER.info("Returning {} with remainder of {}", stack, remainder);
                 return new Pair<>(stack, remainder);
             }
         }

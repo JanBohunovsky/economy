@@ -4,7 +4,6 @@ import dev.bohush.economy.Economy;
 import dev.bohush.economy.block.entity.ShopBlockEntity;
 import dev.bohush.economy.screen.ShopCustomerScreenHandler;
 import dev.bohush.economy.screen.ShopOwnerScreenHandler;
-import dev.bohush.economy.shop.ShopOfferList;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.attribute.DefaultAttributeContainer.Builder;
@@ -27,7 +26,6 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.stat.Stats;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
@@ -41,17 +39,24 @@ public class ShopVillagerEntity extends MobEntity {
     public static Identifier ID = new Identifier(Economy.MOD_ID, "shop_villager");
 
     private static final TrackedData<BlockPos> SHOP_POS = DataTracker.registerData(ShopVillagerEntity.class, TrackedDataHandlerRegistry.BLOCK_POS);
+    private static final TrackedData<Integer> HEAD_ROLLING_TIME_LEFT = DataTracker.registerData(ShopVillagerEntity.class, TrackedDataHandlerRegistry.INTEGER);
 
     protected ShopVillagerEntity(EntityType<? extends MobEntity> entityType, World world) {
         super(entityType, world);
         Arrays.fill(this.armorDropChances, 0);
         Arrays.fill(this.handDropChances, 0);
+
+        // TODO: figure out how to do this natively
+        this.setCanPickUpLoot(false);
+        this.setInvulnerable(true);
+        this.setAiDisabled(true);
     }
 
     @Override
     protected void initDataTracker() {
         super.initDataTracker();
         this.dataTracker.startTracking(SHOP_POS, null);
+        this.dataTracker.startTracking(HEAD_ROLLING_TIME_LEFT, 0);
     }
 
     public static Builder createShopVillagerAttributes() {
@@ -60,34 +65,78 @@ public class ShopVillagerEntity extends MobEntity {
             .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 48.0D);
     }
 
-    public int getHeadRollingTimeLeft() {
-        return 0; // TODO: this.dataTracker.get(HEAD_ROLLING_TIME_LEFT);
+    @Override
+    public void tick() {
+        super.tick();
+        if (this.getHeadRollingTimeLeft() > 0) {
+            this.dataTracker.set(HEAD_ROLLING_TIME_LEFT, this.getHeadRollingTimeLeft() - 1);
+        }
     }
 
-    private ShopBlockEntity getShopBlockEntity() {
-        var shopBlockEntity = (ShopBlockEntity)this.world.getBlockEntity(getShopPos());
+    public int getHeadRollingTimeLeft() {
+        return this.dataTracker.get(HEAD_ROLLING_TIME_LEFT);
+    }
 
-        if (shopBlockEntity == null) {
-            // Oh no, we're about to crash
-            // Remove this entity to prevent multiple crashes
-            LOGGER.error("Shop block entity not found @ {}", getShopPos());
-            this.discard();
+    @Nullable
+    public ShopBlockEntity getShopBlockEntity() {
+        var shopPos = this.getShopPos();
+
+        if (shopPos != null) {
+            var blockEntity = this.world.getBlockEntity(shopPos);
+            if (blockEntity instanceof ShopBlockEntity shopBlockEntity) {
+                return shopBlockEntity;
+            }
         }
 
-        return shopBlockEntity;
+        // By default, ShopVillager with no ShopBlock assigned is invalid and will be destroyed if this case happens.
+        // But this behaviour can be overridden by setting the villager as persistent.
+        if (!this.isPersistent() && !this.world.isClient) {
+            this.discard();
+        }
+        return null;
     }
 
+    @Override
+    public boolean hasCustomName() {
+        return this.getCustomName() != null;
+    }
+
+    @Nullable
+    @Override
+    public Text getCustomName() {
+        var customName = super.getCustomName();
+        if (customName != null) {
+            return customName;
+        }
+
+        var shopBlockEntity = this.getShopBlockEntity();
+        if (shopBlockEntity != null) {
+            return shopBlockEntity.getShopDisplayName();
+        }
+
+        return null;
+    }
+
+    @Nullable
     public BlockPos getShopPos() {
         return this.dataTracker.get(SHOP_POS);
     }
 
-    public void setShopPos(BlockPos pos) {
+    public void setShopPos(@Nullable BlockPos pos) {
         this.dataTracker.set(SHOP_POS, pos);
     }
 
     @Override
     protected ActionResult interactMob(PlayerEntity player, Hand hand) {
-        ShopBlockEntity shopBlockEntity = getShopBlockEntity();
+        var shopBlockEntity = this.getShopBlockEntity();
+
+        // No shop -> say no
+        if (shopBlockEntity == null) {
+            this.sayNo();
+            return ActionResult.success(this.world.isClient);
+        }
+
+        // Villager is busy -> ignore
         if (!this.isAlive() || shopBlockEntity.hasActivePlayer()) {
             return super.interactMob(player, hand);
         }
@@ -95,17 +144,19 @@ public class ShopVillagerEntity extends MobEntity {
         boolean isOwner = player.getUuid().equals(shopBlockEntity.getOwnerUuid());
         boolean hasNoOffers = shopBlockEntity.getOffers().isEmpty();
         if (hand == Hand.MAIN_HAND) {
-            if (hasNoOffers && !isOwner && !this.world.isClient) {
-                sayNo();
+            // No offers for customer -> say no
+            if (hasNoOffers && !isOwner) {
+                this.sayNo();
             }
 
             player.incrementStat(Stats.TALKED_TO_VILLAGER);
         }
 
+        // Open screen
         if (!this.world.isClient) {
             var factory = !isOwner || player.isSneaking()
-                ? createCustomerScreenFactory(isOwner)
-                : createOwnerScreenHandlerFactory();
+                ? createCustomerScreenFactory(shopBlockEntity, isOwner)
+                : createOwnerScreenHandlerFactory(shopBlockEntity);
 
             if (factory != null) {
                 shopBlockEntity.setActivePlayer(player);
@@ -117,12 +168,9 @@ public class ShopVillagerEntity extends MobEntity {
     }
 
     @Nullable
-    private NamedScreenHandlerFactory createCustomerScreenFactory(boolean isOwner) {
-        ShopBlockEntity shopBlockEntity = getShopBlockEntity();
-        if (!isOwner) {
-            if (shopBlockEntity.getOffers().isEmpty()) {
-                return null;
-            }
+    private NamedScreenHandlerFactory createCustomerScreenFactory(ShopBlockEntity shopBlockEntity, boolean isOwner) {
+        if (!isOwner && shopBlockEntity.getOffers().isEmpty()) {
+            return null;
         }
 
         return new ExtendedScreenHandlerFactory() {
@@ -134,27 +182,25 @@ public class ShopVillagerEntity extends MobEntity {
             @Override
             public Text getDisplayName() {
                 return isOwner
-                    ? new TranslatableText("shop.name.owner")
-                    : ShopVillagerEntity.this.getDisplayName();
+                    ? shopBlockEntity.getOwnerDisplayName()
+                    : shopBlockEntity.getShopDisplayName();
             }
 
             @Override
             public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
                 buf.writeUuid(shopBlockEntity.getOwnerUuid());
                 shopBlockEntity.prepareOffers();
-                ShopOfferList offers = shopBlockEntity.getOffers();
+                var offers = shopBlockEntity.getOffers();
                 offers.toPacket(buf);
             }
         };
     }
 
-    private NamedScreenHandlerFactory createOwnerScreenHandlerFactory() {
-        ShopBlockEntity shopBlockEntity = getShopBlockEntity();
-
+    private NamedScreenHandlerFactory createOwnerScreenHandlerFactory(ShopBlockEntity shopBlockEntity) {
         return new ExtendedScreenHandlerFactory() {
             @Override
             public Text getDisplayName() {
-                return new TranslatableText("shop.name.owner");
+                return shopBlockEntity.getOwnerDisplayName();
             }
 
             @Override
@@ -166,17 +212,19 @@ public class ShopVillagerEntity extends MobEntity {
             public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
                 buf.writeUuid(shopBlockEntity.getOwnerUuid());
                 shopBlockEntity.prepareOffers();
-                ShopOfferList offers = shopBlockEntity.getOffers();
+                var offers = shopBlockEntity.getOffers();
                 offers.toPacket(buf);
             }
         };
     }
 
     private void sayNo() {
-        // TODO: swing head
-        if (!this.world.isClient) {
-            this.playSound(SoundEvents.ENTITY_VILLAGER_NO, this.getSoundVolume(), this.getSoundPitch());
+        if (this.world.isClient) {
+            return;
         }
+
+        this.dataTracker.set(HEAD_ROLLING_TIME_LEFT, 40);
+        this.playSound(SoundEvents.ENTITY_VILLAGER_NO, this.getSoundVolume(), this.getSoundPitch());
     }
 
     public void onTrade() {
@@ -197,7 +245,12 @@ public class ShopVillagerEntity extends MobEntity {
     @Nullable
     @Override
     protected SoundEvent getAmbientSound() {
-        return getShopBlockEntity().hasActivePlayer()
+        var shopBlockEntity = this.getShopBlockEntity();
+        if (shopBlockEntity == null) {
+            return SoundEvents.ENTITY_VILLAGER_AMBIENT;
+        }
+
+        return shopBlockEntity.hasActivePlayer()
             ? SoundEvents.ENTITY_VILLAGER_TRADE
             : SoundEvents.ENTITY_VILLAGER_AMBIENT;
     }
@@ -206,7 +259,10 @@ public class ShopVillagerEntity extends MobEntity {
     public void writeCustomDataToNbt(NbtCompound nbt) {
         super.writeCustomDataToNbt(nbt);
 
-        nbt.put("ShopPos", NbtHelper.fromBlockPos(getShopPos()));
+        var shopPos = this.getShopPos();
+        if (shopPos != null) {
+            nbt.put("ShopPos", NbtHelper.fromBlockPos(shopPos));
+        }
     }
 
     @Override
@@ -216,12 +272,7 @@ public class ShopVillagerEntity extends MobEntity {
         if (nbt.contains("ShopPos", NbtElement.COMPOUND_TYPE)) {
             this.setShopPos(NbtHelper.toBlockPos(nbt.getCompound("ShopPos")));
         } else {
-            throw new RuntimeException("ShopPos is missing. Please only summon this entity by using economy:shop block.");
+            LOGGER.warn("ShopVillager has no ShopPos");
         }
-
-        this.setCanPickUpLoot(false);
-        this.setInvulnerable(true);
-        this.setAiDisabled(true);
-        this.setPersistent();
     }
 }

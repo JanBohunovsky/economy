@@ -134,7 +134,7 @@ public class ShopVillagerEntityModel extends SinglePartEntityModel<ShopVillagerE
         this.head.yaw = headYaw * 0.017453292f;
         this.head.pitch = headPitch * 0.017453292f;
 
-        var headRolling = false; // TODO: entity.getHeadRollingTimeLeft() > 0;
+        var headRolling = entity.getHeadRollingTimeLeft() > 0;
         if (headRolling) {
             this.head.roll = 0.3f * MathHelper.sin(0.45f * animationProgress);
             this.head.pitch = 0.4f;

@@ -107,8 +107,6 @@ public class ShopCustomerScreenHandler extends ScreenHandler {
 
     @Override
     public boolean onButtonClick(PlayerEntity player, int id) {
-        LOGGER.info("onButtonClick: id:{}, world:{}", id, player.world.isClient ? "client" : "server");
-
         if (id >= 0 && id < this.shop.getOffers().size()) {
             this.offerIndex.set(id);
             this.switchTo(id);

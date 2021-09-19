@@ -9,6 +9,7 @@
     "item.economy.copper_nugget": "Copper Nugget",
     "item.economy.netherite_nugget": "Netherite Nugget",
 
+    "entity.economy.shop_villager": "Shop Villager",
     "block.economy.shop": "Shop",
     "shop.container": "Shop storage",
     "shop.name": "%s's Shop",

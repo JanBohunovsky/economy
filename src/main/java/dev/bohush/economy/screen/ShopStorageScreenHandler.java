@@ -92,8 +92,6 @@ public class ShopStorageScreenHandler extends ScreenHandler {
 
     @Override
     public void onSlotClick(int slotIndex, int button, SlotActionType actionType, PlayerEntity player) {
-        LOGGER.info("onSlotClick(slotIndex={}, button={}, actionType={}, player)", slotIndex, button, actionType.toString());
-
         // Add coins by clicking with items in cursor in shop inventory (storage + coins)
         if (actionType == SlotActionType.PICKUP && indexInShopInventory(slotIndex)) {
             ItemStack cursorStack = this.getCursorStack();

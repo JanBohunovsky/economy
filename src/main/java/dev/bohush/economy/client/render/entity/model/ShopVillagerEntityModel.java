@@ -4,10 +4,14 @@ import dev.bohush.economy.entity.ShopVillagerEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.model.*;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.model.EntityModelPartNames;
 import net.minecraft.client.render.entity.model.ModelWithHat;
 import net.minecraft.client.render.entity.model.ModelWithHead;
 import net.minecraft.client.render.entity.model.SinglePartEntityModel;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 
 @Environment(EnvType.CLIENT)
@@ -121,6 +125,11 @@ public class ShopVillagerEntityModel extends SinglePartEntityModel<ShopVillagerE
         );
 
         return TexturedModelData.of(modelData, 64, 64);
+    }
+
+    public void renderWithTexture(Identifier texture, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay, float red, float green, float blue, float alpha) {
+        var vertices = vertexConsumers.getBuffer(RenderLayer.getEntityCutoutNoCull(texture));
+        this.render(matrices, vertices, light, overlay, red, green, blue, alpha);
     }
 
     @Override

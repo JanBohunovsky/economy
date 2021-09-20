@@ -3,6 +3,7 @@ package dev.bohush.economy.client.render.entity.feature;
 import dev.bohush.economy.client.render.entity.model.ShopVillagerEntityModel;
 import dev.bohush.economy.entity.ShopVillagerEntity;
 import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.entity.LivingEntityRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRendererContext;
 import net.minecraft.client.util.math.MatrixStack;
@@ -32,34 +33,35 @@ public class ShopVillagerStyleFeatureRenderer extends FeatureRenderer<ShopVillag
             return;
         }
 
-        var entityModel = this.getContextModel();
+        var model = this.getContextModel();
+        var overlay = LivingEntityRenderer.getOverlay(entity, 0);
         var biomeClothes = villagerStyle.getBiomeClothes();
         var professionClothes = villagerStyle.getProfessionClothes();
 
         if (biomeClothes != null) {
             // Show "hat" only when profession clothes also have "hat" or there are no profession clothes set
-            entityModel.setHatVisible(biomeClothes.showHat() && (professionClothes == null || !professionClothes.showHat()));
-            renderModel(entityModel, biomeClothes.getTexture(), matrices, vertexConsumers, light, entity, 1, 1, 1);
+            model.setHatVisible(biomeClothes.showHat() && (professionClothes == null || !professionClothes.showHat()));
+            model.renderWithTexture(biomeClothes.getTexture(), matrices, vertexConsumers, light, overlay, 1, 1, 1, 1);
         }
 
         if (professionClothes != null) {
-            entityModel.setHatVisible(professionClothes.showHat());
-            renderModel(entityModel, professionClothes.getTexture(), matrices, vertexConsumers, light, entity, 1, 1, 1);
+            model.setHatVisible(professionClothes.showHat());
+            model.renderWithTexture(professionClothes.getTexture(), matrices, vertexConsumers, light, overlay, 1, 1, 1, 1);
         }
 
-        entityModel.setHatVisible(true);
-        entityModel.setBodyVisible(false);
+        model.setHatVisible(true);
+        model.setBodyVisible(false);
 
         var hat = villagerStyle.getHat();
         if (hat != null) {
-            renderModel(entityModel, hat.getTexture(), matrices, vertexConsumers, light, entity, 1, 1, 1);
+            model.renderWithTexture(hat.getTexture(), matrices, vertexConsumers, light, overlay, 1, 1, 1, 1);
         }
 
         var accessory = villagerStyle.getAccessory();
         if (accessory != null) {
-            renderModel(entityModel, accessory.getTexture(), matrices, vertexConsumers, light, entity, 1, 1, 1);
+            model.renderWithTexture(accessory.getTexture(), matrices, vertexConsumers, light, overlay, 1, 1, 1, 1);
         }
 
-        entityModel.setBodyVisible(true);
+        model.setBodyVisible(true);
     }
 }

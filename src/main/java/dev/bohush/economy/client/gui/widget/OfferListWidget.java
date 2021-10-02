@@ -83,7 +83,7 @@ public class OfferListWidget extends AbstractParentElement implements Drawable, 
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, TEXTURE);
-        drawTexture(matrices, this.x, this.y, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+        this.drawTexture(matrices, this.x, this.y, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT);
 
         double count = Math.max(this.offers.size(), BUTTON_COUNT);
         this.scrollbarHeight = (int) (BUTTON_COUNT / count * (HEIGHT - 1));
@@ -131,15 +131,15 @@ public class OfferListWidget extends AbstractParentElement implements Drawable, 
         }
 
         // Top
-        drawTexture(matrices, startX, startY, u, 0, SCROLLBAR_WIDTH, 2, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+        this.drawTexture(matrices, startX, startY, u, 0, SCROLLBAR_WIDTH, 2);
 
         // Middle
         for (int i = 1; i <= size; i++) {
-            drawTexture(matrices, startX, startY + (2 * i), u, 2, SCROLLBAR_WIDTH, 2, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+            this.drawTexture(matrices, startX, startY + (2 * i), u, 2, SCROLLBAR_WIDTH, 2);
         }
 
         // Bottom
-        drawTexture(matrices, startX, startY + (size * 2) + 2, u, 4, SCROLLBAR_WIDTH, 1, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+        this.drawTexture(matrices, startX, startY + (size * 2) + 2, u, 4, SCROLLBAR_WIDTH, 1);
     }
 
     @Override
@@ -197,6 +197,11 @@ public class OfferListWidget extends AbstractParentElement implements Drawable, 
         var offer = this.offers.get(offerIndex);
 
         this.offerSelectedAction.onOfferSelected(offerIndex, offer);
+    }
+
+    @Override
+    public void drawTexture(MatrixStack matrices, int x, int y, int u, int v, int width, int height) {
+        drawTexture(matrices, x, y, this.getZOffset(), u, v, width, height, TEXTURE_HEIGHT, TEXTURE_WIDTH);
     }
 
     @Override

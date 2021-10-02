@@ -7,7 +7,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 
@@ -44,35 +44,19 @@ public class OfferLockButtonWidget extends BaseButtonWidget {
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();
 
-        // TODO: decide then remove
-        boolean simple_style = false;
+        int u = this.locked ? 0 : WIDTH * 2;
 
-        int u;
-        int v;
+        int v = !this.active ? HEIGHT
+            : this.isHovered() ? HEIGHT * 2
+            : 0;
 
-        if (!this.active) {
-            v = HEIGHT;
-        } else if (this.isHovered()) {
-            v = 2 * HEIGHT;
-        } else {
-            v = 0;
-        }
-
-        if (this.locked) {
-            u = 0;
-        } else if (simple_style) {
-            u = WIDTH;
-        } else {
-            u = 2 * WIDTH;
-        }
-
-        this.drawTexture(matrices, this.x, this.y, u, v, this.width + (!simple_style && !this.locked ? 4 : 0), this.height);
+        this.drawTexture(matrices, this.x, this.y, u, v, this.width + (!this.locked ? 4 : 0), this.height);
     }
 
     @Override
     public void renderTooltip(Screen screen, MatrixStack matrices, int mouseX, int mouseY) {
-        var title = new LiteralText(this.locked ? "Unlock offer" : "Lock offer");
-        var description = new LiteralText("Players cannot use locked offers.").formatted(Formatting.DARK_GRAY);
+        var title = new TranslatableText(this.locked ? "shop.offer.unlock" : "shop.offer.lock");
+        var description = new TranslatableText("shop.offer.lock.hint").formatted(Formatting.DARK_GRAY);
 
         screen.renderTooltip(matrices, List.of(title, description), mouseX, mouseY);
     }

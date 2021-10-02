@@ -13,8 +13,7 @@ import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.sound.SoundManager;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.sound.SoundEvents;
-
-import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
+import org.lwjgl.glfw.GLFW;
 
 @Environment(EnvType.CLIENT)
 public abstract class BaseButtonWidget extends DrawableHelper implements Drawable, Element, Selectable {
@@ -100,7 +99,11 @@ public abstract class BaseButtonWidget extends DrawableHelper implements Drawabl
 
     public abstract void renderTooltip(Screen screen, MatrixStack matrices, int mouseX, int mouseY);
 
-    public void onClick(double mouseX, double mouseY) {
+    /**
+     * Called when the player successfully clicks the button.
+     * By default, calls the PressAction that was passed through the constructor.
+     */
+    protected void onClick(double mouseX, double mouseY) {
         this.pressAction.onPress(this);
     }
 
@@ -134,7 +137,7 @@ public abstract class BaseButtonWidget extends DrawableHelper implements Drawabl
     }
 
     protected boolean isValidMouseButton(int button) {
-        return button == GLFW_MOUSE_BUTTON_LEFT;
+        return button == GLFW.GLFW_MOUSE_BUTTON_LEFT;
     }
 
     @Override

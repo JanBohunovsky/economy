@@ -27,6 +27,7 @@ public class ShopOwnerScreenHandler extends ScreenHandler {
 
     private static final Logger LOGGER = LogManager.getLogger();
 
+    private final int paddingTop = 17;
     private final Shop shop;
     private final SimpleInventory offerInventory;
     private int offerIndex = -1;
@@ -41,20 +42,20 @@ public class ShopOwnerScreenHandler extends ScreenHandler {
         this.offerInventory = new SimpleInventory(3);
 
         // Offer slots
-        this.addSlot(new GhostSlot(this.offerInventory, 0, 137, 37));
-        this.addSlot(new GhostSlot(this.offerInventory, 1, 163, 37));
-        this.addSlot(new GhostSlot(this.offerInventory, 2, 221, 37));
+        this.addSlot(new GhostSlot(this.offerInventory, 0, 137, 37 + paddingTop));
+        this.addSlot(new GhostSlot(this.offerInventory, 1, 163, 37 + paddingTop));
+        this.addSlot(new GhostSlot(this.offerInventory, 2, 221, 37 + paddingTop));
 
         // Player inventory
         for (int y = 0; y < 3; y++) {
             for (int x = 0; x < 9; x++) {
-                this.addSlot(new Slot(playerInventory, x + y * 9 + 9, 109 + x * 18, 84 + y * 18));
+                this.addSlot(new Slot(playerInventory, x + y * 9 + 9, 109 + x * 18, 84 + y * 18 + paddingTop));
             }
         }
 
         // Player hotbar
         for (int i = 0; i < 9; i++) {
-            this.addSlot(new Slot(playerInventory, i, 109 + i * 18, 142));
+            this.addSlot(new Slot(playerInventory, i, 109 + i * 18, 142 + paddingTop));
         }
     }
 

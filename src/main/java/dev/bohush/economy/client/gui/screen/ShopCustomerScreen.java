@@ -17,7 +17,7 @@ import net.minecraft.util.Identifier;
 
 @Environment(EnvType.CLIENT)
 public class ShopCustomerScreen extends HandledScreen<ShopCustomerScreenHandler> {
-    protected static final Identifier TEXTURE = new Identifier(Economy.MOD_ID, "textures/gui/shop_customer.png");
+    protected static final Identifier TEXTURE = new Identifier(Economy.MOD_ID, "textures/gui/shop_trade.png");
     public static final int TEXTURE_WIDTH = 512;
     public static final int TEXTURE_HEIGHT = 256;
     protected static final Text OFFERS_TEXT = new TranslatableText("shop.offers");

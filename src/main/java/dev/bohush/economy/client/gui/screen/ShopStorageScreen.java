@@ -4,6 +4,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import dev.bohush.economy.Economy;
 import dev.bohush.economy.screen.ShopStorageScreenHandler;
 import dev.bohush.economy.util.CoinHelper;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
@@ -12,6 +14,7 @@ import net.minecraft.screen.slot.Slot;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
+@Environment(EnvType.CLIENT)
 public class ShopStorageScreen extends HandledScreen<ShopStorageScreenHandler> {
     private static final Identifier TEXTURE = new Identifier(Economy.MOD_ID, "textures/gui/shop_storage.png");
 

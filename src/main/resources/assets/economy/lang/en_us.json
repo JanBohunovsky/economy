@@ -21,6 +21,11 @@
     "shop.offer.outOfStock": "Item is out of stock",
     "shop.offer.outOfCoins": "Not enough coins in shop",
     "shop.offer.fullStorage": "Storage is full",
+    "shop.offer.edit": "Edit offer",
+    "shop.offer.lock": "Lock offer",
+    "shop.offer.unlock": "Unlock offer",
+    "shop.offer.lock.hint": "Players cannot use locked offers.",
+    "shop.style": "Style",
 
     "shop_villager.hat.desert": "Desert Hat",
     "shop_villager.hat.savanna": "Leaf Headband",

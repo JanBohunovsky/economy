@@ -26,6 +26,7 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.stat.Stats;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
@@ -200,7 +201,7 @@ public class ShopVillagerEntity extends MobEntity {
         return new ExtendedScreenHandlerFactory() {
             @Override
             public Text getDisplayName() {
-                return shopBlockEntity.getOwnerDisplayName();
+                return new TranslatableText("shop.offer.edit");
             }
 
             @Override

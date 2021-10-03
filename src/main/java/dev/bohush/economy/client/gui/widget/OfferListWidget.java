@@ -22,7 +22,7 @@ import java.util.List;
 
 @Environment(EnvType.CLIENT)
 public class OfferListWidget extends AbstractParentElement implements Drawable, Element, Selectable {
-    public static final Identifier TEXTURE = new Identifier(Economy.MOD_ID, "textures/gui/shop_offer_list.png");
+    public static final Identifier TEXTURE = new Identifier(Economy.MOD_ID, "textures/gui/widget/shop_offer_list.png");
     public static final int TEXTURE_WIDTH = 128;
     public static final int TEXTURE_HEIGHT = 256;
     public static final int BACKGROUND_WIDTH = 97;

@@ -15,7 +15,7 @@ import java.util.List;
 
 @Environment(EnvType.CLIENT)
 public class OfferLockButtonWidget extends BaseButtonWidget {
-    public static final Identifier TEXTURE = new Identifier(Economy.MOD_ID, "textures/gui/lock_button.png");
+    public static final Identifier TEXTURE = new Identifier(Economy.MOD_ID, "textures/gui/widget/lock_button.png");
     public static final int TEXTURE_WIDTH = 64;
     public static final int TEXTURE_HEIGHT = 64;
     public static final int WIDTH = 12;

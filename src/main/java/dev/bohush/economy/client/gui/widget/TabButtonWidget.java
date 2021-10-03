@@ -11,7 +11,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 public class TabButtonWidget extends BaseButtonWidget {
-    public static final Identifier TEXTURE = new Identifier(Economy.MOD_ID, "textures/gui/tab_button.png");
+    public static final Identifier TEXTURE = new Identifier(Economy.MOD_ID, "textures/gui/widget/tab_button.png");
     public static final int TEXTURE_WIDTH = 32;
     public static final int TEXTURE_HEIGHT = 64;
 

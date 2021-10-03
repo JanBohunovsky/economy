@@ -15,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Environment(EnvType.CLIENT)
 public class SmallButtonWidget extends BaseButtonWidget {
-    public static final Identifier TEXTURE = new Identifier(Economy.MOD_ID, "textures/gui/small_button.png");
+    public static final Identifier TEXTURE = new Identifier(Economy.MOD_ID, "textures/gui/widget/small_button.png");
     public static final int TEXTURE_WIDTH = 64;
     public static final int TEXTURE_HEIGHT = 16;
     public static final int HEIGHT = 13;

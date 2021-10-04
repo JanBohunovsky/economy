@@ -103,6 +103,17 @@ public abstract class SubScreen extends AbstractParentElement implements Drawabl
     }
 
     @Override
+    public boolean isMouseOver(double mouseX, double mouseY) {
+        for (var child : this.children) {
+            if (child.isMouseOver(mouseX, mouseY)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    @Override
     public List<? extends Element> children() {
         return this.children;
     }

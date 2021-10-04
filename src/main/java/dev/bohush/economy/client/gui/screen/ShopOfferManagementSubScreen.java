@@ -14,7 +14,6 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
@@ -63,23 +62,23 @@ public class ShopOfferManagementSubScreen extends HandledSubScreen<ShopOwnerScre
         this.titleX = inventoryX + (inventoryWidth - titleWidth) / 2;
 
         var offerListWidget = new OfferListWidget(this.x + 7, this.y + 17, true,
-            this.handler.getOffers(),
+            this.handler.shop.getOffers(),
             this::onOfferSelected,
             this.handler::getSelectedOffer);
         this.addDrawableChild(offerListWidget);
 
         this.saveButton = new SmallButtonWidget(0, this.y + 64,
-            new LiteralText("Save"),
+            new TranslatableText("gui.button.save"),
             SmallButtonWidget.Style.SUCCESS,
             SmallButtonWidget.Symbol.CHECKMARK,
-            (button) -> this.clickButton(this.lockButton.isLocked()
+            button -> this.clickButton(this.lockButton.locked
                 ? ShopOwnerScreenHandler.SAVE_LOCKED_OFFER_BUTTON
                 : ShopOwnerScreenHandler.SAVE_UNLOCKED_OFFER_BUTTON));
-        this.saveButton.setX(this.x + inventoryX + (inventoryWidth - saveButton.getWidth()) / 2);
+        this.saveButton.x = this.x + inventoryX + (inventoryWidth - saveButton.getWidth()) / 2;
         this.addDrawableChild(this.saveButton);
 
-        this.lockButton = new OfferLockButtonWidget(this.x + 250, this.y + 36, (button) -> {
-            this.lockButton.setLocked(!this.lockButton.isLocked());
+        this.lockButton = new OfferLockButtonWidget(this.x + 250, this.y + 36, button -> {
+            this.lockButton.locked = !this.lockButton.locked;
         });
         this.addDrawableChild(this.lockButton);
 
@@ -89,8 +88,8 @@ public class ShopOfferManagementSubScreen extends HandledSubScreen<ShopOwnerScre
         this.newOfferButton = new ToolbarButtonWidget(toolbarX, this.y + 5,
             ToolbarButtonWidget.Style.SUCCESS,
             ToolbarButtonWidget.Symbol.PLUS,
-            new LiteralText("Add new offer"),
-            (button) -> {
+            new TranslatableText("shop.offer.add"),
+            button -> {
                 this.clickButton(ShopOwnerScreenHandler.NEW_OFFER_BUTTON);
                 offerListWidget.scrollTo(this.handler.getOfferIndex());
                 updateButtonState();
@@ -100,8 +99,8 @@ public class ShopOfferManagementSubScreen extends HandledSubScreen<ShopOwnerScre
         this.deleteOfferButton = new ToolbarButtonWidget(toolbarX + buttonOffset, this.y + 5,
             ToolbarButtonWidget.Style.DANGER,
             ToolbarButtonWidget.Symbol.MINUS,
-            new LiteralText("Delete offer"),
-            (button) -> {
+            new TranslatableText("shop.offer.delete"),
+            button -> {
                 this.clickButton(ShopOwnerScreenHandler.DELETE_OFFER_BUTTON);
                 offerListWidget.scrollTo(this.handler.getOfferIndex());
                 updateButtonState();
@@ -111,8 +110,8 @@ public class ShopOfferManagementSubScreen extends HandledSubScreen<ShopOwnerScre
         this.moveUpOfferButton = new ToolbarButtonWidget(toolbarX + buttonOffset * 2, this.y + 5,
             ToolbarButtonWidget.Style.DEFAULT,
             ToolbarButtonWidget.Symbol.ARROW_UP,
-            new LiteralText("Move offer up"),
-            (button) -> {
+            new TranslatableText("shop.offer.move_up"),
+            button -> {
                 this.clickButton(ShopOwnerScreenHandler.MOVE_OFFER_UP_BUTTON);
                 offerListWidget.scrollTo(this.handler.getOfferIndex());
                 updateButtonState();
@@ -122,8 +121,8 @@ public class ShopOfferManagementSubScreen extends HandledSubScreen<ShopOwnerScre
         this.moveDownOfferButton = new ToolbarButtonWidget(toolbarX + buttonOffset * 3, this.y + 5,
             ToolbarButtonWidget.Style.DEFAULT,
             ToolbarButtonWidget.Symbol.ARROW_DOWN,
-            new LiteralText("Move offer down"),
-            (button) -> {
+            new TranslatableText("shop.offer.move_down"),
+            button -> {
                 this.clickButton(ShopOwnerScreenHandler.MOVE_OFFER_DOWN_BUTTON);
                 offerListWidget.scrollTo(this.handler.getOfferIndex());
                 updateButtonState();
@@ -143,21 +142,21 @@ public class ShopOfferManagementSubScreen extends HandledSubScreen<ShopOwnerScre
         var index = this.handler.getOfferIndex();
 
         if (offer == null) {
-            this.deleteOfferButton.setActive(false);
-            this.moveUpOfferButton.setActive(false);
-            this.moveDownOfferButton.setActive(false);
-            this.saveButton.setActive(false);
-            this.lockButton.setLocked(false);
-            this.lockButton.setActive(false);
+            this.deleteOfferButton.active = false;
+            this.moveUpOfferButton.active = false;
+            this.moveDownOfferButton.active = false;
+            this.saveButton.active = false;
+            this.lockButton.locked = false;
+            this.lockButton.active = false;
             return;
         }
 
-        this.deleteOfferButton.setActive(true);
-        this.moveUpOfferButton.setActive(index > 0);
-        this.moveDownOfferButton.setActive(index < this.handler.getOffers().size() - 1);
-        this.saveButton.setActive(true);
-        this.lockButton.setActive(true);
-        this.lockButton.setLocked(offer.isLocked());
+        this.deleteOfferButton.active = true;
+        this.moveUpOfferButton.active = index > 0;
+        this.moveDownOfferButton.active = index < this.handler.shop.getOffers().size() - 1;
+        this.saveButton.active = true;
+        this.lockButton.active = true;
+        this.lockButton.locked = offer.isLocked();
     }
 
     private void clickButton(int id) {
@@ -179,7 +178,7 @@ public class ShopOfferManagementSubScreen extends HandledSubScreen<ShopOwnerScre
 
         this.drawTexture(matrices, this.x, this.y, 0, 0, this.backgroundWidth, this.backgroundHeight);
 
-        if (this.lockButton.isLocked()) {
+        if (this.lockButton.locked) {
             RenderSystem.enableBlend();
             this.drawTexture(matrices, this.x + 190, this.y + 37, this.backgroundWidth, 0, 15, 15);
         }
@@ -203,7 +202,7 @@ public class ShopOfferManagementSubScreen extends HandledSubScreen<ShopOwnerScre
 
     @Override
     protected void drawMouseoverTooltip(Screen screen, MatrixStack matrices, int x, int y) {
-        if (this.lockButton.isLocked()
+        if (this.lockButton.locked
             && x >= this.x + 187 && x < this.x + 187 + 22
             && y >= this.y + 34 && y < this.y + 34 + 21) {
             screen.renderTooltip(matrices, new TranslatableText("shop.offer.locked"), x, y);

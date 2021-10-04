@@ -6,6 +6,7 @@ import dev.bohush.economy.client.gui.widget.TabWidget;
 import dev.bohush.economy.screen.ShopOwnerScreenHandler;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerInventory;
@@ -13,6 +14,7 @@ import net.minecraft.screen.slot.Slot;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.collection.DefaultedList;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -35,6 +37,12 @@ public class ShopOwnerScreen extends HandledScreen<ShopOwnerScreenHandler> {
         this.tabWidget.add(new ShopStyleManagementSubScreen(this.handler));
     }
 
+    @Nullable
+    @Override
+    public Element getFocused() {
+        return this.tabWidget;
+    }
+
     @Override
     protected void init() {
         super.init();
@@ -50,7 +58,7 @@ public class ShopOwnerScreen extends HandledScreen<ShopOwnerScreenHandler> {
             this::tabButtonClick
         );
 
-        var styleTabButton = new TabButtonWidget(offersTabButton.getX() + offersTabButton.getWidth() - 1, this.y, 70,
+        var styleTabButton = new TabButtonWidget(offersTabButton.x + offersTabButton.getWidth() - 1, this.y, 70,
             1,
             selectedIndex,
             TabButtonWidget.Position.MIDDLE,

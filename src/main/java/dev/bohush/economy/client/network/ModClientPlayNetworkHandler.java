@@ -27,9 +27,10 @@ public class ModClientPlayNetworkHandler {
 
             client.execute(() -> {
                 if (client.player.currentScreenHandler instanceof ShopCustomerScreenHandler customerScreenHandler) {
-
-                    for (var offer : offersToUpdate) {
-                        customerScreenHandler.getOffers().set(offer.getLeft(), offer.getRight());
+                    for (var data : offersToUpdate) {
+                        var index = data.getLeft();
+                        var offer = data.getRight();
+                        customerScreenHandler.getOffers().set(index, offer);
                     }
                 }
             });

@@ -20,13 +20,14 @@ public abstract class BaseButtonWidget extends DrawableHelper implements Drawabl
 
     protected final PressAction pressAction;
 
-    protected int x;
-    protected int y;
+    public int x;
+    public int y;
+    public boolean active = true;
+    public boolean visible = true;
+
     protected int width;
     protected int height;
 
-    protected boolean active = true;
-    protected boolean visible = true;
     protected boolean hovered;
     protected boolean focused;
     protected float alpha = 1;
@@ -39,44 +40,12 @@ public abstract class BaseButtonWidget extends DrawableHelper implements Drawabl
         this.pressAction = pressAction;
     }
 
-    public int getX() {
-        return this.x;
-    }
-
-    public void setX(int x) {
-        this.x = x;
-    }
-
-    public int getY() {
-        return this.y;
-    }
-
-    public void setY(int y) {
-        this.y = y;
-    }
-
     public int getWidth() {
         return this.width;
     }
 
     public int getHeight() {
         return this.height;
-    }
-
-    public boolean isActive() {
-        return this.active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
-    }
-
-    public boolean isVisible() {
-        return this.visible;
-    }
-
-    public void setVisible(boolean visible) {
-        this.visible = visible;
     }
 
     public boolean isHovered() {

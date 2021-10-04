@@ -1,5 +1,6 @@
 package dev.bohush.economy.shop;
 
+import dev.bohush.economy.shop.villager.ShopVillagerStyle;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
@@ -38,4 +39,8 @@ public interface Shop {
     World getWorld();
 
     void markDirty();
+
+    ShopVillagerStyle getVillagerStyle();
+
+    void setVillagerStyle(ShopVillagerStyle style);
 }

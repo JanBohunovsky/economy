@@ -92,7 +92,7 @@ public class ShopVillagerEntityModel extends SinglePartEntityModel<ShopVillagerE
             EntityModelPartNames.JACKET,
             ModelPartBuilder.create()
                 .uv(0, 38)
-                .cuboid(-4, 0, -3, 8, 18, 6, new Dilation(0.5f)),
+                .cuboid(-4, 0, -3, 8, 20, 6, new Dilation(0.5f)),
             ModelTransform.NONE
         );
 

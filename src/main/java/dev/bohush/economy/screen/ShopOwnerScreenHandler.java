@@ -4,7 +4,6 @@ import dev.bohush.economy.screen.slot.GhostSlot;
 import dev.bohush.economy.shop.ClientShop;
 import dev.bohush.economy.shop.Shop;
 import dev.bohush.economy.shop.ShopOffer;
-import dev.bohush.economy.shop.ShopOfferList;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.SimpleInventory;
@@ -27,13 +26,13 @@ public class ShopOwnerScreenHandler extends ScreenHandler {
 
     private static final Logger LOGGER = LogManager.getLogger();
 
-    private final int paddingTop = 17;
-    private final Shop shop;
+    public final Shop shop;
+
     private final SimpleInventory offerInventory;
     private int offerIndex = -1;
 
     public ShopOwnerScreenHandler(int syncId, PlayerInventory playerInventory, PacketByteBuf buf) {
-        this(syncId, playerInventory, new ClientShop(playerInventory.player, buf));
+        this(syncId, playerInventory, ClientShop.FromPacket(playerInventory.player, buf));
     }
 
     public ShopOwnerScreenHandler(int syncId, PlayerInventory playerInventory, Shop shop) {
@@ -41,6 +40,7 @@ public class ShopOwnerScreenHandler extends ScreenHandler {
         this.shop = shop;
         this.offerInventory = new SimpleInventory(3);
 
+        final int paddingTop = 17;
         // Offer slots
         this.addSlot(new GhostSlot(this.offerInventory, 0, 137, 37 + paddingTop));
         this.addSlot(new GhostSlot(this.offerInventory, 1, 163, 37 + paddingTop));
@@ -66,20 +66,16 @@ public class ShopOwnerScreenHandler extends ScreenHandler {
     @Nullable
     public ShopOffer getSelectedOffer() {
         var index = this.getOfferIndex();
-        if (index >= 0 && index < this.getOffers().size()) {
-            return this.getOffers().get(index);
+        if (index >= 0 && index < this.shop.getOffers().size()) {
+            return this.shop.getOffers().get(index);
         }
 
         return null;
     }
 
-    public ShopOfferList getOffers() {
-        return this.shop.getOffers();
-    }
-
     @Override
     public boolean onButtonClick(PlayerEntity player, int id) {
-        if (id >= 0 && id < this.getOffers().size()) {
+        if (id >= 0 && id < this.shop.getOffers().size()) {
             this.offerIndex = id;
             this.updateOfferSlots();
             return true;
@@ -90,12 +86,12 @@ public class ShopOwnerScreenHandler extends ScreenHandler {
             this.shop.getOffers().add(offer);
             this.shop.markDirty();
 
-            this.offerIndex = this.getOffers().size() - 1;
+            this.offerIndex = this.shop.getOffers().size() - 1;
             updateOfferSlots();
             return true;
         }
 
-        if (this.offerIndex >= 0 && this.offerIndex < this.getOffers().size()) {
+        if (this.offerIndex >= 0 && this.offerIndex < this.shop.getOffers().size()) {
             if (id == DELETE_OFFER_BUTTON) {
                 this.shop.getOffers().remove(this.offerIndex);
                 this.shop.markDirty();
@@ -111,7 +107,7 @@ public class ShopOwnerScreenHandler extends ScreenHandler {
                 return true;
             }
 
-            if (id == MOVE_OFFER_DOWN_BUTTON && this.offerIndex < this.getOffers().size() - 1) {
+            if (id == MOVE_OFFER_DOWN_BUTTON && this.offerIndex < this.shop.getOffers().size() - 1) {
                 this.swapOffers(this.offerIndex, +1);
                 this.offerIndex++;
                 return true;
@@ -131,16 +127,14 @@ public class ShopOwnerScreenHandler extends ScreenHandler {
             }
         }
 
-
-
         return false;
     }
 
     private void swapOffers(int sourceIndex, int offset) {
         int targetIndex = sourceIndex + offset;
 
-        var sourceOffer = this.getOffers().get(sourceIndex);
-        var targetOffer = this.getOffers().get(targetIndex);
+        var sourceOffer = this.shop.getOffers().get(sourceIndex);
+        var targetOffer = this.shop.getOffers().get(targetIndex);
 
         this.shop.getOffers().set(targetIndex, sourceOffer);
         this.shop.getOffers().set(sourceIndex, targetOffer);

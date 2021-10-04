@@ -23,12 +23,7 @@ public class ShopVillagerStyleFeatureRenderer extends FeatureRenderer<ShopVillag
             return;
         }
 
-        var shopBlockEntity = entity.getShopBlockEntity();
-        if (shopBlockEntity == null) {
-            return;
-        }
-
-        var villagerStyle = shopBlockEntity.getVillagerStyle();
+        var villagerStyle = entity.getStyle();
         if (villagerStyle == null) {
             return;
         }

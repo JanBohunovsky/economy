@@ -7,7 +7,6 @@ import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 
 public enum Accessory {
-    ARMORER(true),
     CARTOGRAPHER(true),
     READING_GLASSES,
     WEAPONSMITH(true),
@@ -25,10 +24,10 @@ public enum Accessory {
         var name = this.name().toLowerCase();
         this.displayText = new TranslatableText("shop_villager.accessory." + name);
 
-        if (!isProfessionSource) {
-            this.texture = new Identifier(Economy.MOD_ID, "textures/entity/" + ShopVillagerEntity.ID.getPath() + "/accessory/" + name + ".png");
-        } else {
+        if (isProfessionSource) {
             this.texture = new Identifier(Identifier.DEFAULT_NAMESPACE, "textures/entity/villager/profession/" + name + ".png");
+        } else {
+            this.texture = new Identifier(Economy.MOD_ID, "textures/entity/" + ShopVillagerEntity.ID.getPath() + "/accessory/" + name + ".png");
         }
     }
 

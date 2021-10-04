@@ -38,7 +38,7 @@ public class ShopCustomerScreenHandler extends ScreenHandler {
     };
 
     public ShopCustomerScreenHandler(int syncId, PlayerInventory playerInventory, PacketByteBuf buf) {
-        this(syncId, playerInventory, new ClientShop(playerInventory.player, buf));
+        this(syncId, playerInventory, ClientShop.FromPacket(playerInventory.player, buf));
     }
 
     public ShopCustomerScreenHandler(int syncId, PlayerInventory playerInventory, Shop shop) {

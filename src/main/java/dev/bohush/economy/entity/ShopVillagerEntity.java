@@ -4,6 +4,7 @@ import dev.bohush.economy.Economy;
 import dev.bohush.economy.block.entity.ShopBlockEntity;
 import dev.bohush.economy.screen.ShopCustomerScreenHandler;
 import dev.bohush.economy.screen.ShopOwnerScreenHandler;
+import dev.bohush.economy.shop.villager.ShopVillagerStyle;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.attribute.DefaultAttributeContainer.Builder;
@@ -42,7 +43,7 @@ public class ShopVillagerEntity extends MobEntity {
     private static final TrackedData<BlockPos> SHOP_POS = DataTracker.registerData(ShopVillagerEntity.class, TrackedDataHandlerRegistry.BLOCK_POS);
     private static final TrackedData<Integer> HEAD_ROLLING_TIME_LEFT = DataTracker.registerData(ShopVillagerEntity.class, TrackedDataHandlerRegistry.INTEGER);
 
-    protected ShopVillagerEntity(EntityType<? extends MobEntity> entityType, World world) {
+    public ShopVillagerEntity(EntityType<? extends MobEntity> entityType, World world) {
         super(entityType, world);
         Arrays.fill(this.armorDropChances, 0);
         Arrays.fill(this.handDropChances, 0);
@@ -76,6 +77,15 @@ public class ShopVillagerEntity extends MobEntity {
 
     public int getHeadRollingTimeLeft() {
         return this.dataTracker.get(HEAD_ROLLING_TIME_LEFT);
+    }
+
+    public ShopVillagerStyle getStyle() {
+        var shopBlockEntity = this.getShopBlockEntity();
+        if (shopBlockEntity == null) {
+            return ShopVillagerStyle.EMPTY;
+        }
+
+        return shopBlockEntity.getVillagerStyle();
     }
 
     @Nullable
@@ -189,10 +199,7 @@ public class ShopVillagerEntity extends MobEntity {
 
             @Override
             public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
-                buf.writeUuid(shopBlockEntity.getOwnerUuid());
-                shopBlockEntity.prepareOffers();
-                var offers = shopBlockEntity.getOffers();
-                offers.toPacket(buf);
+                shopBlockEntity.toPacket(buf);
             }
         };
     }
@@ -211,10 +218,7 @@ public class ShopVillagerEntity extends MobEntity {
 
             @Override
             public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
-                buf.writeUuid(shopBlockEntity.getOwnerUuid());
-                shopBlockEntity.prepareOffers();
-                var offers = shopBlockEntity.getOffers();
-                offers.toPacket(buf);
+                shopBlockEntity.toPacket(buf);
             }
         };
     }

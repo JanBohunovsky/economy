@@ -123,7 +123,7 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
 
     public void setVillagerStyle(ShopVillagerStyle style) {
         this.villagerStyle = style;
-        if (!this.world.isClient) {
+        if (this.world != null && !this.world.isClient) {
             this.sync();
         }
     }
@@ -232,7 +232,7 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
     public void prepareOffers() {
         int emptySlots = this.storage.getEmptySlotCount();
 
-        for (ShopOffer offer : this.getOffers()) {
+        for (var offer : this.getOffers()) {
             offer.update(this.storage, emptySlots);
         }
     }
@@ -266,6 +266,15 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
     @Override
     public void onSellingItem(ItemStack stack) {
         this.getVillager().onSellingItem(stack);
+    }
+
+    public void toPacket(PacketByteBuf buf) {
+        buf.writeUuid(this.getOwnerUuid());
+
+        this.prepareOffers();
+        this.offers.toPacket(buf);
+
+        this.villagerStyle.toPacket(buf);
     }
 
     @Override

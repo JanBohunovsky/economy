@@ -1,5 +1,6 @@
 package dev.bohush.economy.shop;
 
+import dev.bohush.economy.shop.villager.ShopVillagerStyle;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
@@ -12,12 +13,14 @@ public class ClientShop implements Shop {
     private final UUID ownerUuid;
     private final PlayerEntity activePlayer;
     private ShopOfferList offers;
+    private ShopVillagerStyle style;
 
-    public ClientShop(PlayerEntity activePlayer, PacketByteBuf buf) {
+    public ClientShop(PlayerEntity activePlayer, UUID ownerUuid, ShopOfferList offers, ShopVillagerStyle style) {
         this.activePlayer = activePlayer;
 
-        this.ownerUuid = buf.readUuid();
-        this.offers = ShopOfferList.fromPacket(buf);
+        this.ownerUuid = ownerUuid;
+        this.offers = offers;
+        this.style = style;
     }
 
     @Override
@@ -69,5 +72,23 @@ public class ClientShop implements Shop {
 
     @Override
     public void markDirty() {
+    }
+
+    @Override
+    public ShopVillagerStyle getVillagerStyle() {
+        return style;
+    }
+
+    @Override
+    public void setVillagerStyle(ShopVillagerStyle style) {
+        this.style = style;
+    }
+
+    public static ClientShop FromPacket(PlayerEntity activePlayer, PacketByteBuf buf) {
+        var ownerUuid = buf.readUuid();
+        var offers = ShopOfferList.fromPacket(buf);
+        var style = ShopVillagerStyle.fromPacket(buf);
+
+        return new ClientShop(activePlayer, ownerUuid, offers, style);
     }
 }

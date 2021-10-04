@@ -1,11 +1,14 @@
 package dev.bohush.economy.shop.villager;
 
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.PacketByteBuf;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 public class ShopVillagerStyle {
-    public static ShopVillagerStyle EMPTY = new ShopVillagerStyle(null, null, null, null);
-    public static ShopVillagerStyle DEFAULT = new ShopVillagerStyle(BiomeClothes.PLAINS, null, null, null);
+    public static final ShopVillagerStyle EMPTY = new ShopVillagerStyle(null, null, null, null);
+    public static final ShopVillagerStyle DEFAULT = new ShopVillagerStyle(BiomeClothes.PLAINS, null, null, null);
 
     @Nullable
     private final BiomeClothes biomeClothes;
@@ -64,6 +67,52 @@ public class ShopVillagerStyle {
         return new ShopVillagerStyle(this.biomeClothes, this.professionClothes, this.hat, accessory);
     }
 
+    public void toPacket(PacketByteBuf buf) {
+        buf.writeBoolean(this.biomeClothes != null);
+        if (this.biomeClothes != null) {
+            buf.writeString(this.biomeClothes.name());
+        }
+
+        buf.writeBoolean(this.professionClothes != null);
+        if (this.professionClothes != null) {
+            buf.writeString(this.professionClothes.name());
+        }
+
+        buf.writeBoolean(this.hat != null);
+        if (this.hat != null) {
+            buf.writeString(this.hat.name());
+        }
+
+        buf.writeBoolean(this.accessory != null);
+        if (this.accessory != null) {
+            buf.writeString(this.accessory.name());
+        }
+    }
+
+    public static ShopVillagerStyle fromPacket(PacketByteBuf buf) {
+        BiomeClothes biomeClothes = null;
+        if (buf.readBoolean()) {
+            biomeClothes = BiomeClothes.valueOf(buf.readString());
+        }
+
+        ProfessionClothes professionClothes = null;
+        if (buf.readBoolean()) {
+            professionClothes = ProfessionClothes.valueOf(buf.readString());
+        }
+
+        Hat hat = null;
+        if (buf.readBoolean()) {
+            hat = Hat.valueOf(buf.readString());
+        }
+
+        Accessory accessory = null;
+        if (buf.readBoolean()) {
+            accessory = Accessory.valueOf(buf.readString());
+        }
+
+        return new ShopVillagerStyle(biomeClothes, professionClothes, hat, accessory);
+    }
+
     public NbtCompound toNbt() {
         var nbt = new NbtCompound();
 
@@ -85,23 +134,38 @@ public class ShopVillagerStyle {
 
     public static ShopVillagerStyle fromNbt(NbtCompound nbt) {
         BiomeClothes biomeClothes = null;
-        ProfessionClothes professionClothes = null;
-        Hat hat = null;
-        Accessory accessory = null;
-
         if (nbt.contains("biome")) {
             biomeClothes = BiomeClothes.valueOf(nbt.getString("biome").toUpperCase());
         }
+
+        ProfessionClothes professionClothes = null;
         if (nbt.contains("profession")) {
             professionClothes = ProfessionClothes.valueOf(nbt.getString("profession").toUpperCase());
         }
+
+        Hat hat = null;
         if (nbt.contains("hat")) {
             hat = Hat.valueOf(nbt.getString("hat").toUpperCase());
         }
+
+        Accessory accessory = null;
         if (nbt.contains("accessory")) {
             accessory = Accessory.valueOf(nbt.getString("accessory").toUpperCase());
         }
 
         return new ShopVillagerStyle(biomeClothes, professionClothes, hat, accessory);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ShopVillagerStyle that = (ShopVillagerStyle) o;
+        return biomeClothes == that.biomeClothes && professionClothes == that.professionClothes && hat == that.hat && accessory == that.accessory;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(biomeClothes, professionClothes, hat, accessory);
     }
 }

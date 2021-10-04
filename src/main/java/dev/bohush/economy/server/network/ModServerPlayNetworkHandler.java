@@ -1,29 +1,22 @@
 package dev.bohush.economy.server.network;
 
+import dev.bohush.economy.network.ModPackets;
+import dev.bohush.economy.screen.ShopOwnerScreenHandler;
+import dev.bohush.economy.shop.villager.ShopVillagerStyle;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+
 public class ModServerPlayNetworkHandler {
 
     public static void registerReceivers() {
-//        ServerPlayNetworking.registerGlobalReceiver(ModPackets.UPDATE_SHOP_C2S, (server, player, handler, buf, responseSender) -> {
-//            System.out.println("Packet received: " + ModPackets.UPDATE_SHOP_C2S);
-//
-//            server.execute(() -> {
-//                if (player.currentScreenHandler instanceof ShopStorageScreenHandler shopStorageScreenHandler) {
-////                    playerShopScreenHandler.updateShop(player.getServerWorld(), player);
-//                } else {
-//                    System.out.println("update_shop: Current screen handler is not player shop");
-//                }
-//            });
-//        });
+        ServerPlayNetworking.registerGlobalReceiver(ModPackets.UPDATE_STYLE_C2S, (server, player, handler, buf, responseSender) -> {
+            var style = ShopVillagerStyle.fromPacket(buf);
 
-//        ServerPlayNetworking.registerGlobalReceiver(ModPackets.SELECT_TRADE_C2S, (server, player, handler, buf, responseSender) -> {
-//            int tradeId = buf.readVarInt();
-//
-//            server.execute(() -> {
-//                if (player.currentScreenHandler instanceof CustomerShopVillagerScreenHandler customerShopVillagerScreenHandler) {
-//                    customerShopVillagerScreenHandler.setRecipeIndex(tradeId);
-//                    customerShopVillagerScreenHandler.switchTo(tradeId);
-//                }
-//            });
-//        });
+            server.execute(() -> {
+                if (player.currentScreenHandler instanceof ShopOwnerScreenHandler shopOwnerScreenHandler) {
+                    shopOwnerScreenHandler.shop.setVillagerStyle(style);
+                    shopOwnerScreenHandler.shop.markDirty();
+                }
+            });
+        });
     }
 }

@@ -12,6 +12,7 @@ public enum Hat {
     SAVANNA(Source.BIOME),
     SNOW(Source.BIOME),
     SWAMP(Source.BIOME),
+    ARMORER(Source.PROFESSION),
     BUTCHER(Source.PROFESSION),
     FARMER(Source.PROFESSION),
     FISHERMAN(Source.PROFESSION),

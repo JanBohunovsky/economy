@@ -4,6 +4,7 @@ import dev.bohush.economy.screen.slot.GhostSlot;
 import dev.bohush.economy.shop.ClientShop;
 import dev.bohush.economy.shop.Shop;
 import dev.bohush.economy.shop.ShopOffer;
+import dev.bohush.economy.shop.ShopProvider;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.SimpleInventory;
@@ -16,7 +17,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
-public class ShopOwnerScreenHandler extends ScreenHandler {
+public class ShopOwnerScreenHandler extends ScreenHandler implements ShopProvider {
     public static final int NEW_OFFER_BUTTON = -10;
     public static final int DELETE_OFFER_BUTTON = -11;
     public static final int MOVE_OFFER_UP_BUTTON = -12;
@@ -57,6 +58,11 @@ public class ShopOwnerScreenHandler extends ScreenHandler {
         for (int i = 0; i < 9; i++) {
             this.addSlot(new Slot(playerInventory, i, 109 + i * 18, 142 + paddingTop));
         }
+    }
+
+    @Override
+    public Shop getShop() {
+        return this.shop;
     }
 
     public int getOfferIndex() {
@@ -123,6 +129,7 @@ public class ShopOwnerScreenHandler extends ScreenHandler {
 
                 this.shop.getOffers().set(this.offerIndex, offer);
                 this.shop.markDirty();
+                this.shop.updateOffers();
                 return true;
             }
         }

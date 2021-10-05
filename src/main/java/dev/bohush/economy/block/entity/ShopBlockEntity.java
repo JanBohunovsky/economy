@@ -194,21 +194,16 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
     }
 
     @Override
-    public void setOffersFromServer(ShopOfferList offers) {
-    }
-
-    @Override
     public void updateOffers() {
-        LOGGER.info("updateOffers()");
         if (!this.hasActivePlayer()) {
             return;
         }
 
-        ArrayList<Pair<Byte, ShopOffer>> offersToUpdate = new ArrayList<>();
+        var offersToUpdate = new ArrayList<Pair<Byte, ShopOffer>>();
         int emptySlots = this.storage.getEmptySlotCount();
 
         for (int i = 0; i < this.getOffers().size(); i++) {
-            ShopOffer offer = this.getOffers().get(i);
+            var offer = this.getOffers().get(i);
             if (offer.update(this.storage, emptySlots)) {
                 offersToUpdate.add(new Pair<>((byte) i, offer));
             }
@@ -218,7 +213,7 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
             return;
         }
 
-        PacketByteBuf buf = PacketByteBufs.create();
+        var buf = PacketByteBufs.create();
         buf.writeByte(offersToUpdate.size() & 255);
 
         for (Pair<Byte, ShopOffer> offer : offersToUpdate) {

@@ -147,7 +147,6 @@ public class ShopStorageScreenHandler extends ScreenHandler {
         // Every scenario with `super` has to be below super.onSlotClick call with inverted condition
         //   e.g. cursor has nothing: super + removeCoins => cursor has CoinItem: removeCoins
 
-        LOGGER.info("super.onSlotClick(...)");
         super.onSlotClick(slotIndex, button, actionType, player);
 
         // Remove coins by taking items from coin inventory

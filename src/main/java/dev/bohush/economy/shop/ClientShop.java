@@ -43,11 +43,6 @@ public class ClientShop implements Shop {
     }
 
     @Override
-    public void setOffersFromServer(ShopOfferList offers) {
-        this.offers = offers;
-    }
-
-    @Override
     public void updateOffers() {
     }
 

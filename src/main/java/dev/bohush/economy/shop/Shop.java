@@ -26,8 +26,6 @@ public interface Shop {
 
     ShopOfferList getOffers();
 
-    void setOffersFromServer(ShopOfferList offers);
-
     void updateOffers();
 
     boolean canTrade(ShopOffer offer);

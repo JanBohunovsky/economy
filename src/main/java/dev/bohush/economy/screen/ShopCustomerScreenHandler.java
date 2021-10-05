@@ -2,10 +2,7 @@ package dev.bohush.economy.screen;
 
 import dev.bohush.economy.inventory.TradeInventory;
 import dev.bohush.economy.screen.slot.ShopOutputSlot;
-import dev.bohush.economy.shop.ClientShop;
-import dev.bohush.economy.shop.Shop;
-import dev.bohush.economy.shop.ShopOffer;
-import dev.bohush.economy.shop.ShopOfferList;
+import dev.bohush.economy.shop.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
@@ -20,7 +17,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
-public class ShopCustomerScreenHandler extends ScreenHandler {
+public class ShopCustomerScreenHandler extends ScreenHandler implements ShopProvider {
     private static final Logger LOGGER = LogManager.getLogger();
 
     private final Shop shop;
@@ -64,6 +61,11 @@ public class ShopCustomerScreenHandler extends ScreenHandler {
         }
 
         this.addProperty(this.offerIndex);
+    }
+
+    @Override
+    public Shop getShop() {
+        return this.shop;
     }
 
     public int getOfferIndex() {

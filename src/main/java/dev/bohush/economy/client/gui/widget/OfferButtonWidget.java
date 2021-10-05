@@ -94,6 +94,8 @@ public class OfferButtonWidget extends PressableWidget {
         int u = OfferListWidget.BACKGROUND_WIDTH;
         if (this.showX()) {
             u += 10;
+        } else if (this.showExclamationPoint()) {
+            u += 20;
         }
 
         drawTexture(matrices, this.x + 55, this.y + 4, this.getZOffset(), u, 5, 10, 9, OfferListWidget.TEXTURE_HEIGHT, OfferListWidget.TEXTURE_WIDTH);
@@ -120,7 +122,7 @@ public class OfferButtonWidget extends PressableWidget {
             return;
         }
 
-        if (this.showX() && mouseX >= this.x + 52 && mouseX < this.x + 68) {
+        if (this.showTooltip() && mouseX >= this.x + 52 && mouseX < this.x + 68) {
             screen.renderTooltip(matrices, offer.getDisabledReasonText(), mouseX, mouseY);
         }
 
@@ -129,12 +131,24 @@ public class OfferButtonWidget extends PressableWidget {
         }
     }
 
+    private boolean showTooltip() {
+        return this.showX() || this.showExclamationPoint();
+    }
+
     private boolean showX() {
         if (this.offer == null) {
             return false;
         }
 
         return this.ownerView ? this.offer.isLocked() : this.offer.isDisabled();
+    }
+
+    private boolean showExclamationPoint() {
+        if (this.offer == null) {
+            return false;
+        }
+
+        return this.ownerView && (this.offer.isOutOfStock() || this.offer.isStorageFull());
     }
 
     @Override

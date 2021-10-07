@@ -5,7 +5,12 @@
     "item.economy.iron_coin": "Iron Coin",
     "item.economy.gold_coin": "Gold Coin",
     "item.economy.netherite_coin": "Netherite Coin",
-
+    "item.economy.coin_pile": "Coins",
+    "item.economy.coin_pile.invalid": "Invalid Coin",
+    "item.economy.coin_pile.copper": "Copper Coin",
+    "item.economy.coin_pile.iron": "Iron Coin",
+    "item.economy.coin_pile.gold": "Gold Coin",
+    "item.economy.coin_pile.netherite": "Netherite Coin",
     "item.economy.copper_nugget": "Copper Nugget",
     "item.economy.netherite_nugget": "Netherite Nugget",
 

@@ -1,0 +1,422 @@
+{
+    "parent": "minecraft:item/generated",
+    "textures": {
+        "layer0": "economy:item/coin_pile_0000"
+    },
+    "overrides": [
+        {
+            "predicate": {
+                "copper_coin_amount": 0.01,
+                "iron_coin_amount": 0,
+                "gold_coin_amount": 0,
+                "netherite_coin_amount": 0
+            },
+            "model": "economy:item/coin_pile_0001"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0.2,
+                "iron_coin_amount": 0,
+                "gold_coin_amount": 0,
+                "netherite_coin_amount": 0
+            },
+            "model": "economy:item/coin_pile_0002"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0.3,
+                "iron_coin_amount": 0,
+                "gold_coin_amount": 0,
+                "netherite_coin_amount": 0
+            },
+            "model": "economy:item/coin_pile_0003"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0.4,
+                "iron_coin_amount": 0,
+                "gold_coin_amount": 0,
+                "netherite_coin_amount": 0
+            },
+            "model": "economy:item/coin_pile_0004"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0.5,
+                "iron_coin_amount": 0,
+                "gold_coin_amount": 0,
+                "netherite_coin_amount": 0
+            },
+            "model": "economy:item/coin_pile_0005"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0.6,
+                "iron_coin_amount": 0,
+                "gold_coin_amount": 0,
+                "netherite_coin_amount": 0
+            },
+            "model": "economy:item/coin_pile_0006"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0.7,
+                "iron_coin_amount": 0,
+                "gold_coin_amount": 0,
+                "netherite_coin_amount": 0
+            },
+            "model": "economy:item/coin_pile_0007"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0.8,
+                "iron_coin_amount": 0,
+                "gold_coin_amount": 0,
+                "netherite_coin_amount": 0
+            },
+            "model": "economy:item/coin_pile_0008"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0.9,
+                "iron_coin_amount": 0,
+                "gold_coin_amount": 0,
+                "netherite_coin_amount": 0
+            },
+            "model": "economy:item/coin_pile_0009"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0,
+                "iron_coin_amount": 0.01,
+                "gold_coin_amount": 0,
+                "netherite_coin_amount": 0
+            },
+            "model": "economy:item/coin_pile_0010"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0.01,
+                "iron_coin_amount": 0.01,
+                "gold_coin_amount": 0,
+                "netherite_coin_amount": 0
+            },
+            "model": "economy:item/coin_pile_0011"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0,
+                "iron_coin_amount": 0.2,
+                "gold_coin_amount": 0,
+                "netherite_coin_amount": 0
+            },
+            "model": "economy:item/coin_pile_0020"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0,
+                "iron_coin_amount": 0.3,
+                "gold_coin_amount": 0,
+                "netherite_coin_amount": 0
+            },
+            "model": "economy:item/coin_pile_0030"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0,
+                "iron_coin_amount": 0.4,
+                "gold_coin_amount": 0,
+                "netherite_coin_amount": 0
+            },
+            "model": "economy:item/coin_pile_0040"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0,
+                "iron_coin_amount": 0.5,
+                "gold_coin_amount": 0,
+                "netherite_coin_amount": 0
+            },
+            "model": "economy:item/coin_pile_0050"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0,
+                "iron_coin_amount": 0.6,
+                "gold_coin_amount": 0,
+                "netherite_coin_amount": 0
+            },
+            "model": "economy:item/coin_pile_0060"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0,
+                "iron_coin_amount": 0.7,
+                "gold_coin_amount": 0,
+                "netherite_coin_amount": 0
+            },
+            "model": "economy:item/coin_pile_0070"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0,
+                "iron_coin_amount": 0.8,
+                "gold_coin_amount": 0,
+                "netherite_coin_amount": 0
+            },
+            "model": "economy:item/coin_pile_0080"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0,
+                "iron_coin_amount": 0.9,
+                "gold_coin_amount": 0,
+                "netherite_coin_amount": 0
+            },
+            "model": "economy:item/coin_pile_0090"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0,
+                "iron_coin_amount": 0,
+                "gold_coin_amount": 0.01,
+                "netherite_coin_amount": 0
+            },
+            "model": "economy:item/coin_pile_0100"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0.01,
+                "iron_coin_amount": 0,
+                "gold_coin_amount": 0.01,
+                "netherite_coin_amount": 0
+            },
+            "model": "economy:item/coin_pile_0101"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0,
+                "iron_coin_amount": 0.01,
+                "gold_coin_amount": 0.01,
+                "netherite_coin_amount": 0
+            },
+            "model": "economy:item/coin_pile_0110"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0.01,
+                "iron_coin_amount": 0.01,
+                "gold_coin_amount": 0.01,
+                "netherite_coin_amount": 0
+            },
+            "model": "economy:item/coin_pile_0111"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0,
+                "iron_coin_amount": 0,
+                "gold_coin_amount": 0.2,
+                "netherite_coin_amount": 0
+            },
+            "model": "economy:item/coin_pile_0200"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0,
+                "iron_coin_amount": 0,
+                "gold_coin_amount": 0.3,
+                "netherite_coin_amount": 0
+            },
+            "model": "economy:item/coin_pile_0300"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0,
+                "iron_coin_amount": 0,
+                "gold_coin_amount": 0.4,
+                "netherite_coin_amount": 0
+            },
+            "model": "economy:item/coin_pile_0400"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0,
+                "iron_coin_amount": 0,
+                "gold_coin_amount": 0.5,
+                "netherite_coin_amount": 0
+            },
+            "model": "economy:item/coin_pile_0500"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0,
+                "iron_coin_amount": 0,
+                "gold_coin_amount": 0.6,
+                "netherite_coin_amount": 0
+            },
+            "model": "economy:item/coin_pile_0600"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0,
+                "iron_coin_amount": 0,
+                "gold_coin_amount": 0.7,
+                "netherite_coin_amount": 0
+            },
+            "model": "economy:item/coin_pile_0700"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0,
+                "iron_coin_amount": 0,
+                "gold_coin_amount": 0.8,
+                "netherite_coin_amount": 0
+            },
+            "model": "economy:item/coin_pile_0800"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0,
+                "iron_coin_amount": 0,
+                "gold_coin_amount": 0.9,
+                "netherite_coin_amount": 0
+            },
+            "model": "economy:item/coin_pile_0900"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0,
+                "iron_coin_amount": 0,
+                "gold_coin_amount": 0,
+                "netherite_coin_amount": 0.01
+            },
+            "model": "economy:item/coin_pile_1000"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0.01,
+                "iron_coin_amount": 0,
+                "gold_coin_amount": 0,
+                "netherite_coin_amount": 0.01
+            },
+            "model": "economy:item/coin_pile_1001"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0,
+                "iron_coin_amount": 0.01,
+                "gold_coin_amount": 0,
+                "netherite_coin_amount": 0.01
+            },
+            "model": "economy:item/coin_pile_1010"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0.01,
+                "iron_coin_amount": 0.01,
+                "gold_coin_amount": 0,
+                "netherite_coin_amount": 0.01
+            },
+            "model": "economy:item/coin_pile_1011"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0,
+                "iron_coin_amount": 0,
+                "gold_coin_amount": 0.01,
+                "netherite_coin_amount": 0.01
+            },
+            "model": "economy:item/coin_pile_1100"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0.01,
+                "iron_coin_amount": 0,
+                "gold_coin_amount": 0.01,
+                "netherite_coin_amount": 0.01
+            },
+            "model": "economy:item/coin_pile_1101"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0,
+                "iron_coin_amount": 0.01,
+                "gold_coin_amount": 0.01,
+                "netherite_coin_amount": 0.01
+            },
+            "model": "economy:item/coin_pile_1110"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0,
+                "iron_coin_amount": 0,
+                "gold_coin_amount": 0,
+                "netherite_coin_amount": 0.2
+            },
+            "model": "economy:item/coin_pile_2000"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0,
+                "iron_coin_amount": 0,
+                "gold_coin_amount": 0,
+                "netherite_coin_amount": 0.3
+            },
+            "model": "economy:item/coin_pile_3000"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0,
+                "iron_coin_amount": 0,
+                "gold_coin_amount": 0,
+                "netherite_coin_amount": 0.4
+            },
+            "model": "economy:item/coin_pile_4000"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0,
+                "iron_coin_amount": 0,
+                "gold_coin_amount": 0,
+                "netherite_coin_amount": 0.5
+            },
+            "model": "economy:item/coin_pile_5000"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0,
+                "iron_coin_amount": 0,
+                "gold_coin_amount": 0,
+                "netherite_coin_amount": 0.6
+            },
+            "model": "economy:item/coin_pile_6000"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0,
+                "iron_coin_amount": 0,
+                "gold_coin_amount": 0,
+                "netherite_coin_amount": 0.7
+            },
+            "model": "economy:item/coin_pile_7000"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0,
+                "iron_coin_amount": 0,
+                "gold_coin_amount": 0,
+                "netherite_coin_amount": 0.8
+            },
+            "model": "economy:item/coin_pile_8000"
+        },
+        {
+            "predicate": {
+                "copper_coin_amount": 0,
+                "iron_coin_amount": 0,
+                "gold_coin_amount": 0,
+                "netherite_coin_amount": 0.9
+            },
+            "model": "economy:item/coin_pile_9000"
+        }
+    ]
+}

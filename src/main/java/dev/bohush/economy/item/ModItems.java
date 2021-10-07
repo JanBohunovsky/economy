@@ -15,6 +15,8 @@ public class ModItems {
     public static final CoinItem GOLD_COIN = new CoinItem(2);
     public static final CoinItem NETHERITE_COIN = new CoinItem(3);
 
+    public static final Item COIN_PILE = new CoinPileItem();
+
     public static final Item COPPER_NUGGET = new Item(new FabricItemSettings().group(ItemGroup.MISC));
     public static final Item NETHERITE_NUGGET = new Item(new FabricItemSettings().group(ItemGroup.MISC));
 
@@ -25,6 +27,8 @@ public class ModItems {
         Registry.register(Registry.ITEM, new Identifier(Economy.MOD_ID, "iron_coin"), IRON_COIN);
         Registry.register(Registry.ITEM, new Identifier(Economy.MOD_ID, "gold_coin"), GOLD_COIN);
         Registry.register(Registry.ITEM, new Identifier(Economy.MOD_ID, "netherite_coin"), NETHERITE_COIN);
+
+        Registry.register(Registry.ITEM, new Identifier(Economy.MOD_ID, "coin_pile"), COIN_PILE);
 
         Registry.register(Registry.ITEM, new Identifier(Economy.MOD_ID, "copper_nugget"), COPPER_NUGGET);
         Registry.register(Registry.ITEM, new Identifier(Economy.MOD_ID, "netherite_nugget"), NETHERITE_NUGGET);

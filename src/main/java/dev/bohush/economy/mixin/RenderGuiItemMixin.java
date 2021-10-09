@@ -45,22 +45,22 @@ public class RenderGuiItemMixin {
                 if (count > 999) {
                     return "999+";
                 }
-                if (count > 1) {
+                if (value != CoinPileItem.NETHERITE_COIN) {
                     return String.valueOf(count);
                 }
             } else if (value >= CoinPileItem.GOLD_COIN) {
                 var count = CoinPileItem.getGoldCoins(stack);
-                if (count > 1) {
+                if (value != CoinPileItem.GOLD_COIN) {
                     return String.valueOf(count);
                 }
             } else if (value >= CoinPileItem.IRON_COIN) {
                 var count = CoinPileItem.getIronCoins(stack);
-                if (count > 1) {
+                if (value != CoinPileItem.IRON_COIN) {
                     return String.valueOf(count);
                 }
             } else if (value >= CoinPileItem.COPPER_COIN) {
                 var count = CoinPileItem.getCopperCoins(stack);
-                if (count > 1) {
+                if (value != CoinPileItem.COPPER_COIN) {
                     return String.valueOf(count);
                 }
             }

@@ -1,0 +1,6 @@
+{
+    "parent": "item/generated",
+    "textures": {
+        "layer0": "economy:item/coin_pile/netherite2_iron2_copper2"
+    }
+}

@@ -118,7 +118,8 @@ public class CoinPileItem extends BasicItem {
             var amountToGive = value >= NETHERITE_COIN ? NETHERITE_COIN
                 : value >= GOLD_COIN ? GOLD_COIN
                 : value >= IRON_COIN ? IRON_COIN
-                : COPPER_COIN;
+                : value >= COPPER_COIN ? COPPER_COIN
+                : 0;
 
             var amountToKeep = value - amountToGive;
             if (amountToKeep <= 0) {
@@ -187,15 +188,17 @@ public class CoinPileItem extends BasicItem {
         var amountToTake = otherValue >= NETHERITE_COIN ? NETHERITE_COIN
             : otherValue >= GOLD_COIN ? GOLD_COIN
             : otherValue >= IRON_COIN ? IRON_COIN
-            : COPPER_COIN;
+            : otherValue >= COPPER_COIN ? COPPER_COIN
+            : 0;
         var amountToKeep = otherValue - amountToTake;
 
         if (amountToKeep <= 0) {
             cursorStackReference.set(ItemStack.EMPTY);
         } else {
             setValue(otherStack, amountToKeep);
-            setValue(stack, value + amountToTake);
         }
+
+        setValue(stack, value + amountToTake);
 
         return true;
     }
@@ -235,7 +238,7 @@ public class CoinPileItem extends BasicItem {
         if (showCoins) {
             if (value >= NETHERITE_COIN) {
                 var amount = value / NETHERITE_COIN;
-                tooltip.add(new LiteralText(String.format("Netherite Coin x%,d ", amount)).formatted(Formatting.DARK_GRAY));
+                tooltip.add(new LiteralText(String.format("Netherite Coin x%,d ", amount)).formatted(Formatting.DARK_RED)); // or GRAY
                 value -= amount * NETHERITE_COIN;
             }
 

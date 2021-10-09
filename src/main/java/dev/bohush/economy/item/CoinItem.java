@@ -13,7 +13,7 @@ public class CoinItem extends BasicItem {
     private final int tier;
 
     public CoinItem(int tier) {
-        super(new FabricItemSettings().group(ModItemGroup.ALL));
+        super(new FabricItemSettings().group(ModItemGroup.ECONOMY));
         this.tier = tier;
     }
 

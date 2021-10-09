@@ -10,6 +10,6 @@ public class BasicItem extends Item {
     }
 
     public BasicItem(Settings settings) {
-        super(settings.group(ModItemGroup.ALL));
+        super(settings.group(ModItemGroup.ECONOMY));
     }
 }

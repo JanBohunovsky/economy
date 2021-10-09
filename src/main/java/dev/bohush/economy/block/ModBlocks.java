@@ -14,6 +14,6 @@ public class ModBlocks {
     }
 
     public static void registerBlockItems() {
-        Registry.register(Registry.ITEM, ShopBlock.ID, new BlockItem(SHOP, new FabricItemSettings().group(ModItemGroup.ALL)));
+        Registry.register(Registry.ITEM, ShopBlock.ID, new BlockItem(SHOP, new FabricItemSettings().group(ModItemGroup.ECONOMY)));
     }
 }

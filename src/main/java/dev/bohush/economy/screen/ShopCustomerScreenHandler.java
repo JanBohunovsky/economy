@@ -1,6 +1,8 @@
 package dev.bohush.economy.screen;
 
 import dev.bohush.economy.inventory.TradeInventory;
+import dev.bohush.economy.item.CoinPileItem;
+import dev.bohush.economy.item.ItemStackHelper;
 import dev.bohush.economy.screen.slot.ShopOutputSlot;
 import dev.bohush.economy.shop.*;
 import net.minecraft.entity.player.PlayerEntity;
@@ -140,7 +142,7 @@ public class ShopCustomerScreenHandler extends ScreenHandler implements ShopProv
         Slot slot = this.slots.get(index);
 
         if (slot.hasStack()) {
-            ItemStack originalStack = slot.getStack();
+            var originalStack = slot.getStack();
             newStack = originalStack.copy();
 
             if (index == 2) {
@@ -191,12 +193,12 @@ public class ShopCustomerScreenHandler extends ScreenHandler implements ShopProv
         }
 
         if (!player.isAlive() || player instanceof ServerPlayerEntity serverPlayerEntity && serverPlayerEntity.isDisconnected()) {
-            ItemStack firstBuyItem = this.tradeInventory.removeStack(0);
+            var firstBuyItem = this.tradeInventory.removeStack(0);
             if (!firstBuyItem.isEmpty()) {
                 player.dropItem(firstBuyItem, false);
             }
 
-            ItemStack secondBuyItem = this.tradeInventory.removeStack(1);
+            var secondBuyItem = this.tradeInventory.removeStack(1);
             if (!secondBuyItem.isEmpty()) {
                 player.dropItem(secondBuyItem, false);
             }
@@ -209,7 +211,7 @@ public class ShopCustomerScreenHandler extends ScreenHandler implements ShopProv
     private void switchTo(int offerIndex) {
         if (offerIndex < getOffers().size()) {
             // Give the player their items back
-            ItemStack firstBuyItem = this.tradeInventory.getStack(0);
+            var firstBuyItem = this.tradeInventory.getStack(0);
             if (!firstBuyItem.isEmpty()) {
                 if (!insertItem(firstBuyItem, 3, 39, true)) {
                     return;
@@ -218,7 +220,7 @@ public class ShopCustomerScreenHandler extends ScreenHandler implements ShopProv
                 this.tradeInventory.setStack(0, firstBuyItem);
             }
 
-            ItemStack secondBuyItem = this.tradeInventory.getStack(1);
+            var secondBuyItem = this.tradeInventory.getStack(1);
             if (!secondBuyItem.isEmpty()) {
                 if (!insertItem(secondBuyItem, 3, 39, true)) {
                     return;
@@ -229,9 +231,9 @@ public class ShopCustomerScreenHandler extends ScreenHandler implements ShopProv
 
             // Try to fill in the new items
             if (this.tradeInventory.getStack(0).isEmpty() && this.tradeInventory.getStack(1).isEmpty()) {
-                ItemStack newFirstBuyItem = getOffers().get(offerIndex).getFirstBuyItem();
+                var newFirstBuyItem = getOffers().get(offerIndex).getFirstBuyItem();
                 this.autofill(0, newFirstBuyItem);
-                ItemStack newSecondBuyItem = getOffers().get(offerIndex).getSecondBuyItem();
+                var newSecondBuyItem = getOffers().get(offerIndex).getSecondBuyItem();
                 this.autofill(1, newSecondBuyItem);
             }
         }
@@ -244,14 +246,27 @@ public class ShopCustomerScreenHandler extends ScreenHandler implements ShopProv
         }
 
         for (int i = 3; i < 39; i++) {
-            ItemStack inventoryStack = this.slots.get(i).getStack();
-            if (!inventoryStack.isEmpty() && ItemStack.canCombine(stack, inventoryStack)) {
-                ItemStack shopStack = this.tradeInventory.getStack(slot);
-                int alreadyInShop = shopStack.isEmpty() ? 0 : shopStack.getCount();
-                int toBeMoved = Math.min(stack.getMaxCount() - alreadyInShop, inventoryStack.getCount());
+            var inventoryStack = this.slots.get(i).getStack();
+            if (inventoryStack.isEmpty()) {
+                continue;
+            }
 
-                ItemStack newStack = inventoryStack.copy();
-                int newCount = alreadyInShop + toBeMoved;
+            if (ItemStackHelper.isCoinPile(stack, inventoryStack)) {
+                var tradeStack = this.tradeInventory.getStack(slot);
+                var alreadyInTrade = CoinPileItem.getValue(tradeStack);
+                var toBeMoved = CoinPileItem.getValue(inventoryStack);
+
+                CoinPileItem.setValue(inventoryStack, 0);
+
+                var newStack = CoinPileItem.createStack(alreadyInTrade + toBeMoved);
+                this.tradeInventory.setStack(slot, newStack);
+            } else if (ItemStack.canCombine(stack, inventoryStack)) {
+                var tradeStack = this.tradeInventory.getStack(slot);
+                int alreadyInTrade = tradeStack.isEmpty() ? 0 : tradeStack.getCount();
+                int toBeMoved = Math.min(stack.getMaxCount() - alreadyInTrade, inventoryStack.getCount());
+
+                var newStack = inventoryStack.copy();
+                int newCount = alreadyInTrade + toBeMoved;
 
                 inventoryStack.decrement(toBeMoved);
                 newStack.setCount(newCount);

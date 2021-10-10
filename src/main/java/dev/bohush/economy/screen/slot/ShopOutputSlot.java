@@ -2,7 +2,6 @@ package dev.bohush.economy.screen.slot;
 
 import dev.bohush.economy.inventory.TradeInventory;
 import dev.bohush.economy.shop.Shop;
-import dev.bohush.economy.shop.ShopOffer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.slot.Slot;
@@ -50,13 +49,13 @@ public class ShopOutputSlot extends Slot {
     public void onTakeItem(PlayerEntity player, ItemStack stack) {
         this.onCrafted(stack);
 
-        ShopOffer offer = this.tradeInventory.getOffer();
+        var offer = this.tradeInventory.getOffer();
         if (offer == null) {
             return;
         }
 
-        ItemStack firstBuyItem = this.tradeInventory.getStack(0);
-        ItemStack secondBuyItem = this.tradeInventory.getStack(1);
+        var firstBuyItem = this.tradeInventory.getStack(0);
+        var secondBuyItem = this.tradeInventory.getStack(1);
         if (offer.depleteBuyItems(firstBuyItem, secondBuyItem) || offer.depleteBuyItems(secondBuyItem, firstBuyItem)) {
             this.shop.trade(offer);
             player.incrementStat(Stats.TRADED_WITH_VILLAGER);

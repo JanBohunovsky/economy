@@ -1,10 +1,6 @@
 {
     "itemGroup.economy.all": "Economy",
 
-    "item.economy.copper_coin": "Copper Coin",
-    "item.economy.iron_coin": "Iron Coin",
-    "item.economy.gold_coin": "Gold Coin",
-    "item.economy.netherite_coin": "Netherite Coin",
     "item.economy.coin_pile": "Coins",
     "item.economy.coin_pile.invalid": "Invalid Coin",
     "item.economy.coin_pile.copper": "Copper Coin",

@@ -1,14 +1,15 @@
 {
-  "required": true,
-  "minVersion": "0.8",
-  "package": "dev.bohush.economy.mixin",
-  "compatibilityLevel": "JAVA_16",
-  "mixins": [
-  ],
-  "client": [
-    "RenderGuiItemMixin"
-  ],
-  "injectors": {
-    "defaultRequire": 1
+    "required": true,
+    "minVersion": "0.8",
+    "package": "dev.bohush.economy.mixin",
+    "compatibilityLevel": "JAVA_16",
+    "mixins": [
+        "ItemStackMixin"
+    ],
+    "client": [
+        "RenderGuiItemMixin"
+    ],
+    "injectors": {
+        "defaultRequire": 1
   }
 }

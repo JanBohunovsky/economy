@@ -1,10 +1,10 @@
 package dev.bohush.economy.shop;
 
 import dev.bohush.economy.inventory.ShopStorage;
-import dev.bohush.economy.util.CoinHelper;
+import dev.bohush.economy.item.CoinPileItem;
+import dev.bohush.economy.item.ItemStackHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
@@ -42,7 +42,7 @@ public class ShopOffer {
     }
 
     public boolean isInvalid() {
-        return this.sellItem.isEmpty() || (this.firstBuyItem.isEmpty() && this.secondBuyItem.isEmpty());
+        return this.firstBuyItem.isEmpty() || this.sellItem.isEmpty();
     }
 
     public ItemStack getFirstBuyItem() {
@@ -67,7 +67,7 @@ public class ShopOffer {
         }
 
         if (this.isOutOfStock()) {
-            return CoinHelper.isCoinItem(this.sellItem)
+            return ItemStackHelper.isCoinPile(this.sellItem)
                 ? new TranslatableText("shop.offer.outOfCoins")
                 : new TranslatableText("shop.offer.outOfStock");
         }
@@ -142,7 +142,7 @@ public class ShopOffer {
             return Integer.MAX_VALUE;
         }
 
-        if (CoinHelper.isCoinItem(itemStack)) {
+        if (ItemStackHelper.isCoinPile(itemStack)) {
             return Integer.MAX_VALUE;
         }
 
@@ -154,8 +154,23 @@ public class ShopOffer {
     }
 
     public boolean matchesBuyItems(ItemStack firstBuyItem, ItemStack secondBuyItem) {
-        return ItemStack.canCombine(firstBuyItem, this.firstBuyItem) && firstBuyItem.getCount() >= this.firstBuyItem.getCount()
-            && ItemStack.canCombine(secondBuyItem, this.secondBuyItem) && secondBuyItem.getCount() >= this.secondBuyItem.getCount();
+        return matchesItem(firstBuyItem, this.firstBuyItem) && matchesItem(secondBuyItem, this.secondBuyItem);
+    }
+
+    private boolean matchesItem(ItemStack stackToCheck, ItemStack sourceStack) {
+        if (stackToCheck.isEmpty() && sourceStack.isEmpty()) {
+            return true;
+        }
+
+        if (ItemStackHelper.isCoinPile(stackToCheck, sourceStack)) {
+            return CoinPileItem.getValue(stackToCheck) >= CoinPileItem.getValue(sourceStack);
+        }
+
+        if (ItemStack.canCombine(stackToCheck, sourceStack)) {
+            return stackToCheck.getCount() >= sourceStack.getCount();
+        }
+
+        return false;
     }
 
     public void toPacket(PacketByteBuf buf) {
@@ -174,10 +189,10 @@ public class ShopOffer {
     }
 
     public static ShopOffer fromPacket(PacketByteBuf buf) {
-        ItemStack firstBuyItem = buf.readItemStack();
-        ItemStack sellItem = buf.readItemStack();
+        var firstBuyItem = buf.readItemStack();
+        var sellItem = buf.readItemStack();
 
-        ItemStack secondBuyItem = ItemStack.EMPTY;
+        var secondBuyItem = ItemStack.EMPTY;
         if (buf.readBoolean()) {
             secondBuyItem = buf.readItemStack();
         }
@@ -191,7 +206,7 @@ public class ShopOffer {
     }
 
     public NbtCompound toNbt() {
-        NbtCompound nbt = new NbtCompound();
+        var nbt = new NbtCompound();
         nbt.put("buy", firstBuyItem.writeNbt(new NbtCompound()));
         nbt.put("buyExtra", secondBuyItem.writeNbt(new NbtCompound()));
         nbt.put("sell", sellItem.writeNbt(new NbtCompound()));
@@ -200,18 +215,11 @@ public class ShopOffer {
     }
 
     public static ShopOffer fromNbt(NbtCompound nbt) {
-        boolean locked = false;
-        if (nbt.contains("locked", NbtElement.BYTE_TYPE)) {
-            locked = nbt.getBoolean("locked");
-        } else if (nbt.contains("disabled", NbtElement.BYTE_TYPE)) {
-            locked = nbt.getBoolean("disabled");
-        }
-
         return new ShopOffer(
             ItemStack.fromNbt(nbt.getCompound("buy")),
             ItemStack.fromNbt(nbt.getCompound("buyExtra")),
             ItemStack.fromNbt(nbt.getCompound("sell")),
-            locked //nbt.getBoolean("locked")
+            nbt.getBoolean("locked")
         );
     }
 
@@ -220,9 +228,9 @@ public class ShopOffer {
             return false;
         }
 
-        firstBuyItem.decrement(this.firstBuyItem.getCount());
+        ItemStackHelper.decrement(firstBuyItem, this.firstBuyItem);
         if (!this.secondBuyItem.isEmpty()) {
-            secondBuyItem.decrement(this.secondBuyItem.getCount());
+            ItemStackHelper.decrement(secondBuyItem, this.secondBuyItem);
         }
 
         return true;

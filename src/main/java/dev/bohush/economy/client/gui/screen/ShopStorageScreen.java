@@ -3,14 +3,12 @@ package dev.bohush.economy.client.gui.screen;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.bohush.economy.Economy;
 import dev.bohush.economy.screen.ShopStorageScreenHandler;
-import dev.bohush.economy.util.CoinHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.screen.slot.Slot;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
@@ -42,13 +40,6 @@ public class ShopStorageScreen extends HandledScreen<ShopStorageScreenHandler> {
         super.render(matrices, mouseX, mouseY, delta);
 
         this.textRenderer.draw(matrices, String.format("%,d", this.handler.getCoinValue()), 3, 3, 0xffffff);
-
-        // If we have more than one stack of the highest coin in the slot -> show the count as "64+"
-        if (this.handler.getCoinValue() >= CoinHelper.getHighestCoin().getValue() * (CoinHelper.getHighestCoin().getMaxCount() + 1)) {
-            // Slot for the highest coin
-            Slot slot = this.handler.slots.get(CoinHelper.getCoinCount() - 1);
-            this.textRenderer.drawWithShadow(matrices, "+", this.x + slot.x + 17, this.y + slot.y + 9, 0xffffff);
-        }
 
         drawMouseoverTooltip(matrices, mouseX, mouseY);
     }

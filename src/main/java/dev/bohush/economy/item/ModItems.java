@@ -18,11 +18,6 @@ import org.jetbrains.annotations.Nullable;
 public class ModItems {
     public static final Item MOD_ICON = new Item(new FabricItemSettings());
 
-    public static final CoinItem COPPER_COIN = new CoinItem(0);
-    public static final CoinItem IRON_COIN = new CoinItem(1);
-    public static final CoinItem GOLD_COIN = new CoinItem(2);
-    public static final CoinItem NETHERITE_COIN = new CoinItem(3);
-
     public static final Item COIN_PILE = new CoinPileItem();
 
     public static final Item COPPER_NUGGET = new Item(new FabricItemSettings().group(ItemGroup.MISC));
@@ -30,11 +25,6 @@ public class ModItems {
 
     public static void registerItems() {
         Registry.register(Registry.ITEM, new Identifier(Economy.MOD_ID, "gold_coin_pile"), MOD_ICON);
-
-        Registry.register(Registry.ITEM, new Identifier(Economy.MOD_ID, "copper_coin"), COPPER_COIN);
-        Registry.register(Registry.ITEM, new Identifier(Economy.MOD_ID, "iron_coin"), IRON_COIN);
-        Registry.register(Registry.ITEM, new Identifier(Economy.MOD_ID, "gold_coin"), GOLD_COIN);
-        Registry.register(Registry.ITEM, new Identifier(Economy.MOD_ID, "netherite_coin"), NETHERITE_COIN);
 
         Registry.register(Registry.ITEM, new Identifier(Economy.MOD_ID, "coin_pile"), COIN_PILE);
 

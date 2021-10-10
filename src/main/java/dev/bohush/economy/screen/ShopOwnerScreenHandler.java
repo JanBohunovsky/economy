@@ -200,7 +200,7 @@ public class ShopOwnerScreenHandler extends ScreenHandler implements ShopProvide
                     }
                 } else if (ItemStack.canCombine(slotStack, cursorStack)) {
                     // Increase or set the stack
-                    if (button == 1) {
+                    if (button == 1 && slotStack.getCount() < slotStack.getMaxCount()) {
                         slotStack.increment(1);
                     } else {
                         slotStack.setCount(cursorStack.getCount());

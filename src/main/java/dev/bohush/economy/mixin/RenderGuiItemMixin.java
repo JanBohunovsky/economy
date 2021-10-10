@@ -1,7 +1,7 @@
 package dev.bohush.economy.mixin;
 
 import dev.bohush.economy.item.CoinPileItem;
-import dev.bohush.economy.item.ModItems;
+import dev.bohush.economy.item.ItemStackHelper;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
@@ -26,20 +26,9 @@ public class RenderGuiItemMixin {
         at = @At("HEAD")
     )
     private String setCustomCountLabelForCoinPileItemStack(@Nullable String countLabel, TextRenderer renderer, ItemStack stack, int x, int y) {
-        if (countLabel == null && !stack.isEmpty() && stack.isOf(ModItems.COIN_PILE)) {
+        if (countLabel == null && ItemStackHelper.isCoinPile(stack)) {
             var value = CoinPileItem.getValue(stack);
 
-//            if (value >= 1_000_000) {
-//                return String.format("%dM", value / 1_000_000);
-//            }
-//
-//            if (value >= 1_000) {
-//                return String.format("%dK", value / 1_000);
-//            }
-//
-//            if (value > 1) {
-//                return String.valueOf(value);
-//            }
             if (value >= CoinPileItem.NETHERITE_COIN) {
                 var count = CoinPileItem.getNetheriteCoins(stack);
                 if (count > 999) {

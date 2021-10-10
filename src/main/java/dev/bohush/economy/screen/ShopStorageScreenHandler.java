@@ -1,10 +1,10 @@
 package dev.bohush.economy.screen;
 
 import dev.bohush.economy.inventory.ShopStorage;
-import dev.bohush.economy.item.CoinItem;
+import dev.bohush.economy.item.CoinPileItem;
+import dev.bohush.economy.item.ItemStackHelper;
 import dev.bohush.economy.screen.slot.ShopCoinSlot;
 import dev.bohush.economy.screen.slot.ShopStorageSlot;
-import dev.bohush.economy.util.CoinHelper;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.SimpleInventory;
@@ -15,8 +15,6 @@ import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.ArrayList;
 
 public class ShopStorageScreenHandler extends ScreenHandler {
     private static final Logger LOGGER = LogManager.getLogger();
@@ -31,14 +29,13 @@ public class ShopStorageScreenHandler extends ScreenHandler {
     public ShopStorageScreenHandler(int syncId, PlayerInventory playerInventory, ShopStorage shopStorage) {
         super(ModScreens.SHOP_STORAGE, syncId);
         this.shopStorage = shopStorage;
-        this.coinInventory = new SimpleInventory(CoinHelper.getCoinCount());
+        this.coinInventory = new SimpleInventory(4);
 
         shopStorage.onOpen(playerInventory.player);
 
         // Coin slots
-        var coinStartY = 25 + (18 * (coinInventory.size() - 1));
         for (int i = 0; i < coinInventory.size(); i++) {
-            this.addSlot(new ShopCoinSlot(this.coinInventory, i, 180, coinStartY - i * 18));
+            this.addSlot(new ShopCoinSlot(this.coinInventory, i, 180, 25 + i * 18));
         }
 
         // Shop storage
@@ -68,15 +65,11 @@ public class ShopStorageScreenHandler extends ScreenHandler {
     }
 
     private void updateCoinInventory() {
-        ArrayList<ItemStack> coinStacks = CoinHelper.getItemStacks(this.shopStorage.getCoins());
-
+        var stacks = CoinPileItem.createSplitStacks(this.shopStorage.getCoins());
         this.coinInventory.clear();
 
-        for (int i = coinStacks.size() - 1; i >= 0; i--) {
-            ItemStack coinStack = coinStacks.get(i);
-            CoinItem coinItem = (CoinItem)coinStack.getItem();
-
-            this.coinInventory.setStack(coinItem.getTier(), coinStack);
+        for (int i = 0; i < stacks.size(); i++) {
+            this.coinInventory.setStack(i, stacks.get(i));
         }
     }
 
@@ -94,17 +87,18 @@ public class ShopStorageScreenHandler extends ScreenHandler {
     public void onSlotClick(int slotIndex, int button, SlotActionType actionType, PlayerEntity player) {
         // Add coins by clicking with items in cursor in shop inventory (storage + coins)
         if (actionType == SlotActionType.PICKUP && indexInShopInventory(slotIndex)) {
-            ItemStack cursorStack = this.getCursorStack();
-            if (!cursorStack.isEmpty() && CoinHelper.isCoinItem(cursorStack)) {
+            var cursorStack = this.getCursorStack();
+            if (ItemStackHelper.isCoinPile(cursorStack)) {
                 // Left click = all, right click = 1
-                int amount = button == 0 ? cursorStack.getCount() : 1;
-                ItemStack stackToAdd = cursorStack.split(amount);
+                var value = CoinPileItem.getValue(cursorStack);
+                var amount = button == 0 ? value : CoinPileItem.getHighestCoin(value);
+                CoinPileItem.decrementValue(cursorStack, amount);
 
-                if (cursorStack.isEmpty()) {
+                if (CoinPileItem.getValue(cursorStack) <= 0) {
                     this.setCursorStack(ItemStack.EMPTY);
                 }
 
-                this.shopStorage.addCoins(stackToAdd);
+                this.shopStorage.addCoins(amount);
                 this.updateCoinInventory();
                 return;
             }
@@ -112,10 +106,10 @@ public class ShopStorageScreenHandler extends ScreenHandler {
 
         // Add coins by swapping items from hotbar into shop inventory
         if (actionType == SlotActionType.SWAP && indexInShopInventory(slotIndex)) {
-            PlayerInventory playerInventory = player.getInventory();
-            ItemStack hotbarStack = playerInventory.getStack(button);
+            var playerInventory = player.getInventory();
+            var hotbarStack = playerInventory.getStack(button);
 
-            if (!hotbarStack.isEmpty() && CoinHelper.isCoinItem(hotbarStack)) {
+            if (ItemStackHelper.isCoinPile(hotbarStack)) {
                 playerInventory.setStack(button, ItemStack.EMPTY);
                 this.shopStorage.addCoins(hotbarStack);
                 this.updateCoinInventory();
@@ -125,21 +119,21 @@ public class ShopStorageScreenHandler extends ScreenHandler {
 
         // Remove coins by throwing items from the coin inventory onto the ground
         if (actionType == SlotActionType.THROW && indexInCoinInventory(slotIndex) && this.getCursorStack().isEmpty()) {
-            Slot slot = this.slots.get(slotIndex);
-            ItemStack sourceStack = slot.getStack();
+            var slot = this.slots.get(slotIndex);
+            var sourceStack = slot.getStack();
 
             // Default = 1, Ctrl = all
-            int amount = button == 0 ? 1 : sourceStack.getCount();
-            ItemStack stackToDrop = sourceStack.split(amount);
+            var value = CoinPileItem.getValue(sourceStack);
+            var amount = button == 0 ? CoinPileItem.getHighestCoin(value) : value;
 
-            if (sourceStack.isEmpty()) {
+            if (CoinPileItem.getValue(sourceStack) <= 0) {
                 slot.setStack(ItemStack.EMPTY);
             }
 
-            this.shopStorage.removeCoins(stackToDrop);
+            this.shopStorage.removeCoins(amount);
             this.updateCoinInventory();
 
-            player.dropItem(stackToDrop, true);
+            player.dropItem(CoinPileItem.createStack(amount), true);
             return;
         }
 
@@ -151,8 +145,8 @@ public class ShopStorageScreenHandler extends ScreenHandler {
 
         // Remove coins by taking items from coin inventory
         if (actionType == SlotActionType.PICKUP && indexInCoinInventory(slotIndex)) {
-            ItemStack cursorStack = this.getCursorStack();
-            if (!cursorStack.isEmpty() && CoinHelper.isCoinItem(cursorStack)) {
+            var cursorStack = this.getCursorStack();
+            if (ItemStackHelper.isCoinPile(cursorStack)) {
                 this.shopStorage.removeCoins(cursorStack);
                 this.updateCoinInventory();
                 return;
@@ -161,10 +155,10 @@ public class ShopStorageScreenHandler extends ScreenHandler {
 
         // Remove coins by swapping items from coin inventory
         if (actionType == SlotActionType.SWAP && indexInCoinInventory(slotIndex)) {
-            PlayerInventory playerInventory = player.getInventory();
-            ItemStack hotbarStack = playerInventory.getStack(button);
+            var playerInventory = player.getInventory();
+            var hotbarStack = playerInventory.getStack(button);
 
-            if (!hotbarStack.isEmpty() && CoinHelper.isCoinItem(hotbarStack)) {
+            if (ItemStackHelper.isCoinPile(hotbarStack)) {
                 this.shopStorage.removeCoins(hotbarStack);
                 this.updateCoinInventory();
             }
@@ -199,8 +193,8 @@ public class ShopStorageScreenHandler extends ScreenHandler {
         // QUICK_MOVE in playerInventory:
         //   slot has CoinItem: addCoins
 
-        ItemStack stack = slot.getStack();
-        ItemStack originalStack = stack.copy();
+        var stack = slot.getStack();
+        var originalStack = stack.copy();
 
         int storageStart = this.coinInventory.size();
         int playerStart = storageStart + this.shopStorage.size();
@@ -211,10 +205,7 @@ public class ShopStorageScreenHandler extends ScreenHandler {
                 return ItemStack.EMPTY;
             }
 
-            // Remove coins from storage (`stack` is now a remainder from the insertItem method call, so we have to calculate how many items we've moved)
-            ItemStack stackToRemove = originalStack.copy();
-            stackToRemove.decrement(stack.getCount());
-            this.shopStorage.removeCoins(stackToRemove);
+            this.shopStorage.removeCoins(originalStack);
         } else if (indexInStorageInventory(index)) {
             // Insert item from Storage inventory into Player inventory
             if (!this.insertItem(stack, playerStart, this.slots.size(), true)) {
@@ -222,9 +213,9 @@ public class ShopStorageScreenHandler extends ScreenHandler {
             }
         } else if (indexInPlayerInventory(index)) {
             // Insert item from Player inventory into Storage inventory
-            if (CoinHelper.isCoinItem(stack)) {
+            if (ItemStackHelper.isCoinPile(stack)) {
                 this.shopStorage.addCoins(stack);
-                stack.setCount(0);
+                CoinPileItem.setValue(stack, 0);
             } else if (!this.insertItem(stack, storageStart, playerStart, false)) {
                 return ItemStack.EMPTY;
             }
@@ -236,7 +227,7 @@ public class ShopStorageScreenHandler extends ScreenHandler {
             slot.markDirty();
         }
 
-        if (CoinHelper.isCoinItem(originalStack)) {
+        if (ItemStackHelper.isCoinPile(originalStack)) {
             this.updateCoinInventory();
         }
 

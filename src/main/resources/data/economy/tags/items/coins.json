@@ -1,9 +1,0 @@
-{
-    "replace": false,
-    "values": [
-        "economy:copper_coin",
-        "economy:iron_coin",
-        "economy:gold_coin",
-        "economy:netherite_coin"
-    ]
-}

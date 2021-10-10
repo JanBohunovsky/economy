@@ -21,6 +21,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CoinPileItem extends BasicItem {
@@ -36,43 +37,29 @@ public class CoinPileItem extends BasicItem {
         super(new FabricItemSettings().maxCount(1));
     }
 
-    public static float getVisualAmount(ItemStack stack) {
-        // value -> Math.log10(value)
-        // 1 -> 0 - copper coin
-        // 10 -> 1
-        // 100 -> 2 - iron coin
-        // 1 000 -> 3
-        // 10 000 -> 4 - gold coin
-        // 100 000 -> 5
-        // 1 000 000 -> 6 - netherite coin
-        long value = getValue(stack);
-        return (float)(Math.log10(value) / 2);
-    }
-
-    public static long getCopperCoins(ItemStack stack) {
-        return getValue(stack) % 100;
-    }
-
-    public static long getIronCoins(ItemStack stack) {
-        return (getValue(stack) / IRON_COIN) % 100;
-    }
-
-    public static long getGoldCoins(ItemStack stack) {
-        return (getValue(stack) / GOLD_COIN) % 100;
-    }
-
-    public static long getNetheriteCoins(ItemStack stack) {
-        return getValue(stack) / NETHERITE_COIN;
+    public static boolean isCoinPile(ItemStack stack) {
+        return !stack.isEmpty() && stack.isOf(ModItems.COIN_PILE);
     }
 
     public static ItemStack createStack(long value) {
         if (value < 1) {
-            value = 1;
+            return ItemStack.EMPTY;
         }
 
         var stack = new ItemStack(ModItems.COIN_PILE);
         setValue(stack, value);
         return stack;
+    }
+
+    public static List<ItemStack> createSplitStacks(long value) {
+        var stacks = new ArrayList<ItemStack>();
+
+        stacks.add(createStack(getNetheriteCoins(value) * NETHERITE_COIN));
+        stacks.add(createStack(getGoldCoins(value) * GOLD_COIN));
+        stacks.add(createStack(getIronCoins(value) * IRON_COIN));
+        stacks.add(createStack(getCopperCoins(value)));
+
+        return stacks;
     }
 
     public static long getValue(ItemStack stack) {
@@ -89,12 +76,76 @@ public class CoinPileItem extends BasicItem {
     }
 
     public static void setValue(ItemStack stack, long value) {
-        if (stack.isEmpty() || !stack.isOf(ModItems.COIN_PILE)) {
+        if (!isCoinPile(stack)) {
             return;
         }
 
         var nbt = stack.getOrCreateNbt();
         nbt.putLong(COINS_KEY, value);
+
+        if (value <= 0) {
+            stack.setCount(0);
+        }
+    }
+
+    public static void incrementValue(ItemStack stack, long amount) {
+        setValue(stack, getValue(stack) + amount);
+    }
+
+    public static void decrementValue(ItemStack stack, long amount) {
+        incrementValue(stack, -amount);
+    }
+
+    public static void incrementValue(ItemStack targetStack, ItemStack sourceStack) {
+        incrementValue(targetStack, getValue(sourceStack));
+    }
+
+    public static void decrementValue(ItemStack targetStack, ItemStack sourceStack) {
+        decrementValue(targetStack, getValue(sourceStack));
+    }
+
+    public static long getHighestCoin(long value) {
+        return value >= NETHERITE_COIN ? NETHERITE_COIN
+            : value >= GOLD_COIN ? GOLD_COIN
+            : value >= IRON_COIN ? IRON_COIN
+            : value >= COPPER_COIN ? COPPER_COIN
+            : 0;
+    }
+
+    public static long getHighestCoin(ItemStack stack) {
+        return getHighestCoin(getValue(stack));
+    }
+
+    public static long getNetheriteCoins(long value) {
+        return value / NETHERITE_COIN;
+    }
+
+    public static long getNetheriteCoins(ItemStack stack) {
+        return getNetheriteCoins(getValue(stack));
+    }
+
+    public static long getGoldCoins(long value) {
+        return (value / GOLD_COIN) % 100;
+    }
+
+    public static long getGoldCoins(ItemStack stack) {
+        return getGoldCoins(getValue(stack));
+    }
+
+    public static long getIronCoins(long value) {
+        return (value / IRON_COIN) % 100;
+    }
+
+    public static long getIronCoins(ItemStack stack) {
+        return getIronCoins(getValue(stack));
+    }
+
+    public static long getCopperCoins(long value) {
+        return value % 100;
+    }
+
+    public static long getCopperCoins(ItemStack stack) {
+        return getCopperCoins(getValue(stack));
     }
 
     /**
@@ -107,19 +158,13 @@ public class CoinPileItem extends BasicItem {
      */
     @Override
     public boolean onStackClicked(ItemStack stack, Slot slot, ClickType clickType, PlayerEntity player) {
-        LOGGER.info("onStackClicked({}, {}, {}, {})", stack, slot, clickType, player);
-
         // RightClick + EmptySlot = give 1 of the highest coins
 
         var value = getValue(stack);
 
         var slotStack = slot.getStack();
         if (slotStack.isEmpty() && clickType == ClickType.RIGHT) {
-            var amountToGive = value >= NETHERITE_COIN ? NETHERITE_COIN
-                : value >= GOLD_COIN ? GOLD_COIN
-                : value >= IRON_COIN ? IRON_COIN
-                : value >= COPPER_COIN ? COPPER_COIN
-                : 0;
+            var amountToGive = getHighestCoin(value);
 
             var amountToKeep = value - amountToGive;
             if (amountToKeep <= 0) {
@@ -147,7 +192,6 @@ public class CoinPileItem extends BasicItem {
      */
     @Override
     public boolean onClicked(ItemStack stack, ItemStack otherStack, Slot slot, ClickType clickType, PlayerEntity player, StackReference cursorStackReference) {
-        LOGGER.info("onClicked({}, {}, {}, {}, {}, {})", stack, otherStack, slot, clickType, player, cursorStackReference);
         var value = getValue(stack);
 
         // LeftClick + EmptyOther = default (pick up stack)
@@ -185,11 +229,7 @@ public class CoinPileItem extends BasicItem {
         }
 
         // RightClick = take one (of the highest coin)
-        var amountToTake = otherValue >= NETHERITE_COIN ? NETHERITE_COIN
-            : otherValue >= GOLD_COIN ? GOLD_COIN
-            : otherValue >= IRON_COIN ? IRON_COIN
-            : otherValue >= COPPER_COIN ? COPPER_COIN
-            : 0;
+        var amountToTake = getHighestCoin(otherValue);
         var amountToKeep = otherValue - amountToTake;
 
         if (amountToKeep <= 0) {
@@ -272,9 +312,9 @@ public class CoinPileItem extends BasicItem {
             return;
         }
 
-        stacks.add(createStack(COPPER_COIN));
-        stacks.add(createStack(IRON_COIN));
-        stacks.add(createStack(GOLD_COIN));
         stacks.add(createStack(NETHERITE_COIN));
+        stacks.add(createStack(GOLD_COIN));
+        stacks.add(createStack(IRON_COIN));
+        stacks.add(createStack(COPPER_COIN));
     }
 }

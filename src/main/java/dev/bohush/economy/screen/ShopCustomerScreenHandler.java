@@ -2,7 +2,6 @@ package dev.bohush.economy.screen;
 
 import dev.bohush.economy.inventory.TradeInventory;
 import dev.bohush.economy.item.CoinPileItem;
-import dev.bohush.economy.item.ItemStackHelper;
 import dev.bohush.economy.screen.slot.ShopOutputSlot;
 import dev.bohush.economy.shop.*;
 import net.minecraft.entity.player.PlayerEntity;
@@ -251,7 +250,7 @@ public class ShopCustomerScreenHandler extends ScreenHandler implements ShopProv
                 continue;
             }
 
-            if (ItemStackHelper.isCoinPile(stack, inventoryStack)) {
+            if (CoinPileItem.isCoinPile(stack, inventoryStack)) {
                 var tradeStack = this.tradeInventory.getStack(slot);
                 var alreadyInTrade = CoinPileItem.getValue(tradeStack);
                 var toBeMoved = CoinPileItem.getValue(inventoryStack);

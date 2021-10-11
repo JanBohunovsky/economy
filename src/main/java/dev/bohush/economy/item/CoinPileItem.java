@@ -41,6 +41,15 @@ public class CoinPileItem extends BasicItem {
         return !stack.isEmpty() && stack.isOf(ModItems.COIN_PILE);
     }
 
+    public static boolean isCoinPile(ItemStack... stacks) {
+        for (var stack : stacks) {
+            if (!isCoinPile(stack)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static ItemStack createStack(long value) {
         if (value < 1) {
             return ItemStack.EMPTY;

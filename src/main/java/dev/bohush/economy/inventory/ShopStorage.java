@@ -2,7 +2,6 @@ package dev.bohush.economy.inventory;
 
 import com.google.common.collect.Lists;
 import dev.bohush.economy.item.CoinPileItem;
-import dev.bohush.economy.item.ItemStackHelper;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.inventory.Inventory;
@@ -160,7 +159,7 @@ public class ShopStorage implements Inventory {
      * @return Leftover ItemStack aka what could not fit into this storage.
      */
     public ItemStack addStack(ItemStack stack) {
-        if (ItemStackHelper.isCoinPile(stack)) {
+        if (CoinPileItem.isCoinPile(stack)) {
             this.addCoins(stack);
             return ItemStack.EMPTY;
         }
@@ -182,7 +181,7 @@ public class ShopStorage implements Inventory {
      * @return The remaining ItemStack that could not be removed (if any).
      */
     public ItemStack removeStack(ItemStack stack) {
-        if (ItemStackHelper.isCoinPile(stack)) {
+        if (CoinPileItem.isCoinPile(stack)) {
             return this.removeCoins(stack)
                 ? ItemStack.EMPTY
                 : stack.copy();
@@ -209,7 +208,7 @@ public class ShopStorage implements Inventory {
         int emptySlots = this.getEmptySlotCount();
         int requiredSlots = 0;
 
-        if (ItemStackHelper.isCoinPile(stacks)) {
+        if (CoinPileItem.isCoinPile(stacks)) {
             return true;
         }
 
@@ -235,7 +234,7 @@ public class ShopStorage implements Inventory {
             return false;
         }
 
-        if (ItemStackHelper.isCoinPile(target)) {
+        if (CoinPileItem.isCoinPile(target)) {
             return this.coins >= CoinPileItem.getValue(target);
         }
 
@@ -280,7 +279,7 @@ public class ShopStorage implements Inventory {
     }
 
     public int getItemCount(ItemStack target) {
-        if (ItemStackHelper.isCoinPile(target)) {
+        if (CoinPileItem.isCoinPile(target)) {
             long count = this.coins / CoinPileItem.getValue(target);
 
             return count > Integer.MAX_VALUE

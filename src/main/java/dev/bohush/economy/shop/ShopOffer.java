@@ -67,7 +67,7 @@ public class ShopOffer {
         }
 
         if (this.isOutOfStock()) {
-            return ItemStackHelper.isCoinPile(this.sellItem)
+            return CoinPileItem.isCoinPile(this.sellItem)
                 ? new TranslatableText("shop.offer.outOfCoins")
                 : new TranslatableText("shop.offer.outOfStock");
         }
@@ -142,7 +142,7 @@ public class ShopOffer {
             return Integer.MAX_VALUE;
         }
 
-        if (ItemStackHelper.isCoinPile(itemStack)) {
+        if (CoinPileItem.isCoinPile(itemStack)) {
             return Integer.MAX_VALUE;
         }
 
@@ -162,7 +162,7 @@ public class ShopOffer {
             return true;
         }
 
-        if (ItemStackHelper.isCoinPile(stackToCheck, sourceStack)) {
+        if (CoinPileItem.isCoinPile(stackToCheck, sourceStack)) {
             return CoinPileItem.getValue(stackToCheck) >= CoinPileItem.getValue(sourceStack);
         }
 

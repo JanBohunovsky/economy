@@ -1,6 +1,6 @@
 package dev.bohush.economy.screen.slot;
 
-import dev.bohush.economy.item.ItemStackHelper;
+import dev.bohush.economy.item.CoinPileItem;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.slot.Slot;
@@ -13,6 +13,6 @@ public class ShopStorageSlot extends Slot {
 
     @Override
     public boolean canInsert(ItemStack stack) {
-        return !ItemStackHelper.isCoinPile(stack);
+        return !CoinPileItem.isCoinPile(stack);
     }
 }

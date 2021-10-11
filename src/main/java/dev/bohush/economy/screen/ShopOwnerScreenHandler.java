@@ -1,5 +1,6 @@
 package dev.bohush.economy.screen;
 
+import dev.bohush.economy.item.CoinPileItem;
 import dev.bohush.economy.screen.slot.GhostSlot;
 import dev.bohush.economy.shop.ClientShop;
 import dev.bohush.economy.shop.Shop;
@@ -191,13 +192,25 @@ public class ShopOwnerScreenHandler extends ScreenHandler implements ShopProvide
                 var slotStack = ghostSlot.getStack();
 
                 if (cursorStack.isEmpty()) {
-                    // Clear slot or decrement stack by 1
+                    // Clear slot or half the stack
                     if (button == 0) {
                         ghostSlot.setStack(ItemStack.EMPTY);
                     } else if (button == 1) {
-                        slotStack.decrement((int)Math.ceil(slotStack.getCount() / 2.0));
+                        if (CoinPileItem.isCoinPile(slotStack)) {
+                            CoinPileItem.decrementValue(slotStack, (long) Math.ceil(CoinPileItem.getValue(slotStack) / 2.0));
+                        } else {
+                            slotStack.decrement((int) Math.ceil(slotStack.getCount() / 2.0));
+                        }
                         ghostSlot.setStack(slotStack);
                     }
+                } else if (CoinPileItem.isCoinPile(slotStack, cursorStack)) {
+                    // Increase coins
+                    if (button == 1) {
+                        CoinPileItem.incrementValue(slotStack, CoinPileItem.getHighestCoin(cursorStack));
+                    } else {
+                        CoinPileItem.incrementValue(slotStack, cursorStack);
+                    }
+                    ghostSlot.setStack(slotStack);
                 } else if (ItemStack.canCombine(slotStack, cursorStack)) {
                     // Increase or set the stack
                     if (button == 1 && slotStack.getCount() < slotStack.getMaxCount()) {
@@ -206,6 +219,12 @@ public class ShopOwnerScreenHandler extends ScreenHandler implements ShopProvide
                         slotStack.setCount(cursorStack.getCount());
                     }
                     ghostSlot.setStack(slotStack);
+                } else if (CoinPileItem.isCoinPile(cursorStack)) {
+                    // Replace with coins
+                    var value = button == 1
+                        ? CoinPileItem.getHighestCoin(cursorStack)
+                        : CoinPileItem.getValue(cursorStack);
+                    ghostSlot.setStack(CoinPileItem.createStack(value));
                 } else {
                     // Replace the stack
                     var cursorStackCopy = cursorStack.copy();

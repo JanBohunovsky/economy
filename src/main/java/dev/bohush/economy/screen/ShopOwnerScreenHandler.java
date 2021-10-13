@@ -174,8 +174,12 @@ public class ShopOwnerScreenHandler extends ScreenHandler implements ShopProvide
 
     @Override
     public boolean canInsertIntoSlot(ItemStack stack, Slot slot) {
-        // Disables the double click merge stack thing
-        return false;
+        // Disable double-click/pickup all on the offer slots
+        if (slot.inventory == this.offerInventory) {
+            return false;
+        }
+
+        return super.canInsertIntoSlot(stack, slot);
     }
 
     @Override

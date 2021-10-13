@@ -11,32 +11,26 @@ public class ShopOfferList extends ArrayList<ShopOffer> {
 
     @Nullable
     public ShopOffer getValidOffer(ItemStack firstBuyItem, ItemStack secondBuyItem, int index) {
-        if (index >= 0 && index < this.size()) {
-            ShopOffer offer = this.get(index);
-            return offer.matchesBuyItems(firstBuyItem, secondBuyItem)
-                ? offer
-                : null;
+        if (index < 0 || index >= this.size()) {
+            return null;
         }
 
-        for (ShopOffer offer : this) {
-            if (offer.matchesBuyItems(firstBuyItem, secondBuyItem)) {
-                return offer;
-            }
-        }
-
-        return null;
+        var offer = this.get(index);
+        return offer.matchesBuyItems(firstBuyItem, secondBuyItem)
+            ? offer
+            : null;
     }
 
     public void toPacket(PacketByteBuf buf) {
         buf.writeByte(this.size() & 255);
 
-        for (ShopOffer offer : this) {
+        for (var offer : this) {
             offer.toPacket(buf);
         }
     }
 
     public static ShopOfferList fromPacket(PacketByteBuf buf) {
-        ShopOfferList offerList = new ShopOfferList();
+        var offerList = new ShopOfferList();
         int count = buf.readByte() & 255;
 
         for (int i = 0; i < count; i++) {
@@ -47,9 +41,9 @@ public class ShopOfferList extends ArrayList<ShopOffer> {
     }
 
     public NbtList toNbt() {
-        NbtList nbtList = new NbtList();
+        var nbtList = new NbtList();
 
-        for (ShopOffer offer : this) {
+        for (var offer : this) {
             nbtList.add(offer.toNbt());
         }
 
@@ -57,7 +51,7 @@ public class ShopOfferList extends ArrayList<ShopOffer> {
     }
 
     public static ShopOfferList fromNbt(NbtList nbtList) {
-        ShopOfferList offerList = new ShopOfferList();
+        var offerList = new ShopOfferList();
 
         for (int i = 0; i < nbtList.size(); i++) {
             offerList.add(ShopOffer.fromNbt(nbtList.getCompound(i)));

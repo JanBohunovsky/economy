@@ -76,13 +76,11 @@ public class ShopCustomerScreenHandler extends ScreenHandler implements ShopProv
     @Nullable
     public ShopOffer getSelectedOffer() {
         int selectedIndex = getOfferIndex();
-        if (selectedIndex >= 0 && selectedIndex < this.getOffers().size()) {
-            // Manually selected offer.
-            return this.getOffers().get(selectedIndex);
-        } else {
-            // Offer based on input items.
-            return this.tradeInventory.getOffer();
+        if (selectedIndex < 0 || selectedIndex >= this.getOffers().size()) {
+            return null;
         }
+
+        return this.getOffers().get(selectedIndex);
     }
 
     public ShopOfferList getOffers() {
@@ -131,8 +129,12 @@ public class ShopCustomerScreenHandler extends ScreenHandler implements ShopProv
 
     @Override
     public boolean canInsertIntoSlot(ItemStack stack, Slot slot) {
-        // Disables the double click merge stack thing
-        return false;
+        // Disable double-click/pickup all on the output slot
+        if (slot.inventory == this.tradeInventory && slot.getIndex() == TradeInventory.SELL_SLOT) {
+            return false;
+        }
+
+        return super.canInsertIntoSlot(stack, slot);
     }
 
     @Override

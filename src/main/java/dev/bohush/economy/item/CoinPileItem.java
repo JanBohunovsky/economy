@@ -159,29 +159,36 @@ public class CoinPileItem extends BasicItem {
 
     /**
      * Called when clicking with the ItemStack in cursor.
-     * @param stack ItemStack of CoinPileItem
+     * @param cursorStack ItemStack of CoinPileItem in cursor
      * @param slot The slot that is being clicked on
      * @param clickType The mouse button that was used
      * @param player Player
      * @return Whether we want to stop the default behaviour
      */
     @Override
-    public boolean onStackClicked(ItemStack stack, Slot slot, ClickType clickType, PlayerEntity player) {
-        // RightClick + EmptySlot = give 1 of the highest coins
+    public boolean onStackClicked(ItemStack cursorStack, Slot slot, ClickType clickType, PlayerEntity player) {
+        // Right-click on an empty slot = give 1 of the highest coins
+        if (!slot.hasStack() && slot.canInsert(cursorStack) && clickType == ClickType.RIGHT) {
+            var cursorValue = getValue(cursorStack);
+            var amountToGive = getHighestCoin(cursorValue);
 
-        var value = getValue(stack);
-
-        var slotStack = slot.getStack();
-        if (slotStack.isEmpty() && clickType == ClickType.RIGHT) {
-            var amountToGive = getHighestCoin(value);
-
-            var amountToKeep = value - amountToGive;
+            var amountToKeep = cursorValue - amountToGive;
             if (amountToKeep <= 0) {
                 return false;
             }
 
-            setValue(stack, amountToKeep);
+            setValue(cursorStack, amountToKeep);
             slot.setStack(createStack(amountToGive));
+
+            return true;
+        }
+
+        // Click on output slot with coins = take all
+        var slotStack = slot.getStack().copy();
+        if (isCoinPile(slotStack) && !slot.canInsert(cursorStack) && slot.canTakeItems(player)) {
+            incrementValue(cursorStack, slotStack);
+            slot.takeStack(slotStack.getCount());
+            slot.onTakeItem(player, slotStack);
 
             return true;
         }
@@ -190,9 +197,9 @@ public class CoinPileItem extends BasicItem {
     }
 
     /**
-     * Called when the ItemStack is clicked.
-     * @param stack ItemStack of CoinPileItem
-     * @param otherStack ItemStack in cursor
+     * Called when the ItemStack is clicked in a slot.
+     * @param slotStack ItemStack of CoinPileItem in slot
+     * @param cursorStack ItemStack in cursor
      * @param slot The slot that the CoinPileItem is in
      * @param clickType The mouse button that was used
      * @param player Player
@@ -200,54 +207,56 @@ public class CoinPileItem extends BasicItem {
      * @return Whether we want to stop the default behaviour
      */
     @Override
-    public boolean onClicked(ItemStack stack, ItemStack otherStack, Slot slot, ClickType clickType, PlayerEntity player, StackReference cursorStackReference) {
-        var value = getValue(stack);
+    public boolean onClicked(ItemStack slotStack, ItemStack cursorStack, Slot slot, ClickType clickType, PlayerEntity player, StackReference cursorStackReference) {
+        if (!slot.canInsert(cursorStack)) {
+            return false;
+        }
 
-        // LeftClick + EmptyOther = default (pick up stack)
-        // RightClick + EmptyOther = give half
-        if (otherStack.isEmpty()) {
+        var slotValue = getValue(slotStack);
+
+        // Right-click with empty cursor stack = take half
+        if (cursorStack.isEmpty()) {
             if (clickType == ClickType.LEFT) {
                 return false;
             }
 
-            if (value <= 1) {
+            if (slotValue <= 1) {
                 return false;
             }
 
-            // Give half
-            long amountToKeep = value / 2;
-            setValue(stack, amountToKeep);
-            cursorStackReference.set(createStack(value - amountToKeep));
+            // Take half, rounded up
+            long amountToKeep = slotValue / 2;
+            setValue(slotStack, amountToKeep);
+            cursorStackReference.set(createStack(slotValue - amountToKeep));
 
             return true;
         }
 
-        // NonCoinPileOther = default (swap stacks)
-        if (!otherStack.isOf(ModItems.COIN_PILE)) {
+        if (!cursorStack.isOf(ModItems.COIN_PILE)) {
             return false;
         }
 
-        var otherValue = getValue(otherStack);
+        var cursorValue = getValue(cursorStack);
 
-        // LeftClick = merge
+        // Left-click on coins = give all
         if (clickType == ClickType.LEFT) {
-            setValue(stack, value + otherValue);
+            setValue(slotStack, slotValue + cursorValue);
             cursorStackReference.set(ItemStack.EMPTY);
 
             return true;
         }
 
-        // RightClick = take one (of the highest coin)
-        var amountToTake = getHighestCoin(otherValue);
-        var amountToKeep = otherValue - amountToTake;
+        // Right-click on coins = give one (of the highest coin)
+        var amountToTake = getHighestCoin(cursorValue);
+        var amountToKeep = cursorValue - amountToTake;
 
         if (amountToKeep <= 0) {
             cursorStackReference.set(ItemStack.EMPTY);
         } else {
-            setValue(otherStack, amountToKeep);
+            setValue(cursorStack, amountToKeep);
         }
 
-        setValue(stack, value + amountToTake);
+        setValue(slotStack, slotValue + amountToTake);
 
         return true;
     }

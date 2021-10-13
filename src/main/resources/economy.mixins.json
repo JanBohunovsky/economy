@@ -4,7 +4,8 @@
     "package": "dev.bohush.economy.mixin",
     "compatibilityLevel": "JAVA_16",
     "mixins": [
-        "ItemStackMixin"
+        "ItemStackMixin",
+        "ScreenHandlerMixin"
     ],
     "client": [
         "RenderGuiItemMixin"

@@ -10,7 +10,6 @@ import net.minecraft.stat.Stats;
 public class ShopOutputSlot extends Slot {
     private final Shop shop;
     private final TradeInventory tradeInventory;
-    private int amount;
 
     public ShopOutputSlot(Shop shop, TradeInventory tradeInventory, int index, int x, int y) {
         super(tradeInventory, index, x, y);
@@ -24,31 +23,7 @@ public class ShopOutputSlot extends Slot {
     }
 
     @Override
-    public ItemStack takeStack(int amount) {
-        if (this.hasStack()) {
-            this.amount += Math.min(amount, this.getStack().getCount());
-        }
-
-        return super.takeStack(amount);
-    }
-
-    @Override
-    protected void onCrafted(ItemStack stack, int amount) {
-        // TODO: This is probably useless so remove it when confirmed
-        this.amount += amount;
-        this.onCrafted(stack);
-    }
-
-    @Override
-    protected void onCrafted(ItemStack stack) {
-//        stack.onCraft(this.player.world, this.player, this.amount);
-        this.amount = 0;
-    }
-
-    @Override
     public void onTakeItem(PlayerEntity player, ItemStack stack) {
-        this.onCrafted(stack);
-
         var offer = this.tradeInventory.getOffer();
         if (offer == null) {
             return;

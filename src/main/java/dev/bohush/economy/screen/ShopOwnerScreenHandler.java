@@ -14,8 +14,6 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
 public class ShopOwnerScreenHandler extends ScreenHandler implements ShopProvider {
@@ -25,8 +23,6 @@ public class ShopOwnerScreenHandler extends ScreenHandler implements ShopProvide
     public static final int MOVE_OFFER_DOWN_BUTTON = -13;
     public static final int SAVE_UNLOCKED_OFFER_BUTTON = -14;
     public static final int SAVE_LOCKED_OFFER_BUTTON = -15;
-
-    private static final Logger LOGGER = LogManager.getLogger();
 
     public final Shop shop;
 

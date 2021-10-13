@@ -12,12 +12,8 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class ShopStorageScreenHandler extends ScreenHandler {
-    private static final Logger LOGGER = LogManager.getLogger();
-
     private final ShopStorage shopStorage;
     private final SimpleInventory coinInventory;
 
@@ -182,7 +178,6 @@ public class ShopStorageScreenHandler extends ScreenHandler {
 
     @Override
     public ItemStack transferSlot(PlayerEntity player, int index) {
-        LOGGER.info("transferSlot(player, index={})", index);
         Slot slot = this.slots.get(index);
 
         if (!slot.hasStack()) {

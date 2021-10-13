@@ -14,13 +14,9 @@ import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.network.ServerPlayerEntity;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
 public class ShopCustomerScreenHandler extends ScreenHandler implements ShopProvider {
-    private static final Logger LOGGER = LogManager.getLogger();
-
     private final Shop shop;
     private final TradeInventory tradeInventory;
     private final Property offerIndex = new Property() {
@@ -151,8 +147,6 @@ public class ShopCustomerScreenHandler extends ScreenHandler implements ShopProv
                 if (!insertItem(originalStack, this.tradeInventory.size(), this.slots.size(), true)) {
                     return ItemStack.EMPTY;
                 }
-
-                slot.onQuickTransfer(originalStack, newStack);
             } else if (index < 2) {
                 // Input slots
                 if (!insertItem(originalStack, this.tradeInventory.size(), this.slots.size(), false)) {

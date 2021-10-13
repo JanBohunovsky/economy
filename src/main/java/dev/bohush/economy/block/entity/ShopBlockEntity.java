@@ -245,7 +245,6 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
 
     @Override
     public void trade(ShopOffer offer) {
-        LOGGER.info("trade");
         offer.onTrade();
 
         // TODO: Check the returned values from these methods?

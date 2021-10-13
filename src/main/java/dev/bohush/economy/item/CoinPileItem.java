@@ -1,6 +1,5 @@
 package dev.bohush.economy.item;
 
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.item.TooltipContext;
@@ -20,6 +19,7 @@ import net.minecraft.world.World;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -270,7 +270,7 @@ public class CoinPileItem extends BasicItem {
         if (value < GOLD_COIN && value % IRON_COIN == 0) {
             return translationKey + ".iron";
         }
-        if (value < IRON_COIN && value % COPPER_COIN == 0) {
+        if (value < IRON_COIN) {
             return translationKey + ".copper";
         }
 
@@ -279,8 +279,8 @@ public class CoinPileItem extends BasicItem {
 
     @Override
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
-        var keySneak = MinecraftClient.getInstance().options.keySneak;
-        var showCoins = InputUtil.isKeyPressed(MinecraftClient.getInstance().getWindow().getHandle(), KeyBindingHelper.getBoundKeyOf(keySneak).getCode());
+        var handle = MinecraftClient.getInstance().getWindow().getHandle();
+        var showCoins = InputUtil.isKeyPressed(handle, GLFW.GLFW_KEY_LEFT_SHIFT) || InputUtil.isKeyPressed(handle, GLFW.GLFW_KEY_RIGHT_SHIFT);
 
         var value = getValue(stack);
 

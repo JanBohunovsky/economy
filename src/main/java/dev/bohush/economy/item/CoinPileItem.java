@@ -71,6 +71,10 @@ public class CoinPileItem extends BasicItem {
         return stacks;
     }
 
+    public static ItemStack copy(ItemStack stack) {
+        return createStack(getValue(stack));
+    }
+
     public static long getValue(ItemStack stack) {
         if (stack.isEmpty() || !stack.isOf(ModItems.COIN_PILE)) {
             return 0;

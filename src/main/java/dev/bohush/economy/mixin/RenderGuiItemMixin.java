@@ -5,8 +5,6 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -18,11 +16,11 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(ItemRenderer.class)
 public class RenderGuiItemMixin {
-    private static final Logger LOGGER = LogManager.getLogger();
 
     @ModifyVariable(
         method = "renderGuiItemOverlay(Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/item/ItemStack;IILjava/lang/String;)V",
-        at = @At("HEAD")
+        at = @At("HEAD"),
+        argsOnly = true
     )
     private String setCustomCountLabelForCoinPileItemStack(@Nullable String countLabel, TextRenderer renderer, ItemStack stack, int x, int y) {
         if (countLabel == null && CoinPileItem.isCoinPile(stack)) {
@@ -62,7 +60,7 @@ public class RenderGuiItemMixin {
         at = @At(value = "INVOKE", target = "Lnet/minecraft/client/font/TextRenderer;getWidth(Ljava/lang/String;)I")
     )
     private int rescaleWidth(TextRenderer renderer, String string) {
-        return (int)(renderer.getWidth(string) * getScale(string));
+        return (int) (renderer.getWidth(string) * getScale(string));
     }
 
     @Inject(

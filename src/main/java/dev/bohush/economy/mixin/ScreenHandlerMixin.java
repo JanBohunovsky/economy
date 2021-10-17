@@ -105,6 +105,21 @@ public abstract class ScreenHandlerMixin {
                 CoinPileItem.decrementValue(cursorStack, amount);
                 player.dropItem(CoinPileItem.createStack(amount), true);
             }
+        } else if (actionType == SlotActionType.CLONE && player.getAbilities().creativeMode && this.getCursorStack().isEmpty() && slotIndex >= 0) {
+            var slot = this.slots.get(slotIndex);
+            var slotStack = slot.getStack();
+
+            if (!CoinPileItem.isCoinPile(slotStack)) {
+                return;
+            }
+
+            var type = CoinPileItem.getCoinType(slotStack);
+            if (type <= 0) {
+                return;
+            }
+
+            ci.cancel();
+            this.setCursorStack(CoinPileItem.createStack(type * 99));
         }
     }
 

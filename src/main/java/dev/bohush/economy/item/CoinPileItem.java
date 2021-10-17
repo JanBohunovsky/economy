@@ -123,6 +123,33 @@ public class CoinPileItem extends BasicItem {
         return getHighestCoin(getValue(stack));
     }
 
+    /**
+     * If this stack contains only one type of coin it returns the value of that coin, otherwise it returns 0.
+     */
+    public static long getCoinType(long value) {
+        if (value % NETHERITE_COIN == 0) {
+            return NETHERITE_COIN;
+        }
+        if (value < NETHERITE_COIN && value % GOLD_COIN == 0) {
+            return GOLD_COIN;
+        }
+        if (value < GOLD_COIN && value % IRON_COIN == 0) {
+            return IRON_COIN;
+        }
+        if (value < IRON_COIN) {
+            return COPPER_COIN;
+        }
+
+        return 0;
+    }
+
+    /**
+     * If this stack contains only one type of coin it returns the value of that coin, otherwise it returns 0.
+     */
+    public static long getCoinType(ItemStack stack) {
+        return getCoinType(getValue(stack));
+    }
+
     public static long getNetheriteCoins(long value) {
         return value / NETHERITE_COIN;
     }
@@ -268,16 +295,18 @@ public class CoinPileItem extends BasicItem {
         if (value <= 0) {
             return translationKey + ".invalid";
         }
-        if (value % NETHERITE_COIN == 0) {
+
+        var type = getCoinType(value);
+        if (type == NETHERITE_COIN) {
             return translationKey + ".netherite";
         }
-        if (value < NETHERITE_COIN && value % GOLD_COIN == 0) {
+        if (type == GOLD_COIN) {
             return translationKey + ".gold";
         }
-        if (value < GOLD_COIN && value % IRON_COIN == 0) {
+        if (type == IRON_COIN) {
             return translationKey + ".iron";
         }
-        if (value < IRON_COIN) {
+        if (type == COPPER_COIN) {
             return translationKey + ".copper";
         }
 

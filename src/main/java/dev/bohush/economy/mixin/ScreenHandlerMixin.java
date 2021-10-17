@@ -28,12 +28,19 @@ public abstract class ScreenHandlerMixin {
     @Shadow
     public abstract boolean canInsertIntoSlot(ItemStack stack, Slot slot);
 
+    @Shadow
+    @Final
+    public static int EMPTY_SPACE_SLOT_INDEX;
+
+    @Shadow
+    public abstract void setCursorStack(ItemStack stack);
+
     @Inject(
         method = "internalOnSlotClick",
         at = @At("HEAD"),
         cancellable = true
     )
-    private void onSlotClickPickupAllCoins(int slotIndex, int button, SlotActionType actionType, PlayerEntity player, CallbackInfo ci) {
+    private void onSlotClickHandleCoins(int slotIndex, int button, SlotActionType actionType, PlayerEntity player, CallbackInfo ci) {
         if (actionType == SlotActionType.PICKUP_ALL && slotIndex >= 0) {
             var cursorStack = this.getCursorStack();
             if (!CoinPileItem.isCoinPile(cursorStack)) {
@@ -53,6 +60,50 @@ public abstract class ScreenHandlerMixin {
                         CoinPileItem.incrementValue(cursorStack, slotStack);
                     }
                 }
+            }
+        } else if (actionType == SlotActionType.THROW && this.getCursorStack().isEmpty() && slotIndex >= 0) {
+            var slot = this.slots.get(slotIndex);
+            var slotStack = slot.getStack();
+
+            if (!CoinPileItem.isCoinPile(slotStack)) {
+                return;
+            }
+
+            ci.cancel();
+
+            if (!slot.canTakeItems(player)) {
+                return;
+            }
+
+            if (button == 1 || !slot.canTakePartial(player)) {
+                // Drop all the coins if the player is holding control OR we cannot take partial items from the slot
+                var stack = slot.takeStack(slotStack.getCount());
+                slot.onTakeItem(player, stack);
+                player.dropItem(stack, true);
+            } else {
+                // Drop the highest coin
+                var amount = CoinPileItem.getHighestCoin(slotStack);
+                CoinPileItem.decrementValue(slotStack, amount);
+
+                var stack = CoinPileItem.createStack(amount);
+                slot.onTakeItem(player, stack);
+                player.dropItem(stack, true);
+            }
+        } else if (actionType == SlotActionType.PICKUP && slotIndex == EMPTY_SPACE_SLOT_INDEX && (button == 0 || button == 1)) {
+            var cursorStack = this.getCursorStack();
+            if (!CoinPileItem.isCoinPile(cursorStack)) {
+                return;
+            }
+
+            ci.cancel();
+
+            if (button == 0) {
+                player.dropItem(cursorStack, true);
+                this.setCursorStack(ItemStack.EMPTY);
+            } else {
+                var amount = CoinPileItem.getHighestCoin(cursorStack);
+                CoinPileItem.decrementValue(cursorStack, amount);
+                player.dropItem(CoinPileItem.createStack(amount), true);
             }
         }
     }

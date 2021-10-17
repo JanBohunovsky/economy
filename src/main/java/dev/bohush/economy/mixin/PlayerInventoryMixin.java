@@ -22,6 +22,9 @@ public abstract class PlayerInventoryMixin {
     @Shadow
     public abstract void setStack(int slot, ItemStack stack);
 
+    @Shadow
+    public abstract ItemStack getMainHandStack();
+
     @Inject(
         method = "canStackAddMore",
         at = @At("HEAD"),
@@ -59,5 +62,19 @@ public abstract class PlayerInventoryMixin {
             return 1;
         }
         return count;
+    }
+
+    @Inject(
+        method = "dropSelectedItem",
+        at = @At("HEAD"),
+        cancellable = true
+    )
+    private void dropSelectedCoins(boolean entireStack, CallbackInfoReturnable<ItemStack> cir) {
+        var stack = this.getMainHandStack();
+        if (CoinPileItem.isCoinPile(stack) && !entireStack) {
+            var amount = CoinPileItem.getHighestCoin(stack);
+            CoinPileItem.decrementValue(stack, amount);
+            cir.setReturnValue(CoinPileItem.createStack(amount));
+        }
     }
 }

@@ -8,13 +8,10 @@ import net.minecraft.inventory.Inventories;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.collection.DefaultedList;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
 public class TradeInventory implements Inventory {
     public static final int SELL_SLOT = 2;
-    private static final Logger LOGGER = LogManager.getLogger();
 
     private final Shop shop;
     private final DefaultedList<ItemStack> inventory;

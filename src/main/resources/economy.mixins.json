@@ -4,8 +4,8 @@
     "package": "dev.bohush.economy.mixin",
     "compatibilityLevel": "JAVA_16",
     "mixins": [
+        "ItemDispenserBehaviorMixin",
         "ItemEntityMixin",
-        "ItemStackMixin",
         "PlayerInventoryMixin",
         "ScreenHandlerMixin"
     ],

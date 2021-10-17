@@ -15,8 +15,6 @@ import net.minecraft.util.ClickType;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.world.World;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -28,8 +26,6 @@ public class CoinPileItem extends BasicItem {
     public static final long GOLD_COIN = 10_000;
     public static final long IRON_COIN = 100;
     public static final long COPPER_COIN = 1;
-
-    private static final Logger LOGGER = LogManager.getLogger();
 
     public CoinPileItem() {
         super(new FabricItemSettings().maxCount(1));

@@ -3,8 +3,6 @@ package dev.bohush.economy.mixin;
 import dev.bohush.economy.item.CoinPileItem;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -14,7 +12,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(PlayerInventory.class)
 public abstract class PlayerInventoryMixin {
-    private static final Logger LOGGER = LogManager.getLogger();
 
     @Shadow
     public abstract ItemStack getStack(int slot);

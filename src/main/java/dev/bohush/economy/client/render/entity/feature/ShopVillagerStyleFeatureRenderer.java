@@ -7,11 +7,8 @@ import net.minecraft.client.render.entity.LivingEntityRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRendererContext;
 import net.minecraft.client.util.math.MatrixStack;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class ShopVillagerStyleFeatureRenderer extends FeatureRenderer<ShopVillagerEntity, ShopVillagerEntityModel> {
-    private static final Logger LOGGER = LogManager.getLogger();
 
     public ShopVillagerStyleFeatureRenderer(FeatureRendererContext<ShopVillagerEntity, ShopVillagerEntityModel> context) {
         super(context);

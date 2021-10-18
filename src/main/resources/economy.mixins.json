@@ -10,7 +10,8 @@
         "ScreenHandlerMixin"
     ],
     "client": [
-        "RenderGuiItemMixin"
+        "RenderGuiItemMixin",
+        "ScreenMixin"
     ],
     "injectors": {
         "defaultRequire": 1

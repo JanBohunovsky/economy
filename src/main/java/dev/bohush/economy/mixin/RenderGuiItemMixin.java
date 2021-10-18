@@ -1,6 +1,8 @@
 package dev.bohush.economy.mixin;
 
 import dev.bohush.economy.item.CoinPileItem;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.item.ItemStack;
@@ -9,6 +11,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
+@Environment(EnvType.CLIENT)
 @Mixin(ItemRenderer.class)
 public class RenderGuiItemMixin {
     @ModifyVariable(

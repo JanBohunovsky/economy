@@ -3,6 +3,7 @@ package dev.bohush.economy.item;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.item.TooltipContext;
+import net.minecraft.client.item.TooltipData;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.StackReference;
 import net.minecraft.item.ItemGroup;
@@ -11,6 +12,7 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ClickType;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.collection.DefaultedList;
@@ -19,6 +21,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class CoinPileItem extends BasicItem {
     public static final String COINS_KEY = "Coins";
@@ -184,10 +187,11 @@ public class CoinPileItem extends BasicItem {
 
     /**
      * Called when clicking with the ItemStack in cursor.
+     *
      * @param cursorStack ItemStack of CoinPileItem in cursor
-     * @param slot The slot that is being clicked on
-     * @param clickType The mouse button that was used
-     * @param player Player
+     * @param slot        The slot that is being clicked on
+     * @param clickType   The mouse button that was used
+     * @param player      Player
      * @return Whether we want to stop the default behaviour
      */
     @Override
@@ -223,11 +227,12 @@ public class CoinPileItem extends BasicItem {
 
     /**
      * Called when the ItemStack is clicked in a slot.
-     * @param slotStack ItemStack of CoinPileItem in slot
-     * @param cursorStack ItemStack in cursor
-     * @param slot The slot that the CoinPileItem is in
-     * @param clickType The mouse button that was used
-     * @param player Player
+     *
+     * @param slotStack            ItemStack of CoinPileItem in slot
+     * @param cursorStack          ItemStack in cursor
+     * @param slot                 The slot that the CoinPileItem is in
+     * @param clickType            The mouse button that was used
+     * @param player               Player
      * @param cursorStackReference Not sure
      * @return Whether we want to stop the default behaviour
      */
@@ -263,7 +268,7 @@ public class CoinPileItem extends BasicItem {
 
         var cursorValue = getValue(cursorStack);
 
-        // Left-click on coins = give all
+        // Left-click on coins with coins = give all
         if (clickType == ClickType.LEFT) {
             setValue(slotStack, slotValue + cursorValue);
             cursorStackReference.set(ItemStack.EMPTY);
@@ -271,7 +276,7 @@ public class CoinPileItem extends BasicItem {
             return true;
         }
 
-        // Right-click on coins = give one (of the highest coin)
+        // Right-click on coins with coins = give one (of the highest coin)
         var amountToTake = getHighestCoin(cursorValue);
         var amountToKeep = cursorValue - amountToTake;
 
@@ -288,66 +293,88 @@ public class CoinPileItem extends BasicItem {
 
     @Override
     public String getTranslationKey(ItemStack stack) {
-        var translationKey = super.getTranslationKey(stack);
+        return this.getTranslationKey(getValue(stack));
+    }
 
-        var value = getValue(stack);
+    public String getTranslationKey(long value) {
+        var sb = new StringBuilder().append(super.getTranslationKey());
+        var type = getCoinType(value);
 
         if (value <= 0) {
-            return translationKey + ".invalid";
+            sb.append(".invalid");
+        } else if (type == NETHERITE_COIN) {
+            sb.append(".netherite");
+        } else if (type == GOLD_COIN) {
+            sb.append(".gold");
+        } else if (type == IRON_COIN) {
+            sb.append(".iron");
+        } else if (type == COPPER_COIN) {
+            sb.append(".copper");
         }
 
-        var type = getCoinType(value);
-        if (type == NETHERITE_COIN) {
-            return translationKey + ".netherite";
-        }
-        if (type == GOLD_COIN) {
-            return translationKey + ".gold";
-        }
-        if (type == IRON_COIN) {
-            return translationKey + ".iron";
-        }
-        if (type == COPPER_COIN) {
-            return translationKey + ".copper";
+        return sb.toString();
+    }
+
+    @Override
+    public Optional<TooltipData> getTooltipData(ItemStack stack) {
+        if (Screen.hasShiftDown()) {
+            return Optional.empty();
         }
 
-        return translationKey;
+        var coinStacks = createSplitStacks(getValue(stack));
+
+        coinStacks.removeIf(ItemStack::isEmpty);
+        if (coinStacks.size() <= 1) {
+            return Optional.empty();
+        }
+
+        return Optional.of(new CoinPileTooltipData(coinStacks));
     }
 
     @Override
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
-        var showCoins = Screen.hasShiftDown();
-
         var value = getValue(stack);
 
-        if (showCoins) {
-            if (value >= NETHERITE_COIN) {
-                var amount = value / NETHERITE_COIN;
-                tooltip.add(new LiteralText(String.format("Netherite Coin x%,d ", amount)).formatted(Formatting.DARK_RED)); // or GRAY
-                value -= amount * NETHERITE_COIN;
+        // Show labels with count instead of the rendered items when holding shift
+        if (Screen.hasShiftDown()) {
+            var netherite = getNetheriteCoins(value);
+            if (netherite > 0) {
+                tooltip.add(
+                    new TranslatableText(this.getTranslationKey(netherite * NETHERITE_COIN))
+                        .append(String.format(" x%,d", netherite))
+                        .formatted(Formatting.DARK_RED)
+                );
             }
 
-            if (value >= GOLD_COIN) {
-                var amount = value / GOLD_COIN;
-                tooltip.add(new LiteralText(String.format("Gold Coin x%,d ", amount)).formatted(Formatting.YELLOW));
-                value -= amount * GOLD_COIN;
+            var gold = getGoldCoins(value);
+            if (gold > 0) {
+                tooltip.add(
+                    new TranslatableText(this.getTranslationKey(gold * GOLD_COIN))
+                        .append(String.format(" x%,d", gold))
+                        .formatted(Formatting.YELLOW)
+                );
             }
 
-            if (value >= IRON_COIN) {
-                var amount = value / IRON_COIN;
-                tooltip.add(new LiteralText(String.format("Iron Coin x%,d ", amount)).formatted(Formatting.WHITE));
-                value -= amount * IRON_COIN;
+            var iron = getIronCoins(value);
+            if (iron > 0) {
+                tooltip.add(
+                    new TranslatableText(this.getTranslationKey(iron * IRON_COIN))
+                        .append(String.format(" x%,d", iron))
+                        .formatted(Formatting.WHITE)
+                );
             }
 
-            if (value >= COPPER_COIN) {
-                var amount = value / COPPER_COIN;
-                tooltip.add(new LiteralText(String.format("Copper Coin x%,d", amount)).formatted(Formatting.GOLD));
+            var copper = getCopperCoins(value);
+            if (copper > 0) {
+                tooltip.add(
+                    new TranslatableText(this.getTranslationKey(copper))
+                        .append(String.format(" x%,d", copper))
+                        .formatted(Formatting.GOLD)
+                );
             }
-
-            value = getValue(stack);
         }
 
         tooltip.add(new LiteralText(String.format("Value: %,d", value)).formatted(Formatting.GRAY));
-
     }
 
     @Override

@@ -4,6 +4,7 @@ import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.client.item.TooltipData;
+import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.StackReference;
 import net.minecraft.item.ItemGroup;
@@ -197,6 +198,23 @@ public class CoinPileItem extends BasicItem {
 
     public static long getCopperCoins(ItemStack stack) {
         return getCopperCoins(getValue(stack));
+    }
+
+    public static boolean isFullyFireproof(ItemStack stack) {
+        return getCoinType(stack) == NETHERITE_COIN;
+    }
+
+    public static boolean isPartiallyFireproof(ItemStack stack) {
+        return getValue(stack) >= NETHERITE_COIN;
+    }
+
+    @Override
+    public void onItemEntityDestroyed(ItemEntity entity) {
+        var stack = entity.getStack();
+        if (isPartiallyFireproof(stack) && !entity.world.isClient) {
+            var netheriteCoinStack = createSplitStacks(getValue(stack)).get(0);
+            entity.world.spawnEntity(new ItemEntity(entity.world, entity.getX(), entity.getY(), entity.getZ(), netheriteCoinStack));
+        }
     }
 
     /**

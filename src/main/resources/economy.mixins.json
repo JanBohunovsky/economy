@@ -8,6 +8,7 @@
         "AbstractFurnaceScreenHandlerMixin",
         "ItemDispenserBehaviorMixin",
         "ItemEntityMixin",
+        "PiglinBrainMixin",
         "PlayerInventoryMixin",
         "ScreenHandlerMixin"
     ],

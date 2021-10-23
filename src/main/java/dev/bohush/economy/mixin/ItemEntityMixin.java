@@ -4,6 +4,7 @@ import dev.bohush.economy.item.CoinPileItem;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -94,6 +95,28 @@ public abstract class ItemEntityMixin extends Entity {
             CoinPileItem.setValue(sourceStack, 0);
 
             cir.setReturnValue(newStack);
+        }
+    }
+
+    @Inject(
+        method = "damage",
+        at = @At("HEAD"),
+        cancellable = true
+    )
+    private void damage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
+        if (CoinPileItem.isCoinPile(this.getStack()) && source.isFire() && CoinPileItem.isFullyFireproof(this.getStack())) {
+            cir.setReturnValue(false);
+        }
+    }
+
+    @Inject(
+        method = "isFireImmune",
+        at = @At("HEAD"),
+        cancellable = true
+    )
+    private void isFireImmune(CallbackInfoReturnable<Boolean> cir) {
+        if (CoinPileItem.isCoinPile(this.getStack()) && CoinPileItem.isFullyFireproof(this.getStack())) {
+            cir.setReturnValue(true);
         }
     }
 }

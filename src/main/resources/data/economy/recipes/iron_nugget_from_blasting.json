@@ -1,0 +1,7 @@
+{
+    "type": "economy:coin_blasting",
+    "group": "iron_nugget",
+    "coin_type": 100,
+    "result": "minecraft:iron_nugget",
+    "experience": 0.1
+}

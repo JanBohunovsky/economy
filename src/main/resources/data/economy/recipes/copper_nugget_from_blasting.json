@@ -1,0 +1,7 @@
+{
+    "type": "economy:coin_blasting",
+    "group": "copper_nugget",
+    "coin_type": 1,
+    "result": "economy:copper_nugget",
+    "experience": 0.1
+}

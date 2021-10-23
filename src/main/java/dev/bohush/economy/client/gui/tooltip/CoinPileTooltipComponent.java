@@ -1,5 +1,6 @@
 package dev.bohush.economy.client.gui.tooltip;
 
+import dev.bohush.economy.item.CoinPileItem;
 import dev.bohush.economy.item.CoinPileTooltipData;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -38,8 +39,15 @@ public class CoinPileTooltipComponent implements TooltipComponent {
         for (int i = 0; i < this.coinStacks.size(); i++) {
             var stack = this.coinStacks.get(i);
             var offsetX = i * (ITEM_SIZE + PADDING);
+            var value = CoinPileItem.getValue(stack);
+            var label = value == CoinPileItem.NETHERITE_COIN
+                || value == CoinPileItem.GOLD_COIN
+                || value == CoinPileItem.IRON_COIN
+                || value == CoinPileItem.COPPER_COIN
+                ? "1" : null;
+
             itemRenderer.renderInGuiWithOverrides(stack, x + offsetX, y);
-            itemRenderer.renderGuiItemOverlay(textRenderer, stack, x + offsetX, y);
+            itemRenderer.renderGuiItemOverlay(textRenderer, stack, x + offsetX, y, label);
         }
     }
 }

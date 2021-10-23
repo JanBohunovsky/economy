@@ -4,6 +4,8 @@
     "package": "dev.bohush.economy.mixin",
     "compatibilityLevel": "JAVA_16",
     "mixins": [
+        "AbstractFurnaceBlockEntityMixin",
+        "AbstractFurnaceScreenHandlerMixin",
         "ItemDispenserBehaviorMixin",
         "ItemEntityMixin",
         "PlayerInventoryMixin",

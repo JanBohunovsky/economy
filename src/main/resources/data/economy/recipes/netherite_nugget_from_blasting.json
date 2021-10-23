@@ -1,0 +1,7 @@
+{
+    "type": "economy:coin_blasting",
+    "group": "netherite_nugget",
+    "coin_type": 1000000,
+    "result": "economy:netherite_nugget",
+    "experience": 0.1
+}

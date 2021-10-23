@@ -139,7 +139,7 @@ public class CoinPileItem extends BasicItem {
         if (value < GOLD_COIN && value % IRON_COIN == 0) {
             return IRON_COIN;
         }
-        if (value < IRON_COIN) {
+        if (value < IRON_COIN && value > 0) {
             return COPPER_COIN;
         }
 
@@ -233,7 +233,7 @@ public class CoinPileItem extends BasicItem {
      * @param slot                 The slot that the CoinPileItem is in
      * @param clickType            The mouse button that was used
      * @param player               Player
-     * @param cursorStackReference Not sure
+     * @param cursorStackReference Cursor Stack Reference
      * @return Whether we want to stop the default behaviour
      */
     @Override

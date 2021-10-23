@@ -1,0 +1,7 @@
+{
+    "type": "economy:coin_smelting",
+    "group": "gold_nugget",
+    "coin_type": 10000,
+    "result": "minecraft:gold_nugget",
+    "experience": 0.1
+}

@@ -10,6 +10,8 @@
     "item.economy.copper_nugget": "Copper Nugget",
     "item.economy.netherite_nugget": "Netherite Nugget",
 
+    "tooltip.coin_pile.ctrl": "Tip: Hold CTRL to take and place individual coins.",
+
     "entity.economy.shop_villager": "Shop Villager",
     "block.economy.shop": "Shop",
     "shop.container": "Shop storage",

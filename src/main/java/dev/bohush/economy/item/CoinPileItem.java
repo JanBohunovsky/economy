@@ -68,6 +68,20 @@ public class CoinPileItem extends BasicItem {
         return stacks;
     }
 
+    public static ItemStack getHighestCoinStack(long value) {
+        for (var stack :createSplitStacks(value)) {
+            if (!stack.isEmpty()) {
+                return stack;
+            }
+        }
+
+        return ItemStack.EMPTY;
+    }
+
+    public static ItemStack getHighestCoinStack(ItemStack stack) {
+        return getHighestCoinStack(getValue(stack));
+    }
+
     public static ItemStack copy(ItemStack stack) {
         return createStack(getValue(stack));
     }
@@ -198,6 +212,15 @@ public class CoinPileItem extends BasicItem {
     public boolean onStackClicked(ItemStack cursorStack, Slot slot, ClickType clickType, PlayerEntity player) {
         // Right-click on an empty slot = give 1 of the highest coins
         if (!slot.hasStack() && slot.canInsert(cursorStack) && clickType == ClickType.RIGHT) {
+            // while holding control = give the highest coin stack
+            if (Screen.hasControlDown()) {
+                var stack = getHighestCoinStack(cursorStack);
+                decrementValue(cursorStack, stack);
+                slot.setStack(stack);
+
+                return true;
+            }
+
             var cursorValue = getValue(cursorStack);
             var amountToGive = getHighestCoin(cursorValue);
 
@@ -213,8 +236,8 @@ public class CoinPileItem extends BasicItem {
         }
 
         // Click on output slot with coins = take all
-        var slotStack = slot.getStack().copy();
-        if (isCoinPile(slotStack) && !slot.canInsert(cursorStack) && slot.canTakeItems(player)) {
+        if (isCoinPile(slot.getStack()) && !slot.canInsert(cursorStack) && slot.canTakeItems(player)) {
+            var slotStack = slot.getStack().copy();
             incrementValue(cursorStack, slotStack);
             slot.takeStack(slotStack.getCount());
             slot.onTakeItem(player, slotStack);
@@ -243,6 +266,31 @@ public class CoinPileItem extends BasicItem {
         }
 
         var slotValue = getValue(slotStack);
+
+        // Left-click while holding control = give the highest coin stack
+        // Right-click while holding control = take the highest coin stack
+        if (Screen.hasControlDown()) {
+            if (clickType == ClickType.LEFT && (cursorStack.isEmpty() || isCoinPile(cursorStack))) {
+                var stack = getHighestCoinStack(slotValue);
+                decrementValue(slotStack, stack);
+
+                if (cursorStack.isEmpty()) {
+                    cursorStackReference.set(stack);
+                } else {
+                    incrementValue(cursorStack, stack);
+                }
+
+                return true;
+            }
+
+            if (clickType == ClickType.RIGHT && isCoinPile(cursorStack)) {
+                var stack = getHighestCoinStack(cursorStack);
+                decrementValue(cursorStack, stack);
+                incrementValue(slotStack, stack);
+
+                return true;
+            }
+        }
 
         // Right-click with empty cursor stack = take half
         if (cursorStack.isEmpty()) {
@@ -317,10 +365,6 @@ public class CoinPileItem extends BasicItem {
 
     @Override
     public Optional<TooltipData> getTooltipData(ItemStack stack) {
-        if (Screen.hasShiftDown()) {
-            return Optional.empty();
-        }
-
         var coinStacks = createSplitStacks(getValue(stack));
 
         coinStacks.removeIf(ItemStack::isEmpty);
@@ -335,46 +379,11 @@ public class CoinPileItem extends BasicItem {
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
         var value = getValue(stack);
 
-        // Show labels with count instead of the rendered items when holding shift
-        if (Screen.hasShiftDown()) {
-            var netherite = getNetheriteCoins(value);
-            if (netherite > 0) {
-                tooltip.add(
-                    new TranslatableText(this.getTranslationKey(netherite * NETHERITE_COIN))
-                        .append(String.format(" x%,d", netherite))
-                        .formatted(Formatting.DARK_RED)
-                );
-            }
-
-            var gold = getGoldCoins(value);
-            if (gold > 0) {
-                tooltip.add(
-                    new TranslatableText(this.getTranslationKey(gold * GOLD_COIN))
-                        .append(String.format(" x%,d", gold))
-                        .formatted(Formatting.YELLOW)
-                );
-            }
-
-            var iron = getIronCoins(value);
-            if (iron > 0) {
-                tooltip.add(
-                    new TranslatableText(this.getTranslationKey(iron * IRON_COIN))
-                        .append(String.format(" x%,d", iron))
-                        .formatted(Formatting.WHITE)
-                );
-            }
-
-            var copper = getCopperCoins(value);
-            if (copper > 0) {
-                tooltip.add(
-                    new TranslatableText(this.getTranslationKey(copper))
-                        .append(String.format(" x%,d", copper))
-                        .formatted(Formatting.GOLD)
-                );
-            }
-        }
-
         tooltip.add(new LiteralText(String.format("Value: %,d", value)).formatted(Formatting.GRAY));
+
+        if (Screen.hasShiftDown() || Screen.hasControlDown()) {
+            tooltip.add(new TranslatableText("tooltip.coin_pile.ctrl").formatted(Formatting.ITALIC, Formatting.GRAY));
+        }
     }
 
     @Override

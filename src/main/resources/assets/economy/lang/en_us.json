@@ -1,6 +1,7 @@
 {
     "itemGroup.economy.all": "Economy",
 
+    "item.economy.icon": "Economy",
     "item.economy.coin_pile": "Coins",
     "item.economy.coin_pile.invalid": "Invalid Coin",
     "item.economy.coin_pile.copper": "Copper Coin",

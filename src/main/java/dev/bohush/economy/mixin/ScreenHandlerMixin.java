@@ -12,28 +12,24 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import java.util.Set;
 
 @Mixin(ScreenHandler.class)
 public abstract class ScreenHandlerMixin {
 
-    @Shadow
-    @Final
-    public DefaultedList<Slot> slots;
-
-    @Shadow
-    public abstract ItemStack getCursorStack();
-
-    @Shadow
-    public abstract boolean canInsertIntoSlot(ItemStack stack, Slot slot);
-
-    @Shadow
-    @Final
-    public static int EMPTY_SPACE_SLOT_INDEX;
-
-    @Shadow
-    public abstract void setCursorStack(ItemStack stack);
+    @Shadow @Final public DefaultedList<Slot> slots;
+    @Shadow public abstract ItemStack getCursorStack();
+    @Shadow public abstract boolean canInsertIntoSlot(ItemStack stack, Slot slot);
+    @Shadow @Final public static int EMPTY_SPACE_SLOT_INDEX;
+    @Shadow public abstract void setCursorStack(ItemStack stack);
+    @Shadow private int quickCraftButton;
+    @Shadow @Final private Set<Slot> quickCraftSlots;
+    @Shadow public abstract boolean canInsertIntoSlot(Slot slot);
+    @Shadow protected abstract void endQuickCraft();
 
     @Inject(
         method = "internalOnSlotClick",
@@ -170,5 +166,87 @@ public abstract class ScreenHandlerMixin {
             cir.setReturnValue(true);
             return;
         }
+    }
+
+    @Inject(
+        method = "canInsertItemIntoSlot",
+        at = @At("HEAD"),
+        cancellable = true
+    )
+    private static void canInsertCoinIntoSlot(Slot slot, ItemStack stack, boolean allowOverflow, CallbackInfoReturnable<Boolean> cir) {
+        if (slot != null && CoinPileItem.isCoinPile(slot.getStack(), stack)) {
+            cir.setReturnValue(true);
+        }
+    }
+
+    @Redirect(
+        method = "internalOnSlotClick",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/item/ItemStack;getCount()I",
+            ordinal = 0
+        )
+    )
+    private int getCoins(ItemStack stack) {
+        if (!CoinPileItem.isCoinPile(stack) || this.quickCraftButton == 2) {
+            return stack.getCount();
+        }
+
+        if (this.quickCraftButton == 0) {
+            var value = CoinPileItem.getValue(stack);
+            return value > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int)value;
+        } else {
+            var coinStack = CoinPileItem.getHighestCoinStack(stack);
+            var result = CoinPileItem.getValue(coinStack) / CoinPileItem.getHighestCoin(stack);
+            return result > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int)result;
+        }
+    }
+
+    @Inject(
+        method = "internalOnSlotClick",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/item/ItemStack;copy()Lnet/minecraft/item/ItemStack;",
+            ordinal = 0,
+            shift = At.Shift.BEFORE
+        ),
+        cancellable = true
+    )
+    private void handleQuickCraftStage2ForCoins(int slotIndex, int button, SlotActionType actionType, PlayerEntity player, CallbackInfo ci) {
+        var cursorStack = this.getCursorStack().copy();
+        if (!CoinPileItem.isCoinPile(cursorStack) || this.quickCraftButton == 2) {
+            return;
+        }
+
+        ci.cancel();
+        var cursorValue = CoinPileItem.getValue(cursorStack);
+        var remainingValue = cursorValue;
+
+        for (var slot : this.quickCraftSlots) {
+            if (getCoins(cursorStack) < this.quickCraftSlots.size()) {
+                break;
+            }
+            if (slot == null) {
+                continue;
+            }
+            if (!ScreenHandler.canInsertItemIntoSlot(slot, cursorStack, true)) {
+                continue;
+            }
+            if (!slot.canInsert(cursorStack)) {
+                continue;
+            }
+            if (!this.canInsertIntoSlot(slot)) {
+                continue;
+            }
+
+            var slotValue = CoinPileItem.getValue(slot.getStack());
+            var value = CoinPileItem.calculateStackValue(cursorValue, this.quickCraftButton, this.quickCraftSlots.size(), slotValue);
+
+            remainingValue -= value - slotValue;
+            slot.setStack(CoinPileItem.createStack(value));
+        }
+
+        this.setCursorStack(CoinPileItem.createStack(remainingValue));
+        this.endQuickCraft();
     }
 }

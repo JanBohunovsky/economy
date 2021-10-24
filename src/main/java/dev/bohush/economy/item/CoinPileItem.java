@@ -129,6 +129,16 @@ public class CoinPileItem extends BasicItem {
         decrementValue(targetStack, getValue(sourceStack));
     }
 
+    public static long calculateStackValue(long totalValue, int mode, int slotCount, long slotValue) {
+        var result = switch (mode) {
+            case 0 -> totalValue / slotCount;
+            case 1 -> getHighestCoin(totalValue);
+            default -> throw new IllegalStateException("Unexpected value: " + mode);
+        };
+
+        return result + slotValue;
+    }
+
     public static long getHighestCoin(long value) {
         return value >= NETHERITE_COIN ? NETHERITE_COIN
             : value >= GOLD_COIN ? GOLD_COIN

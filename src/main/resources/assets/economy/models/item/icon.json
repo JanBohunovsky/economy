@@ -1,6 +1,6 @@
 {
     "parent": "minecraft:item/generated",
     "textures": {
-        "layer0": "economy:item/gold_coin_pile"
+        "layer0": "economy:item/coin_pile/gold2_iron2_copper2"
     }
 }

@@ -16,7 +16,7 @@ import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.Nullable;
 
 public class ModItems {
-    public static final Item MOD_ICON = new Item(new FabricItemSettings());
+    public static final Item ICON = new Item(new FabricItemSettings());
 
     public static final Item COIN_PILE = new CoinPileItem();
 
@@ -24,7 +24,7 @@ public class ModItems {
     public static final Item NETHERITE_NUGGET = new Item(new FabricItemSettings().group(ItemGroup.MISC));
 
     public static void registerItems() {
-        Registry.register(Registry.ITEM, new Identifier(Economy.MOD_ID, "gold_coin_pile"), MOD_ICON);
+        Registry.register(Registry.ITEM, new Identifier(Economy.MOD_ID, "icon"), ICON);
 
         Registry.register(Registry.ITEM, new Identifier(Economy.MOD_ID, "coin_pile"), COIN_PILE);
 

@@ -152,6 +152,15 @@ public class OfferButtonWidget extends PressableWidget {
     }
 
     @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
+        if (this.hovered) {
+            return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+        }
+
+        return false;
+    }
+
+    @Override
     protected int getYImage(boolean hovered) {
         if (this.selected) {
             return 2;

@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.attribute.DefaultAttributeContainer.Builder;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
@@ -47,11 +48,6 @@ public class ShopVillagerEntity extends MobEntity {
         super(entityType, world);
         Arrays.fill(this.armorDropChances, 0);
         Arrays.fill(this.handDropChances, 0);
-
-        // TODO: figure out how to do this natively
-        this.setCanPickUpLoot(false);
-        this.setInvulnerable(true);
-        this.setAiDisabled(true);
     }
 
     @Override
@@ -65,6 +61,31 @@ public class ShopVillagerEntity extends MobEntity {
         return MobEntity.createMobAttributes()
             .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0D)
             .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 48.0D);
+    }
+
+    @Override
+    public boolean isInvulnerable() {
+        return true;
+    }
+
+    @Override
+    public boolean isInvulnerableTo(DamageSource damageSource) {
+        return true;
+    }
+
+    @Override
+    public boolean isPushable() {
+        return false;
+    }
+
+    @Override
+    protected boolean isImmobile() {
+        return true;
+    }
+
+    @Override
+    public boolean canMoveVoluntarily() {
+        return false;
     }
 
     @Override

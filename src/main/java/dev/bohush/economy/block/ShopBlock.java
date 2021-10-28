@@ -2,25 +2,33 @@ package dev.bohush.economy.block;
 
 import dev.bohush.economy.Economy;
 import dev.bohush.economy.block.entity.ShopBlockEntity;
+import dev.bohush.economy.item.CoinPileItem;
+import dev.bohush.economy.shop.ShopOfferList;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.screen.NamedScreenHandlerFactory;
-import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.DirectionProperty;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.*;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public class ShopBlock extends BlockWithEntity {
     public static final Identifier ID = new Identifier(Economy.MOD_ID, "shop");
@@ -78,11 +86,11 @@ public class ShopBlock extends BlockWithEntity {
             BlockEntity blockEntity = world.getBlockEntity(pos);
             if (blockEntity instanceof ShopBlockEntity shopBlockEntity) {
                 if (!world.isClient) {
-                    ItemScatterer.spawn(world, pos, shopBlockEntity.getStorage());
+                    var storage = shopBlockEntity.getStorage();
+                    ItemScatterer.spawn(world, pos, storage);
+                    ItemScatterer.spawn(world, pos.getX(), pos.getY(), pos.getZ(), CoinPileItem.createStack(storage.getCoins()));
                     shopBlockEntity.removeVillager();
                 }
-
-                world.updateComparators(pos, this);
             }
 
             super.onStateReplaced(state, world, pos, newState, moved);
@@ -90,14 +98,27 @@ public class ShopBlock extends BlockWithEntity {
     }
 
     @Override
-    public boolean hasComparatorOutput(BlockState state) {
-        return true;
-    }
+    public void appendTooltip(ItemStack stack, @Nullable BlockView world, List<Text> tooltip, TooltipContext options) {
+        super.appendTooltip(stack, world, tooltip, options);
+        var nbt = stack.getSubNbt("BlockEntityTag");
+        if (nbt == null) {
+            return;
+        }
 
-    @Override
-    public int getComparatorOutput(BlockState state, World world, BlockPos pos) {
-        BlockEntity blockEntity = world.getBlockEntity(pos);
-        return ScreenHandler.calculateComparatorOutput(blockEntity);
+        // Show up to 4 selling items
+        if (nbt.contains("Offers", NbtElement.LIST_TYPE)) {
+            var offers = ShopOfferList.fromNbt(nbt.getList("Offers", NbtElement.COMPOUND_TYPE));
+
+            int count = Math.min(4, offers.size());
+            for (int i = 0; i < count; i++) {
+                var sellingItem = offers.get(i).getSellItem();
+                tooltip.add(sellingItem.getName().shallowCopy());
+            }
+
+            if (offers.size() > 4) {
+                tooltip.add(new TranslatableText("container.shulkerBox.more", offers.size() - 4).formatted(Formatting.ITALIC));
+            }
+        }
     }
 
     @Override
@@ -107,7 +128,7 @@ public class ShopBlock extends BlockWithEntity {
 
     @Override
     public BlockState getPlacementState(ItemPlacementContext ctx) {
-        return getDefaultState().with(FACING, ctx.getPlayerFacing());
+        return getDefaultState().with(FACING, ctx.getPlayerFacing().getOpposite());
     }
 
     public BlockState rotate(BlockState state, BlockRotation rotation) {

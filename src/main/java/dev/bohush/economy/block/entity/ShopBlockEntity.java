@@ -98,7 +98,10 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
         villager.setShopPos(this.pos);
 
         float yaw = world.getBlockState(this.pos).get(ShopBlock.FACING).asRotation();
-        villager.refreshPositionAndAngles(this.pos.getX() + 0.5, this.pos.getY() + 1, this.pos.getZ() + 0.5, yaw, 0);
+        villager.setPos(this.pos.getX() + 0.5, this.pos.getY() + 1, this.pos.getZ() + 0.5);
+        villager.setYaw(yaw);
+        villager.setBodyYaw(yaw);
+        villager.setHeadYaw(yaw);
 
         boolean success = world.spawnEntity(villager);
         if (!success) {
@@ -294,8 +297,14 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
     public NbtCompound writeNbt(NbtCompound nbt) {
         super.writeNbt(nbt);
 
-        nbt.putUuid("Owner", this.ownerUuid);
-        nbt.putString("OwnerName", this.ownerName);
+        if (this.ownerUuid != null) {
+            nbt.putUuid("Owner", this.ownerUuid);
+        }
+
+        if (this.ownerName != null) {
+            nbt.putString("OwnerName", this.ownerName);
+        }
+
         nbt.put("VillagerStyle", this.villagerStyle.toNbt());
 
         if (this.villagerUuid != null) {

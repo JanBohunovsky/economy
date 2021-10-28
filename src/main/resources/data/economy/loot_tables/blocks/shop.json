@@ -6,7 +6,25 @@
             "entries": [
                 {
                     "type": "minecraft:item",
-                    "name": "economy:shop"
+                    "name": "economy:shop",
+                    "functions": [
+                        {
+                            "function": "copy_nbt",
+                            "source": "block_entity",
+                            "ops": [
+                                {
+                                    "source": "VillagerStyle",
+                                    "target": "BlockEntityTag.VillagerStyle",
+                                    "op": "replace"
+                                },
+                                {
+                                    "source": "Offers",
+                                    "target": "BlockEntityTag.Offers",
+                                    "op": "replace"
+                                }
+                            ]
+                        }
+                    ]
                 }
             ],
             "conditions": [

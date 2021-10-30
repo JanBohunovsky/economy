@@ -85,8 +85,7 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
 
     public void spawnVillager(ServerWorld world) {
         if (this.villagerUuid != null) {
-            LOGGER.error("Failed to spawn villager: Shop already has a villager ({}).", this.villagerUuid);
-            return;
+            this.removeVillager();
         }
 
         var villager = ModEntities.SHOP_VILLAGER.create(world);

@@ -2,11 +2,17 @@ package dev.bohush.economy.entity;
 
 import dev.bohush.economy.Economy;
 import dev.bohush.economy.block.entity.ShopBlockEntity;
+import dev.bohush.economy.entity.ai.goal.LookAtActivePlayerGoal;
+import dev.bohush.economy.entity.ai.goal.ShowOffersToPlayerGoal;
 import dev.bohush.economy.screen.ShopCustomerScreenHandler;
 import dev.bohush.economy.screen.ShopOwnerScreenHandler;
 import dev.bohush.economy.shop.villager.ShopVillagerStyle;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.MovementType;
+import net.minecraft.entity.ai.goal.LookAroundGoal;
+import net.minecraft.entity.ai.goal.LookAtEntityGoal;
 import net.minecraft.entity.attribute.DefaultAttributeContainer.Builder;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
@@ -33,6 +39,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
@@ -57,10 +64,28 @@ public class ShopVillagerEntity extends MobEntity {
         this.dataTracker.startTracking(HEAD_ROLLING_TIME_LEFT, 0);
     }
 
+    @Override
+    protected void initGoals() {
+        this.goalSelector.add(0, new LookAtActivePlayerGoal(this));
+        this.goalSelector.add(1, new ShowOffersToPlayerGoal(this, 8));
+        this.goalSelector.add(2, new LookAtEntityGoal(this, LivingEntity.class, 8));
+        this.goalSelector.add(3, new LookAroundGoal(this));
+    }
+
     public static Builder createShopVillagerAttributes() {
         return MobEntity.createMobAttributes()
             .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0D)
             .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 48.0D);
+    }
+
+    @Override
+    public boolean cannotDespawn() {
+        return true;
+    }
+
+    @Override
+    public boolean canImmediatelyDespawn(double distanceSquared) {
+        return false;
     }
 
     @Override
@@ -80,12 +105,20 @@ public class ShopVillagerEntity extends MobEntity {
 
     @Override
     protected boolean isImmobile() {
-        return true;
+        return false;
     }
 
     @Override
     public boolean canMoveVoluntarily() {
-        return false;
+        return super.canMoveVoluntarily();
+    }
+
+    @Override
+    public void setVelocity(Vec3d velocity) {
+    }
+
+    @Override
+    public void move(MovementType movementType, Vec3d movement) {
     }
 
     @Override
@@ -120,11 +153,6 @@ public class ShopVillagerEntity extends MobEntity {
             }
         }
 
-        // By default, ShopVillager with no ShopBlock assigned is invalid and will be destroyed if this case happens.
-        // But this behaviour can be overridden by setting the villager as persistent.
-        if (!this.isPersistent() && !this.world.isClient) {
-            this.discard();
-        }
         return null;
     }
 
@@ -174,10 +202,11 @@ public class ShopVillagerEntity extends MobEntity {
         }
 
         boolean isOwner = player.getUuid().equals(shopBlockEntity.getOwnerUuid());
+        boolean showCustomerScreen = !isOwner || player.isSneaking();
         boolean hasNoOffers = shopBlockEntity.getOffers().isEmpty();
         if (hand == Hand.MAIN_HAND) {
             // No offers for customer -> say no
-            if (hasNoOffers && !isOwner) {
+            if (hasNoOffers && showCustomerScreen) {
                 this.sayNo();
             }
 
@@ -186,7 +215,7 @@ public class ShopVillagerEntity extends MobEntity {
 
         // Open screen
         if (!this.world.isClient) {
-            var factory = !isOwner || player.isSneaking()
+            var factory = showCustomerScreen
                 ? createCustomerScreenFactory(shopBlockEntity, isOwner)
                 : createOwnerScreenHandlerFactory(shopBlockEntity);
 
@@ -201,7 +230,7 @@ public class ShopVillagerEntity extends MobEntity {
 
     @Nullable
     private NamedScreenHandlerFactory createCustomerScreenFactory(ShopBlockEntity shopBlockEntity, boolean isOwner) {
-        if (!isOwner && shopBlockEntity.getOffers().isEmpty()) {
+        if (shopBlockEntity.getOffers().isEmpty()) {
             return null;
         }
 

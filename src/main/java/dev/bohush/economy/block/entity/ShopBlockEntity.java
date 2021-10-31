@@ -275,20 +275,25 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
 
     @Override
     public NbtCompound toClientTag(NbtCompound tag) {
-        tag.put("VillagerStyle", this.villagerStyle.toNbt());
+        tag.putUuid("Owner", this.ownerUuid);
         tag.putString("OwnerName", this.ownerName);
+        tag.put("VillagerStyle", this.villagerStyle.toNbt());
 
         return tag;
     }
 
     @Override
     public void fromClientTag(NbtCompound tag) {
-        if (tag.contains("VillagerStyle")) {
-            this.villagerStyle = ShopVillagerStyle.fromNbt(tag.getCompound("VillagerStyle"));
+        if (tag.contains("Owner")) {
+            this.ownerUuid = tag.getUuid("Owner");
         }
 
         if (tag.contains("OwnerName")) {
             this.ownerName = tag.getString("OwnerName");
+        }
+
+        if (tag.contains("VillagerStyle")) {
+            this.villagerStyle = ShopVillagerStyle.fromNbt(tag.getCompound("VillagerStyle"));
         }
     }
 

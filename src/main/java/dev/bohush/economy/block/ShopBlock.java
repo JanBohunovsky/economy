@@ -98,6 +98,16 @@ public class ShopBlock extends BlockWithEntity {
     }
 
     @Override
+    public float calcBlockBreakingDelta(BlockState state, PlayerEntity player, BlockView world, BlockPos pos) {
+        var blockEntity = world.getBlockEntity(pos);
+        if (blockEntity instanceof ShopBlockEntity shopBlockEntity && !shopBlockEntity.getOwnerUuid().equals(player.getUuid())) {
+            return 0;
+        }
+
+        return super.calcBlockBreakingDelta(state, player, world, pos);
+    }
+
+    @Override
     public void appendTooltip(ItemStack stack, @Nullable BlockView world, List<Text> tooltip, TooltipContext options) {
         super.appendTooltip(stack, world, tooltip, options);
         var nbt = stack.getSubNbt("BlockEntityTag");

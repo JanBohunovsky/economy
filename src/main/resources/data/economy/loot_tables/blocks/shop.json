@@ -21,6 +21,11 @@
                                     "source": "Offers",
                                     "target": "BlockEntityTag.Offers",
                                     "op": "replace"
+                                },
+                                {
+                                    "source": "CustomName",
+                                    "target": "display.Name",
+                                    "op": "replace"
                                 }
                             ]
                         }

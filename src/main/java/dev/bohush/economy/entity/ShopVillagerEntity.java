@@ -164,11 +164,6 @@ public class ShopVillagerEntity extends MobEntity {
     @Nullable
     @Override
     public Text getCustomName() {
-        var customName = super.getCustomName();
-        if (customName != null) {
-            return customName;
-        }
-
         var shopBlockEntity = this.getShopBlockEntity();
         if (shopBlockEntity != null) {
             return shopBlockEntity.getShopDisplayName();
@@ -242,9 +237,13 @@ public class ShopVillagerEntity extends MobEntity {
 
             @Override
             public Text getDisplayName() {
-                return isOwner
-                    ? shopBlockEntity.getOwnerDisplayName()
-                    : shopBlockEntity.getShopDisplayName();
+                if (isOwner && shopBlockEntity.getCustomName() != null) {
+                    return shopBlockEntity.getCustomName();
+                }
+
+                return shopBlockEntity.getCustomName() != null
+                    ? shopBlockEntity.getCustomName().shallowCopy().append(" ").append(new TranslatableText("shop.owner", shopBlockEntity.getOwnerName()))
+                    : new TranslatableText("shop.name", shopBlockEntity.getOwnerName());
             }
 
             @Override

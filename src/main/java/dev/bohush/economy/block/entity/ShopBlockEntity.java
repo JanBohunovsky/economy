@@ -40,11 +40,16 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
     private static final Logger LOGGER = LogManager.getLogger();
 
     private final ShopStorage storage;
+
     private UUID ownerUuid;
     private String ownerName;
     @Nullable
+    private Text customName;
+
+    @Nullable
     private UUID villagerUuid;
     private ShopVillagerStyle villagerStyle;
+
     @Nullable
     private PlayerEntity activePlayer;
     private ShopOfferList offers;
@@ -67,6 +72,19 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
 
     public UUID getOwnerUuid() {
         return this.ownerUuid;
+    }
+
+    public String getOwnerName() {
+        return this.ownerName;
+    }
+
+    @Nullable
+    public Text getCustomName() {
+        return this.customName;
+    }
+
+    public void setCustomName(@Nullable Text customName) {
+        this.customName = customName;
     }
 
     public ShopVillagerEntity getVillager() {
@@ -138,17 +156,18 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
         }
     }
 
+    /**
+     * Shop storage container name
+     */
     @Override
     public Text getDisplayName() {
         return new TranslatableText("shop.container");
     }
 
     public Text getShopDisplayName() {
-        return new TranslatableText("shop.name", this.ownerName);
-    }
-
-    public Text getOwnerDisplayName() {
-        return new TranslatableText("shop.name.owner");
+        return this.customName != null
+            ? this.customName
+            : new TranslatableText("shop.name", this.ownerName);
     }
 
     @Nullable
@@ -277,6 +296,11 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
     public NbtCompound toClientTag(NbtCompound tag) {
         tag.putUuid("Owner", this.ownerUuid);
         tag.putString("OwnerName", this.ownerName);
+
+        if (this.customName != null) {
+            tag.putString("CustomName", Text.Serializer.toJson(this.customName));
+        }
+
         tag.put("VillagerStyle", this.villagerStyle.toNbt());
 
         return tag;
@@ -290,6 +314,10 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
 
         if (tag.contains("OwnerName")) {
             this.ownerName = tag.getString("OwnerName");
+        }
+
+        if (tag.contains("CustomName", NbtElement.STRING_TYPE)) {
+            this.customName = Text.Serializer.fromJson(tag.getString("CustomName"));
         }
 
         if (tag.contains("VillagerStyle")) {
@@ -307,6 +335,10 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
 
         if (this.ownerName != null) {
             nbt.putString("OwnerName", this.ownerName);
+        }
+
+        if (this.customName != null) {
+            nbt.putString("CustomName", Text.Serializer.toJson(this.customName));
         }
 
         nbt.put("VillagerStyle", this.villagerStyle.toNbt());
@@ -337,6 +369,10 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
 
         if (nbt.contains("OwnerName", NbtElement.STRING_TYPE)) {
             this.ownerName = nbt.getString("OwnerName");
+        }
+
+        if (nbt.contains("CustomName", NbtElement.STRING_TYPE)) {
+            this.customName = Text.Serializer.fromJson(nbt.getString("CustomName"));
         }
 
         if (nbt.contains("VillagerStyle", NbtElement.COMPOUND_TYPE)) {

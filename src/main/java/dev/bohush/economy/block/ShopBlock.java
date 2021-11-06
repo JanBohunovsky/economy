@@ -76,6 +76,10 @@ public class ShopBlock extends BlockWithEntity {
         BlockEntity blockEntity = world.getBlockEntity(pos);
         if (blockEntity instanceof ShopBlockEntity shopBlockEntity) {
             shopBlockEntity.initialize(player);
+            if (itemStack.hasCustomName()) {
+                shopBlockEntity.setCustomName(itemStack.getName());
+            }
+
             shopBlockEntity.spawnVillager((ServerWorld) world);
         }
     }

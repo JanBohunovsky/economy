@@ -78,6 +78,19 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
         return this.ownerName;
     }
 
+    public String updateAndGetOwnerName() {
+        if (this.world != null && !this.world.isClient) {
+            var owner = this.world.getPlayerByUuid(this.ownerUuid);
+
+            if (owner != null && !owner.getName().asString().equals(this.ownerName)) {
+                this.ownerName = owner.getName().asString();
+                this.markDirty();
+            }
+        }
+
+        return this.ownerName;
+    }
+
     @Nullable
     public Text getCustomName() {
         return this.customName;
@@ -126,7 +139,6 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
             return;
         }
 
-        LOGGER.info("Spawned villager {}.", villager.getUuidAsString());
         this.villagerUuid = villager.getUuid();
     }
 
@@ -174,8 +186,7 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
     @Override
     public ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
         if (!player.getUuid().equals(this.ownerUuid) && !(player.isCreativeLevelTwoOp() || player.isSpectator())) {
-            // TODO: Update ownerName
-            player.sendMessage(new TranslatableText("shop.differentOwner", this.ownerName), true);
+            player.sendMessage(new TranslatableText("shop.differentOwner", this.updateAndGetOwnerName()), true);
             return null;
         }
 

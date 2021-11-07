@@ -199,6 +199,7 @@ public class ShopVillagerEntity extends MobEntity {
         boolean isOwner = player.getUuid().equals(shopBlockEntity.getOwnerUuid());
         boolean showCustomerScreen = !isOwner || player.isSneaking();
         boolean hasNoOffers = shopBlockEntity.getOffers().isEmpty();
+
         if (hand == Hand.MAIN_HAND) {
             // No offers for customer -> say no
             if (hasNoOffers && showCustomerScreen) {
@@ -241,9 +242,10 @@ public class ShopVillagerEntity extends MobEntity {
                     return shopBlockEntity.getCustomName();
                 }
 
+                var ownerName = shopBlockEntity.updateAndGetOwnerName();
                 return shopBlockEntity.getCustomName() != null
-                    ? shopBlockEntity.getCustomName().shallowCopy().append(" ").append(new TranslatableText("shop.owner", shopBlockEntity.getOwnerName()))
-                    : new TranslatableText("shop.name", shopBlockEntity.getOwnerName());
+                    ? shopBlockEntity.getCustomName().shallowCopy().append(" ").append(new TranslatableText("shop.owner", ownerName))
+                    : new TranslatableText("shop.name", ownerName);
             }
 
             @Override

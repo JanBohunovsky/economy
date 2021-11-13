@@ -92,15 +92,6 @@ public class ShopOffer {
         return this.locked;
     }
 
-    public void unlock() {
-        this.locked = false;
-    }
-
-    public void lock() {
-        this.locked = true;
-    }
-
-    @Deprecated
     public int getSellItemStock() {
         return this.sellItemStock;
     }
@@ -122,15 +113,15 @@ public class ShopOffer {
     }
 
     public boolean update(ShopStorage storage, int emptyStorageSlots) {
-        int newTradesLeft = storage.getItemCount(this.sellItem);
+        int newSellItemStock = storage.getItemCount(this.sellItem);
         int newSpaceForFirst = this.calculateAvailableSpaceFor(this.firstBuyItem, storage, emptyStorageSlots);
         int newSpaceForSecond = this.calculateAvailableSpaceFor(this.secondBuyItem, storage, emptyStorageSlots - 1);
 
-        boolean changed = this.sellItemStock != newTradesLeft
+        boolean changed = this.sellItemStock != newSellItemStock
             || this.availableSpaceForFirstItem != newSpaceForFirst
             || this.availableSpaceForSecondItem != newSpaceForSecond;
 
-        this.sellItemStock = newTradesLeft;
+        this.sellItemStock = newSellItemStock;
         this.availableSpaceForFirstItem = newSpaceForFirst;
         this.availableSpaceForSecondItem = newSpaceForSecond;
 

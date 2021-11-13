@@ -2,10 +2,7 @@ package dev.bohush.economy.client.gui.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.bohush.economy.Economy;
-import dev.bohush.economy.client.gui.widget.OfferListWidget;
-import dev.bohush.economy.client.gui.widget.OfferLockButtonWidget;
-import dev.bohush.economy.client.gui.widget.SmallButtonWidget;
-import dev.bohush.economy.client.gui.widget.ToolbarButtonWidget;
+import dev.bohush.economy.client.gui.widget.*;
 import dev.bohush.economy.screen.ShopOwnerScreenHandler;
 import dev.bohush.economy.shop.ShopOffer;
 import net.fabricmc.api.EnvType;
@@ -60,6 +57,9 @@ public class ShopOfferManagementSubScreen extends HandledSubScreen<ShopOwnerScre
 
         int titleWidth = this.textRenderer.getWidth(this.title);
         this.titleX = inventoryX + (inventoryWidth - titleWidth) / 2;
+
+        int offerStockBarX = inventoryX + (inventoryWidth - OfferStockBarWidget.WIDTH) / 2;
+        this.addDrawableChild(new OfferStockBarWidget(this.x + offerStockBarX, this.y + 17, this.handler::getSelectedOffer));
 
         var offerListWidget = new OfferListWidget(this.x + 7, this.y + 17, true,
             this.handler.shop.getOffers(),

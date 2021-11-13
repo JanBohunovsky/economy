@@ -3,6 +3,7 @@ package dev.bohush.economy.client.gui.screen;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.bohush.economy.Economy;
 import dev.bohush.economy.client.gui.widget.OfferListWidget;
+import dev.bohush.economy.client.gui.widget.OfferStockBarWidget;
 import dev.bohush.economy.screen.ShopCustomerScreenHandler;
 import dev.bohush.economy.shop.ShopOffer;
 import net.fabricmc.api.EnvType;
@@ -34,13 +35,18 @@ public class ShopCustomerScreen extends HandledScreen<ShopCustomerScreenHandler>
     protected void init() {
         super.init();
 
+        int inventoryWidth = 18 * 9;
+        int inventoryX = this.playerInventoryTitleX - 1;
+
         int titleWidth = this.textRenderer.getWidth(this.title);
-        int titleOffset = 101;
-        this.titleX = titleOffset + (this.backgroundWidth - titleOffset - titleWidth) / 2;
+        this.titleX = inventoryX + (inventoryWidth - titleWidth) / 2;
 
         int offersTextWidth = this.textRenderer.getWidth(OFFERS_TEXT);
         int offersOffset = 7;
         this.offersTitleX = offersOffset + (OfferListWidget.BACKGROUND_WIDTH - offersTextWidth) / 2;
+
+        int offerStockBarX = inventoryX + (inventoryWidth - OfferStockBarWidget.WIDTH) / 2;
+        this.addDrawableChild(new OfferStockBarWidget(this.x + offerStockBarX, this.y + 17, this.handler::getSelectedOffer));
 
         var offerListWidget = new OfferListWidget(this.x + 7, this.y + 17, false,
             this.handler.getOffers(),
@@ -103,7 +109,7 @@ public class ShopCustomerScreen extends HandledScreen<ShopCustomerScreenHandler>
 
         // Render tooltip for the middle arrow if the offers is disabled
         if (!this.handler.getOffers().isEmpty()) {
-            ShopOffer offer = this.handler.getSelectedOffer();
+            var offer = this.handler.getSelectedOffer();
 
             if (offer != null && offer.isDisabled() && this.isPointWithinBounds(187, 34, 22, 21, x, y)) {
                 this.renderTooltip(matrices, offer.getDisabledReasonText(), x, y);

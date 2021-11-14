@@ -5,25 +5,24 @@ import dev.bohush.economy.block.entity.ShopBlockEntity;
 import dev.bohush.economy.item.CoinPileItem;
 import dev.bohush.economy.shop.ShopOfferList;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
-import net.minecraft.block.*;
+import net.minecraft.block.BlockRenderType;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.BlockWithEntity;
+import net.minecraft.block.Material;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.BlockSoundGroup;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.*;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -33,11 +32,8 @@ import java.util.List;
 public class ShopBlock extends BlockWithEntity {
     public static final Identifier ID = new Identifier(Economy.MOD_ID, "shop");
 
-    public static final DirectionProperty FACING = HorizontalFacingBlock.FACING;
-
     public ShopBlock() {
         super(FabricBlockSettings.of(Material.WOOD).strength(2.5F).sounds(BlockSoundGroup.WOOD));
-        setDefaultState(getStateManager().getDefaultState().with(FACING, Direction.NORTH));
     }
 
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
@@ -76,11 +72,13 @@ public class ShopBlock extends BlockWithEntity {
         BlockEntity blockEntity = world.getBlockEntity(pos);
         if (blockEntity instanceof ShopBlockEntity shopBlockEntity) {
             shopBlockEntity.initialize(player);
+
             if (itemStack.hasCustomName()) {
                 shopBlockEntity.setCustomName(itemStack.getName());
             }
 
-            shopBlockEntity.spawnVillager((ServerWorld) world);
+            var lookDirection = placer.getHorizontalFacing().getOpposite();
+            shopBlockEntity.spawnVillager((ServerWorld) world, lookDirection);
         }
     }
 
@@ -133,23 +131,5 @@ public class ShopBlock extends BlockWithEntity {
                 tooltip.add(new TranslatableText("container.shulkerBox.more", offers.size() - 4).formatted(Formatting.ITALIC));
             }
         }
-    }
-
-    @Override
-    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(FACING);
-    }
-
-    @Override
-    public BlockState getPlacementState(ItemPlacementContext ctx) {
-        return getDefaultState().with(FACING, ctx.getPlayerFacing().getOpposite());
-    }
-
-    public BlockState rotate(BlockState state, BlockRotation rotation) {
-        return state.with(FACING, rotation.rotate(state.get(FACING)));
-    }
-
-    public BlockState mirror(BlockState state, BlockMirror mirror) {
-        return state.rotate(mirror.getRotation(state.get(FACING)));
     }
 }

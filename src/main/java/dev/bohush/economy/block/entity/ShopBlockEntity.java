@@ -1,6 +1,5 @@
 package dev.bohush.economy.block.entity;
 
-import dev.bohush.economy.block.ShopBlock;
 import dev.bohush.economy.entity.ModEntities;
 import dev.bohush.economy.entity.ShopVillagerEntity;
 import dev.bohush.economy.inventory.ShopStorage;
@@ -29,6 +28,7 @@ import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
@@ -114,7 +114,7 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
         return null;
     }
 
-    public void spawnVillager(ServerWorld world) {
+    public void spawnVillager(ServerWorld world, Direction lookDirection) {
         if (this.villagerUuid != null) {
             this.removeVillager();
         }
@@ -127,7 +127,8 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
 
         villager.setShopPos(this.pos);
 
-        float yaw = world.getBlockState(this.pos).get(ShopBlock.FACING).asRotation();
+        // Set initial rotation
+        float yaw = lookDirection.asRotation();
         villager.setPos(this.pos.getX() + 0.5, this.pos.getY() + 1, this.pos.getZ() + 0.5);
         villager.setYaw(yaw);
         villager.setBodyYaw(yaw);

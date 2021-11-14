@@ -1,12 +1,9 @@
 {
-    "parent": "minecraft:block/cube",
+    "parent": "minecraft:block/cube_bottom_top",
     "textures": {
-        "particle": "minecraft:block/oak_planks",
-        "up": "economy:block/shop_top",
-        "down": "minecraft:block/oak_planks",
-        "north": "economy:block/shop_front",
-        "south": "economy:block/shop_back",
-        "east": "economy:block/shop_side",
-        "west": "economy:block/shop_side"
+        "particle": "minecraft:block/barrel_side",
+        "top": "minecraft:block/barrel_bottom",
+        "side": "minecraft:block/barrel_side",
+        "bottom": "minecraft:block/barrel_bottom"
     }
 }

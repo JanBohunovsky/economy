@@ -1,3 +1,11 @@
 {
-    "parent": "economy:block/shop"
+    "parent": "minecraft:block/cube",
+    "textures": {
+        "up": "minecraft:block/barrel_bottom",
+        "down": "minecraft:block/barrel_bottom",
+        "north": "economy:block/shop_front",
+        "south": "minecraft:block/barrel_side",
+        "west": "minecraft:block/barrel_side",
+        "east": "minecraft:block/barrel_side"
+    }
 }

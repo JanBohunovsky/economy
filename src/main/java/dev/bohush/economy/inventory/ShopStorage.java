@@ -208,11 +208,11 @@ public class ShopStorage implements Inventory {
         int emptySlots = this.getEmptySlotCount();
         int requiredSlots = 0;
 
-        if (CoinPileItem.isCoinPile(stacks)) {
-            return true;
-        }
-
         for (var target : stacks) {
+            if (target.isEmpty() || CoinPileItem.isCoinPile(target)) {
+                continue;
+            }
+
             requiredSlots += Math.ceil(target.getCount() / (double)this.getMaxCountPerStack());
         }
 

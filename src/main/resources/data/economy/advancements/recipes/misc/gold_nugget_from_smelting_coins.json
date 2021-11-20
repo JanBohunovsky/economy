@@ -2,14 +2,14 @@
     "parent": "minecraft:recipes/root",
     "rewards": {
         "recipes": [
-            "economy:shop"
+            "economy:gold_nugget_from_smelting"
         ]
     },
     "criteria": {
         "has_coins": {
             "trigger": "economy:coins_changed",
             "conditions": {
-                "value": {
+                "gold_count": {
                     "min": 1
                 }
             }
@@ -17,7 +17,7 @@
         "has_the_recipe": {
             "trigger": "minecraft:recipe_unlocked",
             "conditions": {
-                "recipe": "economy:shop"
+                "recipe": "economy:gold_nugget_from_smelting"
             }
         }
     },

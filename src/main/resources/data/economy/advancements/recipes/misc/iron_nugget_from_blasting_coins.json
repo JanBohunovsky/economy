@@ -2,14 +2,14 @@
     "parent": "minecraft:recipes/root",
     "rewards": {
         "recipes": [
-            "economy:shop"
+            "economy:iron_nugget_from_blasting"
         ]
     },
     "criteria": {
         "has_coins": {
             "trigger": "economy:coins_changed",
             "conditions": {
-                "value": {
+                "iron_count": {
                     "min": 1
                 }
             }
@@ -17,7 +17,7 @@
         "has_the_recipe": {
             "trigger": "minecraft:recipe_unlocked",
             "conditions": {
-                "recipe": "economy:shop"
+                "recipe": "economy:iron_nugget_from_blasting"
             }
         }
     },

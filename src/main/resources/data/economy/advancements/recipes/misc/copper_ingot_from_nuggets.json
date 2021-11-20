@@ -1,0 +1,34 @@
+{
+    "parent": "minecraft:recipes/root",
+    "rewards": {
+        "recipes": [
+            "economy:copper_ingot_from_nuggets"
+        ]
+    },
+    "criteria": {
+        "has_copper_nugget": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [
+                    {
+                        "items": [
+                            "economy:copper_nugget"
+                        ]
+                    }
+                ]
+            }
+        },
+        "has_the_recipe": {
+            "trigger": "minecraft:recipe_unlocked",
+            "conditions": {
+                "recipe": "economy:copper_ingot_from_nuggets"
+            }
+        }
+    },
+    "requirements": [
+        [
+            "has_copper_nugget",
+            "has_the_recipe"
+        ]
+    ]
+}

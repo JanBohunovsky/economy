@@ -1,5 +1,6 @@
 package dev.bohush.economy;
 
+import dev.bohush.economy.advancement.criterion.ModCriteria;
 import dev.bohush.economy.block.ModBlocks;
 import dev.bohush.economy.block.entity.ModBlockEntities;
 import dev.bohush.economy.entity.ModEntities;
@@ -29,5 +30,7 @@ public class Economy implements ModInitializer {
 
         ModRecipeSerializers.registerRecipeSerializers();
         ModRecipeTypes.registerRecipeTypes();
+
+        ModCriteria.registerCriteria();
 	}
 }

@@ -9,12 +9,10 @@ import dev.bohush.economy.shop.Shop;
 import dev.bohush.economy.shop.ShopOffer;
 import dev.bohush.economy.shop.ShopOfferList;
 import dev.bohush.economy.shop.villager.ShopVillagerStyle;
-import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
@@ -36,7 +34,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.UUID;
 
-public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreenHandlerFactory, BlockEntityClientSerializable {
+public class ShopBlockEntity extends BlockEntityBase implements Shop, ExtendedScreenHandlerFactory {
     private static final Logger LOGGER = LogManager.getLogger();
 
     private final ShopStorage storage;
@@ -305,17 +303,20 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
     }
 
     @Override
-    public NbtCompound toClientTag(NbtCompound tag) {
-        tag.putUuid("Owner", this.ownerUuid);
-        tag.putString("OwnerName", this.ownerName);
+    public void toClientTag(NbtCompound tag) {
+        if (this.ownerUuid != null) {
+            tag.putUuid("Owner", this.ownerUuid);
+        }
+
+        if (this.ownerName != null) {
+            tag.putString("OwnerName", this.ownerName);
+        }
 
         if (this.customName != null) {
             tag.putString("CustomName", Text.Serializer.toJson(this.customName));
         }
 
         tag.put("VillagerStyle", this.villagerStyle.toNbt());
-
-        return tag;
     }
 
     @Override
@@ -338,69 +339,63 @@ public class ShopBlockEntity extends BlockEntity implements Shop, ExtendedScreen
     }
 
     @Override
-    public NbtCompound writeNbt(NbtCompound nbt) {
-        super.writeNbt(nbt);
-
+    public void toTag(NbtCompound tag) {
         if (this.ownerUuid != null) {
-            nbt.putUuid("Owner", this.ownerUuid);
+            tag.putUuid("Owner", this.ownerUuid);
         }
 
         if (this.ownerName != null) {
-            nbt.putString("OwnerName", this.ownerName);
+            tag.putString("OwnerName", this.ownerName);
         }
 
         if (this.customName != null) {
-            nbt.putString("CustomName", Text.Serializer.toJson(this.customName));
+            tag.putString("CustomName", Text.Serializer.toJson(this.customName));
         }
 
-        nbt.put("VillagerStyle", this.villagerStyle.toNbt());
+        tag.put("VillagerStyle", this.villagerStyle.toNbt());
 
         if (this.villagerUuid != null) {
-            nbt.putUuid("AssignedVillager", this.villagerUuid);
+            tag.putUuid("AssignedVillager", this.villagerUuid);
         }
 
         var offers = getOffers();
         if (!offers.isEmpty()) {
-            nbt.put("Offers", offers.toNbt());
+            tag.put("Offers", offers.toNbt());
         }
 
         if (!this.storage.isEmpty() || this.storage.getCoins() > 0) {
-            nbt.put("Storage", this.storage.toNbt());
+            tag.put("Storage", this.storage.toNbt());
         }
-
-        return nbt;
     }
 
     @Override
-    public void readNbt(NbtCompound nbt) {
-        super.readNbt(nbt);
-
-        if (nbt.containsUuid("Owner")) {
-            this.ownerUuid = nbt.getUuid("Owner");
+    public void fromTag(NbtCompound tag) {
+        if (tag.containsUuid("Owner")) {
+            this.ownerUuid = tag.getUuid("Owner");
         }
 
-        if (nbt.contains("OwnerName", NbtElement.STRING_TYPE)) {
-            this.ownerName = nbt.getString("OwnerName");
+        if (tag.contains("OwnerName", NbtElement.STRING_TYPE)) {
+            this.ownerName = tag.getString("OwnerName");
         }
 
-        if (nbt.contains("CustomName", NbtElement.STRING_TYPE)) {
-            this.customName = Text.Serializer.fromJson(nbt.getString("CustomName"));
+        if (tag.contains("CustomName", NbtElement.STRING_TYPE)) {
+            this.customName = Text.Serializer.fromJson(tag.getString("CustomName"));
         }
 
-        if (nbt.contains("VillagerStyle", NbtElement.COMPOUND_TYPE)) {
-            this.villagerStyle = ShopVillagerStyle.fromNbt(nbt.getCompound("VillagerStyle"));
+        if (tag.contains("VillagerStyle", NbtElement.COMPOUND_TYPE)) {
+            this.villagerStyle = ShopVillagerStyle.fromNbt(tag.getCompound("VillagerStyle"));
         }
 
-        if (nbt.containsUuid("AssignedVillager")) {
-            this.villagerUuid = nbt.getUuid("AssignedVillager");
+        if (tag.containsUuid("AssignedVillager")) {
+            this.villagerUuid = tag.getUuid("AssignedVillager");
         }
 
-        if (nbt.contains("Offers", NbtElement.LIST_TYPE)) {
-            this.offers = ShopOfferList.fromNbt(nbt.getList("Offers", NbtElement.COMPOUND_TYPE));
+        if (tag.contains("Offers", NbtElement.LIST_TYPE)) {
+            this.offers = ShopOfferList.fromNbt(tag.getList("Offers", NbtElement.COMPOUND_TYPE));
         }
 
-        if (nbt.contains("Storage", NbtElement.COMPOUND_TYPE)) {
-            this.storage.fromNbt(nbt.getCompound("Storage"));
+        if (tag.contains("Storage", NbtElement.COMPOUND_TYPE)) {
+            this.storage.fromNbt(tag.getCompound("Storage"));
         }
     }
 }

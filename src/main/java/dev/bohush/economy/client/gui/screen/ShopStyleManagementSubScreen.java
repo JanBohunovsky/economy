@@ -213,7 +213,7 @@ public class ShopStyleManagementSubScreen extends HandledSubScreen<ShopOwnerScre
 
     @Override
     public void drawTexture(MatrixStack matrices, int x, int y, int u, int v, int width, int height) {
-        drawTexture(matrices, x, y, this.getZOffset(), u, v, width, height, TEXTURE_HEIGHT, TEXTURE_WIDTH);
+        drawTexture(matrices, x, y, this.getZOffset(), u, v, width, height, TEXTURE_WIDTH, TEXTURE_HEIGHT);
     }
 
     @Override

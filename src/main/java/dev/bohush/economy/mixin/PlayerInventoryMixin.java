@@ -45,7 +45,7 @@ public abstract class PlayerInventoryMixin {
         }
 
         CoinPileItem.incrementValue(slotStack, stack);
-        slotStack.setCooldown(5);
+        slotStack.setBobbingAnimationTime(5);
         cir.setReturnValue(0);
     }
 

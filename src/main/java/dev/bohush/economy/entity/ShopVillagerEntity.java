@@ -95,7 +95,7 @@ public class ShopVillagerEntity extends MobEntity {
 
     @Override
     public boolean isInvulnerableTo(DamageSource damageSource) {
-        return true;
+        return damageSource != DamageSource.OUT_OF_WORLD;
     }
 
     @Override

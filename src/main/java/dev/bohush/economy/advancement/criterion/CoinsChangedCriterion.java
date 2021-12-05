@@ -35,7 +35,7 @@ public class CoinsChangedCriterion extends AbstractCriterion<CoinsChangedCriteri
 
     public void trigger(ServerPlayerEntity player, ItemStack stack) {
         var value = CoinPileItem.getValue(stack);
-        this.test(player, conditions -> conditions.matches(value));
+        this.trigger(player, conditions -> conditions.matches(value));
     }
 
     public static class Conditions extends AbstractCriterionConditions {

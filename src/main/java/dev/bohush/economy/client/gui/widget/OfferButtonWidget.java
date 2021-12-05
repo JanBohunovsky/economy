@@ -98,7 +98,7 @@ public class OfferButtonWidget extends PressableWidget {
             u += 20;
         }
 
-        drawTexture(matrices, this.x + 55, this.y + 4, this.getZOffset(), u, 5, 10, 9, OfferListWidget.TEXTURE_HEIGHT, OfferListWidget.TEXTURE_WIDTH);
+        drawTexture(matrices, this.x + 55, this.y + 4, this.getZOffset(), u, 5, 10, 9, OfferListWidget.TEXTURE_WIDTH, OfferListWidget.TEXTURE_HEIGHT);
     }
 
     @Override

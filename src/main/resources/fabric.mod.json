@@ -4,10 +4,15 @@
     "version": "${version}",
 
     "name": "Economy",
-    "description": "Simple economy mod for UrfRiders server!",
+    "description": "Simple economy mod that adds coins and player shops.",
     "authors": [
         "Bohush"
     ],
+    "contact": {
+        "homepage": "https://bohush.dev/",
+        "issues": "https://github.com/JanBohunovsky/economy/issues",
+        "sources": "https://github.com/JanBohunovsky/economy"
+    },
 
     "license": "MIT",
     "icon": "assets/economy/icon.png",

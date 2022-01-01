@@ -13,6 +13,8 @@
 
     "tooltip.coin_pile.ctrl": "Tip: Hold CTRL to take and place individual coins.",
 
+    "commands.coins.give.success": "Gave %s coins to %s",
+
     "entity.economy.shop_villager": "Shop Villager",
     "block.economy.shop": "Shop",
     "shop.container": "Shop storage",

@@ -241,15 +241,6 @@ public class CoinPileItem extends BasicItem {
     public boolean onStackClicked(ItemStack cursorStack, Slot slot, ClickType clickType, PlayerEntity player) {
         // Right-click on an empty slot = give 1 of the highest coins
         if (!slot.hasStack() && slot.canInsert(cursorStack) && clickType == ClickType.RIGHT) {
-            // while holding control = give the highest coin stack
-            if (Screen.hasControlDown()) {
-                var stack = getHighestCoinStack(cursorStack);
-                decrementValue(cursorStack, stack);
-                slot.setStack(stack);
-
-                return true;
-            }
-
             var cursorValue = getValue(cursorStack);
             var amountToGive = getHighestCoin(cursorValue);
 
@@ -295,31 +286,6 @@ public class CoinPileItem extends BasicItem {
         }
 
         var slotValue = getValue(slotStack);
-
-        // Left-click while holding control = give the highest coin stack
-        // Right-click while holding control = take the highest coin stack
-        if (Screen.hasControlDown()) {
-            if (clickType == ClickType.LEFT && (cursorStack.isEmpty() || isCoinPile(cursorStack))) {
-                var stack = getHighestCoinStack(slotValue);
-                decrementValue(slotStack, stack);
-
-                if (cursorStack.isEmpty()) {
-                    cursorStackReference.set(stack);
-                } else {
-                    incrementValue(cursorStack, stack);
-                }
-
-                return true;
-            }
-
-            if (clickType == ClickType.RIGHT && isCoinPile(cursorStack)) {
-                var stack = getHighestCoinStack(cursorStack);
-                decrementValue(cursorStack, stack);
-                incrementValue(slotStack, stack);
-
-                return true;
-            }
-        }
 
         // Right-click with empty cursor stack = take half
         if (cursorStack.isEmpty()) {
